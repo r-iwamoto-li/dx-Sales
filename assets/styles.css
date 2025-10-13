@@ -201,3 +201,49 @@ body{
   .hero-search{ width:96% }
   .result-grid{ grid-template-columns:1fr }
 }
+/* ===== Hoverで出入りするサイドバー ===== */
+:root{
+  --sidebar-width: 260px;
+  --sidebar-hotzone: 12px;  /* 左端の感知幅 */
+}
+/* 既存の .layout を可変グリッド化（初期＝サイドバー非表示） */
+.layout{
+  grid-template-columns: 0 1fr;               /* ← 隠れている時は全幅 */
+  transition: grid-template-columns .18s ease;
+}
+/* サイドバー自体の状態 */
+.sidebar{
+  width: var(--sidebar-width);
+  overflow: auto;
+  pointer-events: none;                       /* 非表示時は操作不可 */
+  opacity: 0;
+  transition: opacity .12s linear;
+}
+/* 表示状態（bodyにクラス付与） */
+.sidebar-open .layout{
+  grid-template-columns: var(--sidebar-width) 1fr;
+}
+.sidebar-open .sidebar{
+  pointer-events: auto;
+  opacity: 1;
+}
+
+/* 左端の“ホットゾーン”（JSで要素を追加） */
+.edge-hotzone{
+  position: fixed; inset: 56px auto 0 0;      /* ヘッダー下から画面下まで */
+  width: var(--sidebar-hotzone);
+  z-index: 20;
+  /* 見えないがホバー可能に */
+  background: transparent;
+}
+
+/* ホットゾーンに触れている間はカーソルを示唆 */
+.edge-hotzone:hover{ cursor: ew-resize; }
+
+/* モバイルでは常に1カラム。必要に応じてボタン化してもOK */
+@media (max-width: 900px){
+  .layout{ grid-template-columns: 1fr !important; }
+  .sidebar{ position: fixed; left: 0; top: 56px; height: calc(100vh - 56px);
+            box-shadow: 8px 0 24px rgba(0,0,0,.2); }
+  .sidebar-open .layout{ grid-template-columns: 1fr !important; }
+}
