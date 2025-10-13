@@ -162,8 +162,6 @@ body{
   box-shadow:0 4px 18px rgba(16,24,40,.06); position:relative;
 }
 .manual-left{ position:relative }       /* ← タイムラインは使わない */
-.manual-left::after{ content:none !important; display:none !important; } /* ← 残留縦線を完全無効化 */
-.manual-step::after{ content:none !important; display:none !important; } /* ← 旧指定の保険 */
 
 /* 丸番号 */
 .manual-num{
