@@ -1,3 +1,4 @@
+/* ============ Core tokens ============ */
 :root{
   --bg:#0f172a;           /* header/nav 背景 */
   --ink:#0b1220;          /* 本文文字色(濃) */
@@ -14,7 +15,7 @@ body{
   color:var(--ink); background:#f8fafc;
 }
 
-/* Header */
+/* ============ Header ============ */
 .site-header{
   display:flex; align-items:center; gap:.75rem;
   padding:.75rem 1rem; background:var(--bg); color:#fff; position:sticky; top:0; z-index:10;
@@ -22,131 +23,80 @@ body{
 .logo{ font-weight:700 }
 .search{ flex:1; max-width:720px; padding:.6rem .8rem; border-radius:.5rem; border:1px solid #1f2937 }
 
-/* Layout */
+/* ============ 2-column Layout ============ */
 .layout{ display:grid; grid-template-columns:260px 1fr; gap:0; min-height:calc(100vh - 64px) }
 .sidebar{
   background:#111827; color:#e5e7eb; padding:1rem; border-right:1px solid #0b1220;
   position:sticky; top:56px; height:calc(100vh - 56px); overflow:auto;
 }
+.content{ padding:1.25rem 1.5rem }
+
+/* メインメニュー */
 .menu{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.5rem }
 .menu-btn{
   width:100%; text-align:left; padding:.75rem .9rem; border:1px solid transparent; border-radius:.6rem;
   background:#1f2937; color:#e5e7eb; cursor:pointer;
 }
 .menu-btn:hover{ background:#243041 }
-.menu-btn.active{ background:var(--accent); color:#fff }
+.menu-btn.active{ background:var(--accent); color:#fff; box-shadow:0 0 0 1px rgba(255,255,255,.15) inset }
 
-.content{ padding:1.25rem 1.5rem }
+/* サブメニュー（中項目）— 重複を一本化 */
+.menu-item { display:block }
+.submenu{
+  list-style:none; margin:.4rem 0 1rem 0; padding:0 .25rem 0 .25rem; border-left:2px solid #374151;
+}
+.submenu li { margin:.25rem 0 }
+.submenu-link{
+  display:block; padding:.5rem .6rem .5rem .75rem; border-radius:.45rem; text-decoration:none; color:#e5e7eb;
+}
+.submenu-link:hover{ background:#243041; color:#fff }
+.submenu-link.is-current{ background:#243041; color:#fff; }
+
+/* ============ 共通コンポーネント ============ */
 .section-title{ margin:.25rem 0 .25rem; font-size:1.25rem }
 .section-desc{ color:var(--muted); margin:0 0 1rem }
-
-.sub-grid{
-  display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px;
-}
-.sub-card{
-  display:flex; align-items:center; justify-content:space-between;
-  padding:1rem 1rem; background:var(--card); border:1px solid var(--line); border-radius:.8rem;
-  text-decoration:none; color:inherit;
-}
-.sub-card:hover{ border-color:var(--accent); box-shadow:0 2px 10px rgba(0,0,0,.05) }
-.sub-card-title{ font-weight:600 }
-.sub-card-arrow{ font-size:1.25rem }
-
-/* --- 手順ページ共通 --- */
 .breadcrumb{ font-size:.9rem; color:var(--muted); margin:0 0 1rem }
 .page-title{ margin:.2rem 0 .75rem }
 .page-lead{
   background:var(--accent-weak); border:1px solid #bfdbfe; padding:1rem; border-radius:.8rem; margin:0 0 1.25rem;
 }
-
-.step{
-  display:grid; grid-template-columns:160px 1fr; gap:1rem; align-items:start;
-  background:var(--card); border:1px solid var(--line); border-radius:1rem; padding:1rem; margin:0 0 1rem;
-}
-.step-num{
-  display:flex; align-items:center; justify-content:center; width:120px; height:120px;
-  border-radius:.75rem; border:1px dashed var(--line); font-weight:700; font-size:1.25rem;
-  background:#f9fafb;
-}
-.step figure{ margin:0 }
-.step img{ width:100%; height:auto; border:1px solid var(--line); border-radius:.5rem }
-.step-content h3{ margin:.1rem 0 .4rem }
-.step-content p{ margin:.3rem 0 .6rem; line-height:1.7 }
-
 .note{
   padding:.75rem .9rem; border-left:4px solid var(--accent); background:#eef2ff; border-radius:.4rem; margin-top:.5rem;
 }
-
 .kicker{ font-size:.85rem; color:var(--muted) }
-
-/* Footer */
 .site-footer{ color:var(--muted); font-size:.9rem; text-align:center; padding:1rem 0 2rem }
-@media (max-width: 860px){
-  .layout{ grid-template-columns:1fr }
-  .sidebar{ position:static; height:auto }
-  .step{ grid-template-columns:1fr }
-  .step-num{ width:100%; height:56px }
-}
 
-/* --- サブメニュー（中項目） --- */
-.menu-item { display:block }
-.submenu{
-  list-style:none; margin:.4rem 0 1rem 0; padding:0 .25rem 0 .25rem;
-  border-left:2px solid #374151;
-}
-.submenu li { margin:.25rem 0 }
-.submenu-link{
-  display:block; padding:.5rem .6rem .5rem .75rem;
-  border-radius:.45rem; text-decoration:none; color:#e5e7eb; background:transparent;
-}
-.submenu-link:hover{ background:#243041; color:#fff }
-
-/* 既存 .menu-btn.active の視認性を少し上げる（任意） */
-.menu-btn.active{ background:var(--accent); color:#fff; box-shadow:0 0 0 1px rgba(255,255,255,.15) inset }
-/* ===== TOPランディング ===== */
+/* ============ TOP ランディング ============ */
 .hero{
   background: linear-gradient(180deg, rgba(15,23,42,.75), rgba(15,23,42,.65)), url('../assets/sample-step.png') center/cover no-repeat;
-  border-radius: 1rem; height: 180px; display:flex; align-items:center; justify-content:center;
-  margin-bottom: 1rem;
+  border-radius: 1rem; height: 190px; display:flex; align-items:center; justify-content:center; margin-bottom: 1.2rem;
 }
 .hero-search{
-  display:flex; gap:.5rem; background:#fff; border-radius:999px; padding:.5rem; width:min(780px,92%);
+  display:flex; gap:.5rem; background:#fff; border-radius:999px; padding:.5rem; width:min(820px,95%);
   box-shadow: 0 6px 20px rgba(0,0,0,.12);
 }
-.hero-search input{
-  flex:1; border:0; outline:none; font-size:1rem; padding:.6rem 1rem; border-radius:999px;
-}
-.btn-filter{
-  border:1px solid var(--line); border-radius:999px; padding:.6rem 1rem; background:#f3f4f6; cursor:pointer;
-}
+.hero-search input{ flex:1; border:0; outline:none; font-size:1rem; padding:.6rem 1rem; border-radius:999px; }
+.btn-filter{ border:1px solid var(--line); border-radius:999px; padding:.6rem 1rem; background:#f3f4f6; cursor:pointer; }
 .btn-filter:hover{ background:#e5e7eb }
 
-.home-section{ margin-top: 1rem }
+.home-section{ margin-top: 1.2rem }
 .home-h2{ font-size:1rem; margin:.25rem 0 .6rem; color:#111827 }
 
-/* 新着記事リスト */
-.article-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.6rem }
+/* 新着記事 */
+.article-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.7rem }
 .article-item a{
   display:flex; gap:.9rem; align-items:center; padding:.8rem 1rem; background:#fff;
   border:1px solid var(--line); border-radius:.75rem; text-decoration:none; color:inherit;
 }
 .article-item a:hover{ border-color:var(--accent) }
-.thumb{
-  width:44px; height:44px; border-radius:999px; background:#e5e7eb; border:1px solid var(--line);
-}
-.meta .title{ font-weight:600; }
+.thumb{ width:44px; height:44px; border-radius:999px; background:#e5e7eb; border:1px solid var(--line) }
+.meta .title{ font-weight:600 }
 .meta .sub{ color:var(--muted); font-size:.9rem }
 
-/* 人気記事（カテゴリカード） */
-.popular-grid{
-  display:grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap:12px; margin-top:.5rem;
-}
-.pop-card{
-  background:#fff; border:1px solid var(--line); border-radius:.75rem; padding:.5rem .5rem .2rem;
-}
-.pop-head{
-  background:#f3f4f6; border-radius:.5rem; padding:.5rem .7rem; margin:.4rem;
-}
+/* 人気記事 */
+.popular-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap:14px; margin-top:.5rem }
+.pop-card{ background:#fff; border:1px solid var(--line); border-radius:.75rem; padding:.5rem .5rem .2rem }
+.pop-head{ background:#f3f4f6; border-radius:.5rem; padding:.5rem .7rem; margin:.4rem }
 .pop-tag{ font-weight:600; color:#374151 }
 .pop-ol{ margin:.2rem .9rem .6rem 1.4rem; padding:0 }
 .pop-ol li{ margin:.3rem 0 }
@@ -154,411 +104,68 @@ body{
 .pop-ol a:hover{ text-decoration:underline }
 .rank{ display:inline-block; width:1.2rem }
 
-/* サブメニュー（中項目：以前の追記が未適用なら有効化） */
-.menu-item { display:block }
-.submenu{
-  list-style:none; margin:.4rem 0 1rem 0; padding:0 .25rem 0 .25rem;
-  border-left:2px solid #374151;
-}
-.submenu li { margin:.25rem 0 }
-.submenu-link{
-  display:block; padding:.5rem .6rem .5rem .75rem; border-radius:.45rem;
-  text-decoration:none; color:#e5e7eb;
-}
-.submenu-link:hover{ background:#243041; color:#fff }
-.menu-btn.active{ background:var(--accent); color:#fff; box-shadow:0 0 0 1px rgba(255,255,255,.15) inset }
-
-@media (max-width: 860px){
-  .hero{ height:140px }
-  .hero-search{ width:95% }
-}
-/* 検索結果 */
-.result-head{
-  display:flex; align-items:center; justify-content:space-between;
-  margin:.25rem 0 .5rem;
-}
-.btn-clear{
-  border:1px solid var(--line); border-radius:.5rem; padding:.4rem .7rem; background:#fff; cursor:pointer;
-}
+/* ============ 検索結果（カード） ============ */
+#search-results{ margin-top:1.25rem }
+.result-head{ display:flex; align-items:center; justify-content:space-between; margin:.3rem 0 .8rem }
+.btn-clear{ border:1px solid var(--line); border-radius:.55rem; padding:.45rem .8rem; background:#fff; cursor:pointer }
 .btn-clear:hover{ background:#f3f4f6 }
-.result-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.5rem }
-.result-item a{
-  display:block; padding:.9rem 1rem; background:#fff; border:1px solid var(--line);
-  border-radius:.75rem; text-decoration:none; color:inherit;
-}
-.result-item a:hover{ border-color: var(--accent) }
-.result-item .title{ font-weight:700; margin-bottom:.25rem }
-.result-item .snippet{ color:var(--muted); font-size:.92rem }
-.result-item .tags{ margin-top:.25rem; opacity:.9 }
-.result-item .tags span{ font-size:.85rem; margin-right:.35rem }
-.result-empty{ color:var(--muted); padding:.75rem }
-/* ===== 検索結果（タイトルのみ・カード型） ===== */
-#search-results{ margin-top: 1.25rem }
-.result-head{
-  display:flex; align-items:center; justify-content:space-between;
-  margin:.3rem 0 .8rem;
-}
-.btn-clear{
-  border:1px solid var(--line); border-radius:.55rem; padding:.45rem .8rem; background:#fff; cursor:pointer;
-}
-.btn-clear:hover{ background:#f3f4f6 }
-.result-grid{
-  display:grid; gap:12px;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-}
+.result-grid{ display:grid; gap:12px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) }
 .result-card{
   display:block; padding:1rem 1.1rem; text-decoration:none; color:inherit;
-  background:#fff; border:1px solid var(--line); border-radius:.9rem;
-  box-shadow:0 2px 10px rgba(0,0,0,.04);
+  background:#fff; border:1px solid var(--line); border-radius:.9rem; box-shadow:0 2px 10px rgba(0,0,0,.04);
   transition: box-shadow .15s ease, transform .05s ease, border-color .15s ease;
 }
-.result-card:hover{
-  border-color: var(--accent);
-  box-shadow:0 6px 22px rgba(0,0,0,.08);
-  transform: translateY(-1px);
+.result-card:hover{ border-color: var(--accent); box-shadow:0 6px 22px rgba(0,0,0,.08); transform: translateY(-1px) }
+.result-title{ font-weight:700; line-height:1.5 }
+.result-empty{ grid-column:1 / -1; color:var(--muted); background:#fff; border:1px dashed var(--line); border-radius:.8rem; padding:1rem 1.1rem; text-align:center }
+
+/* ============ 旧 .step（レガシー） ============ */
+/* ※ 既存ページで使っている可能性があるため残置。ただし manual と競合しないよう軽めに。 */
+.step{
+  display:grid; grid-template-columns:160px 1fr; gap:1rem; align-items:start;
+  background:var(--card); border:1px solid var(--line); border-radius:1rem; padding:1rem; margin:0 0 1rem;
 }
-.result-title{ font-weight:700; line-height:1.5; }
-.result-empty{
-  grid-column: 1 / -1;
-  color:var(--muted); background:#fff; border:1px dashed var(--line);
-  border-radius:.8rem; padding:1rem 1.1rem; text-align:center;
+.step-num{
+  display:flex; align-items:center; justify-content:center; width:120px; height:120px;
+  border-radius:.75rem; border:1px dashed var(--line); font-weight:700; font-size:1.25rem; background:#f9fafb;
 }
+.step figure{ margin:0 } .step img{ width:100%; height:auto; border:1px solid var(--line); border-radius:.5rem }
+.step-content h3{ margin:.1rem 0 .4rem } .step-content p{ margin:.3rem 0 .6rem; line-height:1.7 }
 
-/* --- 既存ランディングの余白を微調整（視線の逃げを作る） --- */
-.home-section{ margin-top: 1.2rem; }
-.article-list{ gap:.7rem }
-.popular-grid{ gap:14px }
-
-/* ヒーローを少し広く・上下余白を確保 */
-.hero{ height: 190px; margin-bottom: 1.2rem; }
-.hero-search{ width:min(820px,95%); }
-
-/* サブメニュー（未導入環境用の保険） */
-.menu-item { display:block }
-.submenu{
-  list-style:none; margin:.4rem 0 1rem 0; padding:0 .25rem 0 .25rem;
-  border-left:2px solid #374151;
-}
-.submenu li { margin:.25rem 0 }
-.submenu-link{
-  display:block; padding:.5rem .6rem .5rem .75rem; border-radius:.45rem;
-  text-decoration:none; color:#e5e7eb;
-}
-.submenu-link:hover{ background:#243041; color:#fff }
-.menu-btn.active{ background:var(--accent); color:#fff; box-shadow:0 0 0 1px rgba(255,255,255,.15) inset }
-
-@media (max-width: 860px){
-  .hero{ height:150px }
-  .hero-search{ width:96% }
-  .result-grid{ grid-template-columns: 1fr; }
-}
-
-/* ================================
-   Guide pages (scoped)
-   ================================ */
-.guide{ padding-top: .75rem; }
-.guide .page-title{ margin:.2rem 0 .8rem; }
-.guide .page-lead{ margin-bottom: 1.2rem; }
-
-/* ステップ全体 */
-.guide-steps{ display:flex; flex-direction:column; gap:14px; }
-
-/* 1カード */
+/* ============ Guide（独立スコープのまま） ============ */
+.guide{ padding-top:.75rem }
+.guide .page-title{ margin:.2rem 0 .8rem } .guide .page-lead{ margin-bottom:1.2rem }
+.guide-steps{ display:flex; flex-direction:column; gap:14px }
 .guide-step{
-  display:grid;
-  grid-template-columns: 260px 1fr;  /* 左：番号＋画像 / 右：テキスト */
-  gap:18px;
-  align-items:start;
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:12px;
-  padding:16px;
-  position:relative;
+  display:grid; grid-template-columns:260px 1fr; gap:18px; align-items:start;
+  background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; position:relative;
 }
-
-/* 左カラム（番号＋タイムライン＋画像） */
-.guide-left{ position:relative; padding-left: 8px; }
-
-/* タイムラインの縦線（カード間で連続して見えるよう下に伸ばす） */
-.guide-step:not(:last-child) .guide-left::after{
-  content:""; position:absolute; left:22px; top:36px; width:2px; height:calc(100% + 14px);
-  background:#e5e7eb;
-}
-
-/* 番号バッジ */
+.guide-left{ position:relative; padding-left:8px }
 .guide-bullet{
-  width:36px; height:36px; border-radius:999px; background:#fff; border:2px solid var(--accent);
-  color:var(--accent); display:flex; align-items:center; justify-content:center;
-  font-weight:700; margin-left: -2px; /* 線と重ねる */
-  box-shadow: 0 1px 0 rgba(0,0,0,.04);
+  width:36px; height:36px; border-radius:999px; background:#fff; border:2px solid var(--accent); color:var(--accent);
+  display:flex; align-items:center; justify-content:center; font-weight:700; box-shadow:0 1px 0 rgba(0,0,0,.04)
 }
+.guide-figure{ margin:8px 0 0 0 }
+.guide-figure img{ width:100%; max-width:100%; max-height:320px; object-fit:contain; background:#f8fafc; border:1px solid var(--line); border-radius:8px }
+.guide-cap{ margin-top:6px; color:var(--muted) }
+.guide-right h3{ margin:.1rem 0 .35rem } .guide-right p{ margin:.25rem 0 .5rem; line-height:1.8 }
 
-/* 画像（比率がバラバラでも崩れにくい） */
-.guide-figure{ margin:8px 0 0 0; }
-.guide-figure img{
-  width:100%; max-width: 100%; max-height: 320px;
-  object-fit: contain; background:#f8fafc; border:1px solid var(--line); border-radius:8px;
-}
-.guide-cap{ margin-top:6px; color:var(--muted); }
+/* ============ Manual（本番の手順スタイル） ============ */
+.manual{ max-width:1200px; margin:0 auto; padding:1rem 1.25rem 2.25rem }
+.manual .page-title{ margin:.2rem 0 .9rem } .manual .page-lead{ margin-bottom:1.25rem }
+.manual-steps{ display:flex; flex-direction:column; gap:18px }
 
-/* 右カラム（本文） */
-.guide-right h3{ margin:.1rem 0 .35rem; }
-.guide-right p{ margin:.25rem 0 .5rem; line-height:1.8; }
-.guide-note{ margin-top:.3rem; }
-
-/* 余白・読みやすさ微調整 */
-.guide .note{ background:#eef2ff; }
-
-/* モバイル（積み重ね） */
-@media (max-width: 960px){
-  .guide-step{ grid-template-columns: 1fr; }
-  .guide-left::after{ left:18px; }
-  .guide-figure img{ max-height: 260px; }
-}
-/* ===========================
-   手順ページ（manual）
-   =========================== */
-.manual {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding-bottom: 2rem;
-}
-
-/* ステップ全体 */
-.manual-steps {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  margin-top: 1.25rem;
-}
-
-/* 各ステップ */
-.manual-step {
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 24px;
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 20px;
-  align-items: start;
-  position: relative;
-}
-
-/* 左（画像＋番号） */
-.manual-left {
-  position: relative;
-  padding-left: 10px;
-}
-
-/* 縦のライン */
-.manual-step:not(:last-child)::after {
-  content: "";
-  position: absolute;
-  left: 34px;
-  top: calc(40px + 10px);
-  width: 2px;
-  height: calc(100% + 24px);
-  background: var(--line);
-  z-index: 0;
-}
-
-/* 番号バッジ */
-.manual-num {
-  width: 40px;
-  height: 40px;
-  border-radius: 999px;
-  border: 2px solid var(--accent);
-  color: var(--accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  background: #fff;
-  margin-bottom: 12px;
-  z-index: 1;
-  position: relative;
-}
-
-/* 画像 */
-.manual-left figure {
-  margin: 0;
-}
-.manual-left img {
-  width: 100%;
-  max-width: 100%;
-  max-height: 320px;
-  object-fit: contain;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #f8fafc;
-}
-.manual-left figcaption {
-  margin-top: 4px;
-  font-size: 0.9rem;
-  color: var(--muted);
-}
-
-/* 右（テキスト） */
-.manual-right h3 {
-  margin: 0.25rem 0 0.4rem;
-}
-.manual-right p {
-  margin: 0.2rem 0 0.6rem;
-  line-height: 1.8;
-}
-.manual-right .note {
-  background: #eef2ff;
-  border-left: 4px solid var(--accent);
-  padding: 0.6rem 0.8rem;
-  border-radius: 0.4rem;
-}
-
-/* レスポンシブ */
-@media (max-width: 900px) {
-  .manual-step {
-    grid-template-columns: 1fr;
-  }
-  .manual-step:not(:last-child)::after {
-    display: none;
-  }
-  .manual-left img {
-    max-height: 260px;
-  }
-}
-/* ===========================
-   手順ページ（manualスコープ）
-   =========================== */
-.manual { max-width: 1100px; margin: 0 auto; padding: 1rem 1.25rem 2rem; }
-.manual .page-title{ margin:.2rem 0 .8rem; }
-.manual .page-lead{ margin-bottom: 1.2rem; }
-
-/* ステップ一覧 */
-.manual-steps{ display:flex; flex-direction:column; gap:14px; }
-
-/* ステップカード */
+/* カード */
 .manual-step{
-  display:grid; grid-template-columns: 280px 1fr; gap:18px;
-  background:#fff; border:1px solid var(--line); border-radius:12px; padding:16px; align-items:start; position:relative;
+  display:grid; grid-template-columns:360px 1fr; gap:22px;
+  background:#fff; border:1px solid #e6e8ef; border-radius:14px; padding:18px;
+  box-shadow:0 4px 18px rgba(16,24,40,.06); position:relative;
 }
-
-/* 左：番号＋画像 */
-.manual-left{ position:relative; padding-left:10px; }
-.manual-step:not(:last-child) .manual-left::after{
-  content:""; position:absolute; left:26px; top:42px; width:2px; height:calc(100% + 14px); background:var(--line);
-}
-.manual-num{
-  width:36px; height:36px; border-radius:999px; border:2px solid var(--accent); color:var(--accent);
-  display:flex; align-items:center; justify-content:center; font-weight:700; background:#fff; margin-bottom:10px; position:relative; z-index:1;
-}
-.manual-left figure{ margin:0 }
-.manual-left img{
-  width:100%; max-width:100%; max-height:320px; object-fit:contain; background:#f8fafc; border:1px solid var(--line); border-radius:8px;
-}
-.manual-left figcaption{ margin-top:6px; color:var(--muted) }
-
-/* 右：テキスト */
-.manual-right h3{ margin:.1rem 0 .4rem }
-.manual-right p{ margin:.25rem 0 .6rem; line-height:1.8 }
-.manual-right .note{ background:#eef2ff; border-left:4px solid var(--accent); padding:.6rem .8rem; border-radius:.4rem }
-
-/* サイドバーの現在ページ強調 */
-.submenu-link.is-current{
-  background:#243041; color:#fff;
-}
-
-/* レスポンシブ */
-@media (max-width: 960px){
-  .manual-step{ grid-template-columns: 1fr }
-  .manual-left::after{ display:none }
-  .manual-left img{ max-height:260px }
-}
-/* ===========================
-   手順ページ（manualスコープ）
-   =========================== */
-.manual { max-width: 1200px; margin: 0 auto; padding: 1rem 1.25rem 2.25rem; }
-.manual .page-title{ margin:.2rem 0 .9rem; }
-.manual .page-lead{ margin-bottom: 1.25rem; }
-
-/* ステップ一覧 */
-.manual-steps{ display:flex; flex-direction:column; gap:18px; }
-
-/* ステップカード（区切りと質感UP） */
-.manual-step{
-  display:grid; grid-template-columns: 360px 1fr; gap:22px;
-  background:#ffffff; border:1px solid #e6e8ef; border-radius:14px; padding:18px 18px;
-  box-shadow: 0 4px 18px rgba(16,24,40,.06);
-  position:relative; isolation:isolate;
-}
-
-/* タイムライン */
-.manual-left{ position:relative; padding-left:14px; }
-.manual-step:not(:last-child) .manual-left::after{
-  content:""; position:absolute; left:32px; top:52px; width:2px; height:calc(100% + 18px);
-  background:#e5e7eb; z-index:0;
-}
+.manual-left{ position:relative }       /* ← タイムラインは使わない */
+.manual-left::after{ content:none !important; display:none !important; } /* ← 残留縦線を完全無効化 */
+.manual-step::after{ content:none !important; display:none !important; } /* ← 旧指定の保険 */
 
 /* 丸番号 */
-.manual-num{
-  width:38px; height:38px; border-radius:999px; background:#fff;
-  border:2px solid var(--accent); color:var(--accent); font-weight:700;
-  display:flex; align-items:center; justify-content:center; z-index:1; position:relative; box-shadow:0 1px 0 rgba(0,0,0,.04);
-}
-
-/* 統一サイズの画像フレーム */
-.manual-figure{ margin:10px 0 0 0; }
-.manual-figure img{
-  display:block; width:100%; height:220px;            /* ← 高さ固定で統一 */
-  object-fit:contain;                                  /* 枠内でレターボックス表示（トリミングなし） */
-  background:#f8fafc;
-  border:1px solid var(--line); border-radius:10px;
-}
-.manual-cap{ margin-top:6px; color:var(--muted); }
-
-/* 右側テキスト面：見出し・本文・区切り線 */
-.manual-right{
-  display:flex; flex-direction:column; gap:.55rem;
-  border-left:1px dashed #e5e7eb; padding-left:22px;
-}
-.manual-right h3{ margin:.1rem 0 0; font-size:1.15rem; }
-.manual-right p{ margin:0; line-height:1.85; }
-.manual-right .note{
-  background:#eef2ff; border-left:4px solid var(--accent);
-  padding:.65rem .85rem; border-radius:.5rem;
-}
-
-/* サイドバー：現在ページ強調 */
-.submenu-link.is-current{ background:#243041; color:#fff; }
-
-/* レスポンシブ */
-@media (max-width: 1100px){
-  .manual-step{ grid-template-columns: 320px 1fr; }
-}
-@media (max-width: 900px){
-  .manual-step{ grid-template-columns: 1fr; }
-  .manual-left::after{ display:none; }
-  .manual-right{ border-left:0; padding-left:0; }
-}
-/* ===========================
-   手順ページ（manualスコープ）
-   =========================== */
-.manual { max-width: 1200px; margin: 0 auto; padding: 1rem 1.25rem 2.25rem; }
-.manual .page-title{ margin:.2rem 0 .9rem; }
-.manual .page-lead{ margin-bottom: 1.25rem; }
-
-/* ステップ一覧 */
-.manual-steps{ display:flex; flex-direction:column; gap:18px; }
-
-/* ステップカード */
-.manual-step{
-  display:grid; grid-template-columns: 360px 1fr; gap:22px;
-  background:#ffffff; border:1px solid #e6e8ef; border-radius:14px; padding:18px 18px;
-  box-shadow: 0 4px 18px rgba(16,24,40,.06);
-  position:relative;
-}
-
-/* 左：番号＋画像 */
-.manual-left{ position:relative; }
 .manual-num{
   width:38px; height:38px; border-radius:999px; background:#fff;
   border:2px solid var(--accent); color:var(--accent); font-weight:700;
@@ -566,46 +173,33 @@ body{
   margin-bottom:10px;
 }
 
-/* ※ タイムラインの縦線は表示しない（以前の ::after を無効化） */
-.manual-left::after{ display:none !important; content:none !important; }
-
 /* 画像：統一サイズ */
-.manual-figure{ margin:0; }
+.manual-figure{ margin:0 }
 .manual-figure img{
-  display:block; width:100%; height:220px; /* 高さ固定で統一 */
+  display:block; width:100%; height:220px;           /* 高さ固定で統一 */
   object-fit:contain; background:#f8fafc; border:1px solid var(--line); border-radius:10px;
 }
-/* 画像下のコメントは使わない */
-.manual-cap{ display:none; }
+.manual-cap{ display:none }                           /* キャプションは非表示 */
 
-/* 右：縦境界線＋テキスト */
+/* 右：縦境界線＋文字組み */
 .manual-right{
-  border-left:2px solid #e5e7eb;   /* ← 左右を区切る縦線 */
-  padding-left:24px;
+  border-left:2px solid #e5e7eb; padding-left:24px;
   display:flex; flex-direction:column; gap:.55rem;
 }
-.manual-right h3{
-  margin:0;
-  font-size:1.18rem; line-height:1.5; font-weight:700;
-}
-.manual-right .manual-desc{
-  margin:0;
-  color:var(--muted);               /* タイトルとの差を出す */
-  font-size:.98rem; line-height:1.85;
-}
-.manual-right .note{
-  background:#eef2ff; border-left:4px solid var(--accent);
-  padding:.65rem .85rem; border-radius:.5rem;
-}
+.manual-right h3{ margin:0; font-size:1.18rem; line-height:1.5; font-weight:700; }
+.manual-right .manual-desc{ margin:0; color:var(--muted); font-size:.98rem; line-height:1.85 }
+.manual-right .note{ background:#eef2ff; border-left:4px solid var(--accent); padding:.65rem .85rem; border-radius:.5rem }
 
-/* サイドバー：現在ページ強調 */
-.submenu-link.is-current{ background:#243041; color:#fff; }
-
-/* レスポンシブ */
+/* ============ Responsive ============ */
 @media (max-width: 1100px){
-  .manual-step{ grid-template-columns: 320px 1fr; }
+  .manual-step{ grid-template-columns:320px 1fr }
 }
 @media (max-width: 900px){
-  .manual-step{ grid-template-columns: 1fr; }
-  .manual-right{ border-left:0; padding-left:0; }
+  .layout{ grid-template-columns:1fr }
+  .sidebar{ position:static; height:auto }
+  .manual-step{ grid-template-columns:1fr }
+  .manual-right{ border-left:0; padding-left:0 }
+  .hero{ height:150px }
+  .hero-search{ width:96% }
+  .result-grid{ grid-template-columns:1fr }
 }
