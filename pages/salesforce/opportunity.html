@@ -7,72 +7,192 @@
   <link rel="stylesheet" href="../../assets/styles.css" />
 </head>
 <body>
-<header class="site-header">
-  <div class="logo"><a href="../../index.html" style="color:#fff; text-decoration:none;">Sales Ops Manual</a></div>
-  <input class="search" type="search" placeholder="サイト内検索（ダミー）" />
-</header>
+  <header class="site-header">
+    <div class="logo"><a href="../../index.html" style="color:#fff; text-decoration:none;">Sales Ops Manual</a></div>
+    <input class="search" type="search" placeholder="サイト内検索（ダミー）" />
+  </header>
 
-<main class="content manual">
-  <nav class="breadcrumb">
-    <a href="../../index.html">TOP</a> ＞ <span>Salesforce</span> ＞ <span>商談の作成〜フェーズ管理</span>
-  </nav>
+  <!-- ★ index.html と同じ2カラムレイアウトを採用 -->
+  <main class="layout">
+    <!-- 左：常時表示メニュー -->
+    <nav class="sidebar" aria-label="メインメニュー">
+      <ul id="primary-menu" class="menu"></ul>
+    </nav>
 
-  <p class="kicker">SFA：Salesforce</p>
-  <h1 class="page-title">商談の作成〜フェーズ管理</h1>
+    <!-- 右：ページ本文（manualスコープ） -->
+    <section class="content manual">
+      <nav class="breadcrumb">
+        <a href="../../index.html">TOP</a> ＞ <span>Salesforce</span> ＞ <span>商談の作成〜フェーズ管理</span>
+      </nav>
 
-  <div class="page-lead">
-    <strong>概要：</strong> 新規商談の作成から、フェーズ更新、次アクションの登録、クローズまでの運用を解説します。
-  </div>
+      <p class="kicker">SFA：Salesforce</p>
+      <h1 class="page-title">商談の作成〜フェーズ管理</h1>
 
-  <section class="manual-steps">
-    <!-- STEP 1 -->
-    <article class="manual-step">
-      <div class="manual-left">
-        <div class="manual-num">1</div>
-        <figure>
-          <img src="../../assets/sample-step.png" alt="商談タブを開く" />
-          <figcaption class="kicker">［商談］タブ → ［新規］</figcaption>
-        </figure>
+      <div class="page-lead">
+        <strong>概要：</strong> 新規商談の作成から、フェーズ更新、次アクションの登録、クローズまでの運用を解説します。
       </div>
-      <div class="manual-right">
-        <h3>商談タブから新規作成</h3>
-        <p>［商談］タブで［新規］をクリックします。取引先が未作成の場合は先に作成してください。</p>
-        <div class="note">入力規則：商談名は「YYYYMMDD_案件名_顧客名」で統一。</div>
-      </div>
-    </article>
 
-    <!-- STEP 2 -->
-    <article class="manual-step">
-      <div class="manual-left">
-        <div class="manual-num">2</div>
-        <figure>
-          <img src="../../assets/sample-step.png" alt="必須項目の入力" />
-          <figcaption class="kicker">必須フィールドを入力</figcaption>
-        </figure>
-      </div>
-      <div class="manual-right">
-        <h3>基本情報の入力</h3>
-        <p>金額、成立確度、受注予定日、フェーズを入力します。フェーズは定義に沿って選択してください。</p>
-      </div>
-    </article>
+      <section class="manual-steps">
+        <!-- STEP 1 -->
+        <article class="manual-step">
+          <div class="manual-left">
+            <div class="manual-num">1</div>
+            <figure>
+              <img src="../../assets/sample-step.png" alt="商談タブを開く" />
+              <figcaption class="kicker">［商談］タブ → ［新規］</figcaption>
+            </figure>
+          </div>
+          <div class="manual-right">
+            <h3>商談タブから新規作成</h3>
+            <p>［商談］タブで［新規］をクリックします。取引先が未作成の場合は先に作成してください。</p>
+            <div class="note">入力規則：商談名は「YYYYMMDD_案件名_顧客名」で統一。」</div>
+          </div>
+        </article>
 
-    <!-- STEP 3 -->
-    <article class="manual-step">
-      <div class="manual-left">
-        <div class="manual-num">3</div>
-        <figure>
-          <img src="../../assets/sample-step.png" alt="活動の登録" />
-          <figcaption class="kicker">活動・ToDo を紐付け</figcaption>
-        </figure>
-      </div>
-      <div class="manual-right">
-        <h3>次アクションの登録</h3>
-        <p>打ち合わせ・電話・メール等の活動を登録し、期日と担当者を設定します。</p>
-      </div>
-    </article>
-  </section>
+        <!-- STEP 2 -->
+        <article class="manual-step">
+          <div class="manual-left">
+            <div class="manual-num">2</div>
+            <figure>
+              <img src="../../assets/sample-step.png" alt="必須項目の入力" />
+              <figcaption class="kicker">必須フィールドを入力</figcaption>
+            </figure>
+          </div>
+          <div class="manual-right">
+            <h3>基本情報の入力</h3>
+            <p>金額、成立確度、受注予定日、フェーズを入力します。フェーズは定義に沿って選択してください。</p>
+          </div>
+        </article>
 
-  <footer class="site-footer">© <script>document.write(new Date().getFullYear())</script> Link innovation</footer>
-</main>
+        <!-- STEP 3 -->
+        <article class="manual-step">
+          <div class="manual-left">
+            <div class="manual-num">3</div>
+            <figure>
+              <img src="../../assets/sample-step.png" alt="活動の登録" />
+              <figcaption class="kicker">活動・ToDo を紐付け</figcaption>
+            </figure>
+          </div>
+          <div class="manual-right">
+            <h3>次アクションの登録</h3>
+            <p>打ち合わせ・電話・メール等の活動を登録し、期日と担当者を設定します。</p>
+          </div>
+        </article>
+      </section>
+
+      <footer class="site-footer">© <script>document.write(new Date().getFullYear())</script> Link innovation</footer>
+    </section>
+  </main>
+
+  <!-- 左メニュー用スクリプト（index.html と同等。必要最小限） -->
+  <script>
+    // ナビデータ（index.html と同一に保つ）
+    const NAV = [
+      {
+        id: "salesforce", label: "SFA：Salesforce",
+        items: [
+          { label: "はじめに（運用方針）", href: "../salesforce/intro.html" },
+          { label: "取引先・取引先責任者の登録", href: "../salesforce/account-contact.html" },
+          { label: "商談の作成〜フェーズ管理", href: "../salesforce/opportunity.html" },
+          { label: "レポート／ダッシュボード", href: "../salesforce/report.html" },
+          { label: "活動・ToDo・Chatter", href: "../salesforce/activity.html" },
+        ]
+      },
+      {
+        id: "sansan", label: "CRM：Sansan",
+        items: [
+          { label: "はじめに（基本操作）", href: "../sansan/intro.html" },
+          { label: "名刺の取り込みと表記統一", href: "../sansan/import-normalize.html" },
+          { label: "人物統合と重複解消", href: "../sansan/merge.html" },
+          { label: "タグ付けと共有", href: "../sansan/tag-share.html" },
+          { label: "Salesforce連携", href: "../sansan/sf-sync.html" },
+        ]
+      },
+      {
+        id: "accountengagement", label: "MA：Account Engagement",
+        items: [
+          { label: "はじめに（概念整理）", href: "../ae/intro.html" },
+          { label: "フォーム／LPの作成", href: "../ae/forms-landing.html" },
+          { label: "スコアリング／グレーディング", href: "../ae/scoring-grading.html" },
+          { label: "オートメーション／エンゲージメント", href: "../ae/engagement.html" },
+          { label: "Salesforce連携・同期", href: "../ae/sf-integration.html" },
+        ]
+      },
+      {
+        id: "getting-started", label: "共通：初期セットアップ",
+        items: [
+          { label: "アカウント発行フロー", href: "../common/accounts.html" },
+          { label: "権限・ロールの考え方", href: "../common/roles.html" },
+          { label: "命名規則とID体系", href: "../common/naming.html" },
+          { label: "連携マップ（全体像）", href: "../common/integration-map.html" },
+          { label: "トラブルシュートの基本", href: "../common/troubleshoot.html" },
+        ]
+      },
+      {
+        id: "governance", label: "共通：データガバナンス",
+        items: [
+          { label: "重複チェックの運用", href: "../common/dedupe.html" },
+          { label: "項目設計ガイド", href: "../common/field-design.html" },
+          { label: "データ品質監視", href: "../common/data-quality.html" },
+          { label: "匿名化・削除ポリシー", href: "../common/privacy.html" },
+          { label: "変更申請フロー", href: "../common/change-request.html" },
+        ]
+      },
+      {
+        id: "faq", label: "FAQ／ベストプラクティス",
+        items: [
+          { label: "パーミッションで詰まったら", href: "../faq/permissions.html" },
+          { label: "レポート設計のコツ", href: "../faq/reporting-tips.html" },
+          { label: "名寄せの落とし穴", href: "../faq/merge-pitfalls.html" },
+          { label: "MAとSFAの同期遅延", href: "../faq/sync-latency.html" },
+          { label: "問い合わせ先", href: "../faq/contact.html" },
+        ]
+      },
+    ];
+
+    const primaryMenu = document.getElementById('primary-menu');
+    // メニュー描画（大項目 + 中項目を展開）
+    NAV.forEach((s) => {
+      const li = document.createElement('li');
+      li.className = 'menu-item';
+      li.innerHTML = `
+        <button class="menu-btn" data-id="${s.id}">${s.label}</button>
+        <ul class="submenu" data-parent="${s.id}" hidden></ul>
+      `;
+      primaryMenu.appendChild(li);
+    });
+
+    function openSubmenu(id) {
+      document.querySelectorAll('.submenu').forEach(ul => { ul.hidden = true; ul.innerHTML=''; });
+      document.querySelectorAll('.menu-btn').forEach(b => b.classList.toggle('active', b.dataset.id === id));
+      const sec = NAV.find(s => s.id === id); if (!sec) return;
+      const holder = document.querySelector(`.submenu[data-parent="${id}"]`);
+      sec.items.forEach(item => {
+        const li = document.createElement('li');
+        li.innerHTML = `<a class="submenu-link" href="${item.href}">${item.label}</a>`;
+        holder.appendChild(li);
+      });
+      holder.hidden = false;
+    }
+
+    // クリックで開閉
+    primaryMenu.addEventListener('click', (e) => {
+      if (!e.target.matches('.menu-btn')) return;
+      const id = e.target.dataset.id;
+      const isActive = e.target.classList.contains('active');
+      if (isActive) {
+        document.querySelector(`.submenu[data-parent="${id}"]`).hidden = true;
+        e.target.classList.remove('active');
+      } else {
+        openSubmenu(id);
+      }
+    });
+
+    // ★ このページの所属（salesforce）を初期展開 & 現在ページを強調
+    openSubmenu('salesforce');
+    // 現在URLに一致するリンクへクラス付与（任意）
+    const here = [...document.querySelectorAll('.submenu-link')].find(a => a.getAttribute('href')?.endsWith('/opportunity.html'));
+    if (here) here.classList.add('is-current');
+  </script>
 </body>
 </html>
