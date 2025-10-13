@@ -252,3 +252,66 @@ body{
   .hero-search{ width:96% }
   .result-grid{ grid-template-columns: 1fr; }
 }
+
+/* ================================
+   Guide pages (scoped)
+   ================================ */
+.guide{ padding-top: .75rem; }
+.guide .page-title{ margin:.2rem 0 .8rem; }
+.guide .page-lead{ margin-bottom: 1.2rem; }
+
+/* ステップ全体 */
+.guide-steps{ display:flex; flex-direction:column; gap:14px; }
+
+/* 1カード */
+.guide-step{
+  display:grid;
+  grid-template-columns: 260px 1fr;  /* 左：番号＋画像 / 右：テキスト */
+  gap:18px;
+  align-items:start;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:16px;
+  position:relative;
+}
+
+/* 左カラム（番号＋タイムライン＋画像） */
+.guide-left{ position:relative; padding-left: 8px; }
+
+/* タイムラインの縦線（カード間で連続して見えるよう下に伸ばす） */
+.guide-step:not(:last-child) .guide-left::after{
+  content:""; position:absolute; left:22px; top:36px; width:2px; height:calc(100% + 14px);
+  background:#e5e7eb;
+}
+
+/* 番号バッジ */
+.guide-bullet{
+  width:36px; height:36px; border-radius:999px; background:#fff; border:2px solid var(--accent);
+  color:var(--accent); display:flex; align-items:center; justify-content:center;
+  font-weight:700; margin-left: -2px; /* 線と重ねる */
+  box-shadow: 0 1px 0 rgba(0,0,0,.04);
+}
+
+/* 画像（比率がバラバラでも崩れにくい） */
+.guide-figure{ margin:8px 0 0 0; }
+.guide-figure img{
+  width:100%; max-width: 100%; max-height: 320px;
+  object-fit: contain; background:#f8fafc; border:1px solid var(--line); border-radius:8px;
+}
+.guide-cap{ margin-top:6px; color:var(--muted); }
+
+/* 右カラム（本文） */
+.guide-right h3{ margin:.1rem 0 .35rem; }
+.guide-right p{ margin:.25rem 0 .5rem; line-height:1.8; }
+.guide-note{ margin-top:.3rem; }
+
+/* 余白・読みやすさ微調整 */
+.guide .note{ background:#eef2ff; }
+
+/* モバイル（積み重ね） */
+@media (max-width: 960px){
+  .guide-step{ grid-template-columns: 1fr; }
+  .guide-left::after{ left:18px; }
+  .guide-figure img{ max-height: 260px; }
+}
