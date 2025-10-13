@@ -7,192 +7,205 @@
   <link rel="stylesheet" href="assets/styles.css" />
 </head>
 <body>
-  <header class="site-header">
-    <div class="logo">Sales Ops Manual</div>
-    <input id="global-search" class="search" type="search" placeholder="キーワードを入力してください" />
-  </header>
+<header class="site-header">
+  <div class="logo">Sales Ops Manual</div>
+  <input id="global-search" class="search" type="search" placeholder="キーワードを入力してください" />
+</header>
 
-  <main class="layout">
-    <!-- 左：第1階層（クリックで直下に第2階層が展開） -->
-    <nav class="sidebar" aria-label="メインメニュー">
-      <ul id="primary-menu" class="menu"></ul>
-    </nav>
+<main class="layout">
+  <!-- 左：大項目 → 直下に中項目（アコーディオン表示） -->
+  <nav class="sidebar" aria-label="メインメニュー">
+    <ul id="primary-menu" class="menu"></ul>
+  </nav>
 
-    <!-- 右：初期は説明＋おすすめ。大項目選択後はセクションの概要だけ表示 -->
-    <section class="content">
-      <!-- 初期のウェルカム -->
-      <div id="welcome">
-        <h1 class="section-title">営業支援マニュアルへようこそ</h1>
-        <p class="section-desc">
-          ここは SFA（Salesforce）・CRM（Sansan）・MA（Account Engagement）の運用手順を統合したポータルです。
-          左のメニューからツール／カテゴリを選ぶと、直下に手順カテゴリ（中項目）が表示されます。
-        </p>
-
-        <div class="page-lead">
-          <strong>まずは：</strong>「共通：初期セットアップ」→「連携マップ（全体像）」を見ると全体把握がスムーズです。
-        </div>
-
-        <h2 class="section-title" style="margin-top:1.25rem;">おすすめトピックス</h2>
-        <div class="sub-grid">
-          <a class="sub-card" href="pages/common/integration-map.html"><div class="sub-card-title">連携マップ（全体像）</div><div class="sub-card-arrow">→</div></a>
-          <a class="sub-card" href="pages/salesforce/report.html"><div class="sub-card-title">Salesforce：レポート／ダッシュボード</div><div class="sub-card-arrow">→</div></a>
-          <a class="sub-card" href="pages/sansan/sf-sync.html"><div class="sub-card-title">Sansan × Salesforce 連携</div><div class="sub-card-arrow">→</div></a>
-          <a class="sub-card" href="pages/ae/engagement.html"><div class="sub-card-title">MA：エンゲージメントプログラム</div><div class="sub-card-arrow">→</div></a>
-        </div>
+  <!-- 右：常にランディング（添付イメージ風） -->
+  <section class="content">
+    <!-- HERO（大きい検索フィールドと絞り込み） -->
+    <div class="hero">
+      <div class="hero-search">
+        <input type="search" placeholder="キーワードを入力して下さい" aria-label="サイト内検索" />
+        <button class="btn-filter" type="button">絞り込み</button>
       </div>
+    </div>
 
-      <!-- 大項目選択後の説明（中項目は左に展開されるため右側は概要のみ） -->
-      <div id="section-info" style="display:none;">
-        <h1 id="section-title" class="section-title"></h1>
-        <p id="section-desc" class="section-desc"></p>
-        <div class="note">中項目は左メニューの大項目の下に表示されています。手順ページを選んでください。</div>
+    <!-- 新着記事 -->
+    <section class="home-section">
+      <h2 class="home-h2">新着記事</h2>
+      <ul class="article-list" id="latest-list">
+        <!-- JSでダミーデータ投入。運用時はビルドや手動更新でOK -->
+      </ul>
+    </section>
+
+    <!-- 人気記事（カテゴリごとにランキング） -->
+    <section class="home-section">
+      <h2 class="home-h2">人気記事</h2>
+      <div class="popular-grid" id="popular-grid">
+        <!-- JSでカードを生成 -->
       </div>
     </section>
-  </main>
+  </section>
+</main>
 
-  <footer class="site-footer">© <span id="y"></span> Link innovation</footer>
+<footer class="site-footer">© <span id="y"></span> Link innovation</footer>
 
-  <script>
-    // --- データ定義 ---
-    const NAV = [
-      {
-        id: "salesforce",
-        label: "SFA：Salesforce",
-        desc: "商談管理・取引先・活動記録の運用手順",
-        items: [
-          { label: "はじめに（運用方針）", href: "pages/salesforce/intro.html" },
-          { label: "取引先・取引先責任者の登録", href: "pages/salesforce/account-contact.html" },
-          { label: "商談の作成〜フェーズ管理", href: "pages/salesforce/opportunity.html" },
-          { label: "レポート／ダッシュボード", href: "pages/salesforce/report.html" },
-          { label: "活動・ToDo・Chatter", href: "pages/salesforce/activity.html" },
-        ]
-      },
-      {
-        id: "sansan",
-        label: "CRM：Sansan",
-        desc: "名刺管理・人物統合・連携の運用手順",
-        items: [
-          { label: "はじめに（基本操作）", href: "pages/sansan/intro.html" },
-          { label: "名刺の取り込みと表記統一", href: "pages/sansan/import-normalize.html" },
-          { label: "人物統合と重複解消", href: "pages/sansan/merge.html" },
-          { label: "タグ付けと共有", href: "pages/sansan/tag-share.html" },
-          { label: "Salesforce連携", href: "pages/sansan/sf-sync.html" },
-        ]
-      },
-      {
-        id: "accountengagement",
-        label: "MA：Account Engagement",
-        desc: "フォーム・スコアリング・ナーチャリングの手順",
-        items: [
-          { label: "はじめに（概念整理）", href: "pages/ae/intro.html" },
-          { label: "フォーム／LPの作成", href: "pages/ae/forms-landing.html" },
-          { label: "スコアリング／グレーディング", href: "pages/ae/scoring-grading.html" },
-          { label: "オートメーション／エンゲージメント", href: "pages/ae/engagement.html" },
-          { label: "Salesforce連携・同期", href: "pages/ae/sf-integration.html" },
-        ]
-      },
-      {
-        id: "getting-started",
-        label: "共通：初期セットアップ",
-        desc: "アカウント発行・権限・環境準備",
-        items: [
-          { label: "アカウント発行フロー", href: "pages/common/accounts.html" },
-          { label: "権限・ロールの考え方", href: "pages/common/roles.html" },
-          { label: "命名規則とID体系", href: "pages/common/naming.html" },
-          { label: "連携マップ（全体像）", href: "pages/common/integration-map.html" },
-          { label: "トラブルシュートの基本", href: "pages/common/troubleshoot.html" },
-        ]
-      },
-      {
-        id: "governance",
-        label: "共通：データガバナンス",
-        desc: "重複排除・クレンジング・監査",
-        items: [
-          { label: "重複チェックの運用", href: "pages/common/dedupe.html" },
-          { label: "項目設計ガイド", href: "pages/common/field-design.html" },
-          { label: "データ品質監視", href: "pages/common/data-quality.html" },
-          { label: "匿名化・削除ポリシー", href: "pages/common/privacy.html" },
-          { label: "変更申請フロー", href: "pages/common/change-request.html" },
-        ]
-      },
-      {
-        id: "faq",
-        label: "FAQ／ベストプラクティス",
-        desc: "よくある質問・運用Tips",
-        items: [
-          { label: "パーミッションで詰まったら", href: "pages/faq/permissions.html" },
-          { label: "レポート設計のコツ", href: "pages/faq/reporting-tips.html" },
-          { label: "名寄せの落とし穴", href: "pages/faq/merge-pitfalls.html" },
-          { label: "MAとSFAの同期遅延", href: "pages/faq/sync-latency.html" },
-          { label: "問い合わせ先", href: "pages/faq/contact.html" },
-        ]
-      },
-    ];
+<script>
+  // --- 左メニュー用データ ---
+  const NAV = [
+    {
+      id: "salesforce", label: "SFA：Salesforce",
+      items: [
+        { label: "はじめに（運用方針）", href: "pages/salesforce/intro.html" },
+        { label: "取引先・取引先責任者の登録", href: "pages/salesforce/account-contact.html" },
+        { label: "商談の作成〜フェーズ管理", href: "pages/salesforce/opportunity.html" },
+        { label: "レポート／ダッシュボード", href: "pages/salesforce/report.html" },
+        { label: "活動・ToDo・Chatter", href: "pages/salesforce/activity.html" },
+      ]
+    },
+    {
+      id: "sansan", label: "CRM：Sansan",
+      items: [
+        { label: "はじめに（基本操作）", href: "pages/sansan/intro.html" },
+        { label: "名刺の取り込みと表記統一", href: "pages/sansan/import-normalize.html" },
+        { label: "人物統合と重複解消", href: "pages/sansan/merge.html" },
+        { label: "タグ付けと共有", href: "pages/sansan/tag-share.html" },
+        { label: "Salesforce連携", href: "pages/sansan/sf-sync.html" },
+      ]
+    },
+    {
+      id: "accountengagement", label: "MA：Account Engagement",
+      items: [
+        { label: "はじめに（概念整理）", href: "pages/ae/intro.html" },
+        { label: "フォーム／LPの作成", href: "pages/ae/forms-landing.html" },
+        { label: "スコアリング／グレーディング", href: "pages/ae/scoring-grading.html" },
+        { label: "オートメーション／エンゲージメント", href: "pages/ae/engagement.html" },
+        { label: "Salesforce連携・同期", href: "pages/ae/sf-integration.html" },
+      ]
+    },
+    {
+      id: "getting-started", label: "共通：初期セットアップ",
+      items: [
+        { label: "アカウント発行フロー", href: "pages/common/accounts.html" },
+        { label: "権限・ロールの考え方", href: "pages/common/roles.html" },
+        { label: "命名規則とID体系", href: "pages/common/naming.html" },
+        { label: "連携マップ（全体像）", href: "pages/common/integration-map.html" },
+        { label: "トラブルシュートの基本", href: "pages/common/troubleshoot.html" },
+      ]
+    },
+    {
+      id: "governance", label: "共通：データガバナンス",
+      items: [
+        { label: "重複チェックの運用", href: "pages/common/dedupe.html" },
+        { label: "項目設計ガイド", href: "pages/common/field-design.html" },
+        { label: "データ品質監視", href: "pages/common/data-quality.html" },
+        { label: "匿名化・削除ポリシー", href: "pages/common/privacy.html" },
+        { label: "変更申請フロー", href: "pages/common/change-request.html" },
+      ]
+    },
+    {
+      id: "faq", label: "FAQ／ベストプラクティス",
+      items: [
+        { label: "パーミッションで詰まったら", href: "pages/faq/permissions.html" },
+        { label: "レポート設計のコツ", href: "pages/faq/reporting-tips.html" },
+        { label: "名寄せの落とし穴", href: "pages/faq/merge-pitfalls.html" },
+        { label: "MAとSFAの同期遅延", href: "pages/faq/sync-latency.html" },
+        { label: "問い合わせ先", href: "pages/faq/contact.html" },
+      ]
+    },
+  ];
 
-    const primaryMenu = document.getElementById('primary-menu');
-    const sectionInfo  = document.getElementById('section-info');
-    const welcome      = document.getElementById('welcome');
-    const sectionTitle = document.getElementById('section-title');
-    const sectionDesc  = document.getElementById('section-desc');
+  // --- 右側：ダミーの新着＆人気データ（運用に合わせて差し替え） ---
+  const LATEST = [
+    { title: "日報の書き方", date: "2025.03.23", tag:"全社", href:"pages/faq/reporting-tips.html" },
+    { title: "電話対応", date: "2025.03.27", tag:"営業部", href:"pages/faq/permissions.html" },
+    { title: "全社MTG資料", date: "2025.03.19", tag:"資料", href:"pages/common/integration-map.html" },
+  ];
+  const POPULAR = [
+    { cat:"全社", items:[
+      { title:"新入社員マニュアル", href:"pages/common/accounts.html" },
+      { title:"名刺交換", href:"pages/sansan/intro.html" },
+      { title:"日報の書き方", href:"pages/faq/reporting-tips.html" },
+    ]},
+    { cat:"営業部", items:[
+      { title:"電話対応", href:"pages/faq/permissions.html" },
+      { title:"メール設定", href:"pages/ae/forms-landing.html" },
+      { title:"支払いについて", href:"pages/common/privacy.html" },
+    ]}
+  ];
 
-    // 大項目を描画（中項目コンテナを各<li>の後に用意）
-    NAV.forEach((s) => {
+  const primaryMenu = document.getElementById('primary-menu');
+
+  // 大項目＋サブメニュー（中項目）描画
+  NAV.forEach((s) => {
+    const li = document.createElement('li');
+    li.className = 'menu-item';
+    li.innerHTML = `
+      <button class="menu-btn" data-id="${s.id}">${s.label}</button>
+      <ul class="submenu" data-parent="${s.id}" hidden></ul>
+    `;
+    primaryMenu.appendChild(li);
+  });
+
+  function openSubmenu(id) {
+    // すべて畳む
+    document.querySelectorAll('.submenu').forEach(ul => { ul.hidden = true; ul.innerHTML=''; });
+    document.querySelectorAll('.menu-btn').forEach(b => b.classList.toggle('active', b.dataset.id === id));
+
+    const sec = NAV.find(s => s.id === id);
+    if (!sec) return;
+    const holder = document.querySelector(`.submenu[data-parent="${id}"]`);
+    sec.items.forEach(item => {
       const li = document.createElement('li');
-      li.className = 'menu-item';
-      li.innerHTML = `
-        <button class="menu-btn" data-id="${s.id}">${s.label}</button>
-        <ul class="submenu" data-parent="${s.id}" hidden></ul>
-      `;
-      primaryMenu.appendChild(li);
+      li.innerHTML = `<a class="submenu-link" href="${item.href}">${item.label}</a>`;
+      holder.appendChild(li);
     });
+    holder.hidden = false;
+  }
 
-    // 中項目（サブメニュー）を描画
-    function renderSubmenu(id) {
-      // いったん全て畳む
-      document.querySelectorAll('.submenu').forEach(ul => {
-        ul.hidden = true; ul.innerHTML = '';
-      });
-      document.querySelectorAll('.menu-btn').forEach(b => {
-        b.classList.toggle('active', b.dataset.id === id);
-      });
-
-      const sec = NAV.find(s => s.id === id);
-      if (!sec) return;
-
-      const holder = document.querySelector(`.submenu[data-parent="${id}"]`);
-      sec.items.forEach(item => {
-        const li = document.createElement('li');
-        li.innerHTML = `<a class="submenu-link" href="${item.href}">${item.label}</a>`;
-        holder.appendChild(li);
-      });
-      holder.hidden = false;
-
-      // 右側は概要のみ表示
-      welcome.style.display = 'none';
-      sectionInfo.style.display = '';
-      sectionTitle.textContent = sec.label;
-      sectionDesc.textContent  = sec.desc;
+  primaryMenu.addEventListener('click', (e) => {
+    if (!e.target.matches('.menu-btn')) return;
+    const id = e.target.dataset.id;
+    const isActive = e.target.classList.contains('active');
+    if (isActive) {
+      // 閉じる
+      document.querySelector(`.submenu[data-parent="${id}"]`).hidden = true;
+      e.target.classList.remove('active');
+    } else {
+      openSubmenu(id);
     }
+    // 右側は常にランディングのまま（変更なし）
+  });
 
-    // クリック動作
-    primaryMenu.addEventListener('click', (e) => {
-      if (e.target.matches('.menu-btn')) {
-        const id = e.target.dataset.id;
-        const isActive = e.target.classList.contains('active');
-        if (isActive) {
-          // 既に開いている場合は閉じる＝初期画面へ
-          document.querySelector(`.submenu[data-parent="${id}"]`).hidden = true;
-          e.target.classList.remove('active');
-          welcome.style.display = '';
-          sectionInfo.style.display = 'none';
-        } else {
-          renderSubmenu(id);
-        }
-      }
-    });
+  // 新着リスト投入
+  const latestList = document.getElementById('latest-list');
+  LATEST.forEach(a => {
+    const li = document.createElement('li');
+    li.className = 'article-item';
+    li.innerHTML = `
+      <a href="${a.href}">
+        <div class="thumb" aria-hidden="true"></div>
+        <div class="meta">
+          <div class="title">${a.title}</div>
+          <div class="sub"><span class="date">${a.date}</span>・<span class="tag">${a.tag}</span></div>
+        </div>
+      </a>`;
+    latestList.appendChild(li);
+  });
 
-    // 初期：未選択（ウェルカム表示）
-    document.getElementById('y').textContent = new Date().getFullYear();
-  </script>
+  // 人気記事（カテゴリ別カード）
+  const popularGrid = document.getElementById('popular-grid');
+  POPULAR.forEach(block => {
+    const card = document.createElement('div');
+    card.className = 'pop-card';
+    card.innerHTML = `
+      <div class="pop-head"><span class="pop-tag"> ${block.cat} </span></div>
+      <ol class="pop-ol">
+        ${block.items.map((it,i)=>`<li><a href="${it.href}"><span class="rank">${i+1}.</span> ${it.title}</a></li>`).join('')}
+      </ol>
+    `;
+    popularGrid.appendChild(card);
+  });
+
+  document.getElementById('y').textContent = new Date().getFullYear();
+</script>
 </body>
 </html>
