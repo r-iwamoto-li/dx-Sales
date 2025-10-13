@@ -206,14 +206,15 @@
   });
 
   document.getElementById('y').textContent = new Date().getFullYear();
-  // ===== 検索UI：DOM参照（既存の検索バーにidを振ってください） =====
-  const searchInput  = document.getElementById('global-search'); // 既存headerの検索
-  // ヒーロー検索にも id 付与している場合は片方を使い回しでOK
-  // <input id="hero-search-input"> <button id="hero-filter-btn">
+
+  <script>
+  // ...（既存の NAV / LATEST / POPULAR / 左メニュー描画はそのまま）...
+
+  // ===== 検索UI =====
+  const searchInput  = document.getElementById('global-search');
   const heroBox = document.querySelector('.hero-search input');
   const heroBtn = document.querySelector('.btn-filter');
 
-  // 結果描画先（右カラムに結果ボックスを動的追加）
   const contentEl = document.querySelector('.content');
   let resultBox = null;
   function ensureResultBox(){
@@ -221,37 +222,46 @@
     resultBox = document.createElement('section');
     resultBox.id = 'search-results';
     resultBox.className = 'home-section';
-    resultBox.innerHTML = `<h2 class="home-h2">検索結果</h2><div class="result-head"><span id="result-count"></span><button id="clear-search" class="btn-clear" type="button">クリア</button></div><ul class="result-list"></ul>`;
+    resultBox.innerHTML = `
+      <div class="result-wrap">
+        <div class="result-header">
+          <h2 class="home-h2">検索結果</h2>
+          <div class="result-actions">
+            <span id="result-count" class="result-count"></span>
+            <button id="clear-search" class="btn-clear" type="button">クリア</button>
+          </div>
+        </div>
+        <div class="result-grid" role="list"></div>
+      </div>`;
     contentEl.prepend(resultBox);
     document.getElementById('clear-search').addEventListener('click', clearSearch);
     return resultBox;
   }
 
-  let SEARCH_INDEX = null;  // 初回だけ取得してキャッシュ
+  let SEARCH_INDEX = null;
   async function loadIndex(){
     if (SEARCH_INDEX) return SEARCH_INDEX;
-    const res = await fetch('search-index.json', {cache: 'no-store'});
+    const res = await fetch('search-index.json', {cache:'no-store'});
     SEARCH_INDEX = await res.json();
     return SEARCH_INDEX;
   }
 
+  // タイトル＋タグのみで検索（body不要）
   function tokenize(q){ return q.trim().toLowerCase().split(/\s+/).filter(Boolean); }
-
   function searchDocs(index, query){
     const tokens = tokenize(query);
     if (!tokens.length) return [];
-    // ANDマッチ（全トークンがいずれかのフィールドに含まれる）
     return index
       .map(doc => {
-        const hay = (doc.title + ' ' + (doc.tags||[]).join(' ') + ' ' + (doc.body||'')).toLowerCase();
-        const ok = tokens.every(t => hay.includes(t));
-        // スコア：単純に一致総数＋タイトル命中で加点
+        const t = (doc.title || '').toLowerCase();
+        const tag = (doc.tags || []).join(' ').toLowerCase();
+        const hay = `${t} ${tag}`;
+        const ok = tokens.every(x => hay.includes(x));
         let score = 0;
         if (ok){
-          tokens.forEach(t => {
-            if (doc.title.toLowerCase().includes(t)) score += 3;
-            if ((doc.tags||[]).join(' ').toLowerCase().includes(t)) score += 2;
-            if ((doc.body||'').toLowerCase().includes(t)) score += 1;
+          tokens.forEach(x => {
+            if (t.includes(x)) score += 3;
+            if (tag.includes(x)) score += 1;
           });
         }
         return ok ? {...doc, score} : null;
@@ -263,24 +273,21 @@
 
   function renderResults(items, query){
     ensureResultBox();
-    // 既存のホームセクションは非表示にしない（＝右側の“既存レイアウトに影響なし”）
-    // ただし結果はページ上部に追加表示
-    const ul = resultBox.querySelector('.result-list');
-    ul.innerHTML = items.map(it => `
-      <li class="result-item">
-        <a href="${it.url}">
-          <div class="title">${it.title}</div>
-          <div class="snippet">${(it.body||'').replace(/\s+/g,' ').slice(0,120)}${(it.body||'').length>120?'…':''}</div>
-          <div class="tags">${(it.tags||[]).map(t=>`<span>#${t}</span>`).join(' ')}</div>
-        </a>
-      </li>
-    `).join('') || `<li class="result-empty">該当するページが見つかりませんでした。</li>`;
-    document.getElementById('result-count').textContent = `「${query}」の結果：${items.length}件`;
+    const grid = resultBox.querySelector('.result-grid');
+    grid.innerHTML = items.map(it => `
+      <a class="result-card" role="listitem" href="${it.url}">
+        <div class="result-card-body">
+          <div class="result-title">${it.title}</div>
+        </div>
+        <div class="result-arrow" aria-hidden="true">→</div>
+      </a>
+    `).join('') || `<div class="result-empty">「${query}」に一致するページが見つかりませんでした。</div>`;
+    document.getElementById('result-count').textContent = `${items.length}件`;
     resultBox.style.display = '';
   }
 
   function clearSearch(){
-    if (resultBox) { resultBox.style.display = 'none'; }
+    if (resultBox) resultBox.style.display = 'none';
     if (searchInput) searchInput.value = '';
     if (heroBox) heroBox.value = '';
   }
@@ -292,30 +299,21 @@
   }
 
   function onSubmitFrom(el){
-    const q = el.value.trim();
+    const q = (el?.value || '').trim();
     if (!q) return;
     doSearch(q);
   }
 
-  // 検索イベント（header・heroの両方につなぐ）
   if (searchInput){
-    searchInput.addEventListener('keydown', (e)=>{
-      if (e.key === 'Enter') onSubmitFrom(e.target);
-    });
+    searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') onSubmitFrom(e.target); });
   }
   if (heroBox){
-    heroBox.addEventListener('keydown', (e)=>{
-      if (e.key === 'Enter') onSubmitFrom(e.target);
-    });
+    heroBox.addEventListener('keydown', e => { if (e.key === 'Enter') onSubmitFrom(e.target); });
   }
   if (heroBtn){
-    heroBtn.addEventListener('click', ()=> onSubmitFrom(heroBox || searchInput));
+    heroBtn.addEventListener('click', () => onSubmitFrom(heroBox || searchInput));
   }
 
-  // 既存：新着・人気・メニュー描画のコード（前回のまま）
-  // …（省略：すでに入っている処理をそのまま置いてください）…
-
-  document.getElementById('y').textContent = new Date().getFullYear();
 </script>
 </body>
 </html>
