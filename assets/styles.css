@@ -103,3 +103,72 @@ body{
 
 /* 既存 .menu-btn.active の視認性を少し上げる（任意） */
 .menu-btn.active{ background:var(--accent); color:#fff; box-shadow:0 0 0 1px rgba(255,255,255,.15) inset }
+/* ===== TOPランディング ===== */
+.hero{
+  background: linear-gradient(180deg, rgba(15,23,42,.75), rgba(15,23,42,.65)), url('../assets/sample-step.png') center/cover no-repeat;
+  border-radius: 1rem; height: 180px; display:flex; align-items:center; justify-content:center;
+  margin-bottom: 1rem;
+}
+.hero-search{
+  display:flex; gap:.5rem; background:#fff; border-radius:999px; padding:.5rem; width:min(780px,92%);
+  box-shadow: 0 6px 20px rgba(0,0,0,.12);
+}
+.hero-search input{
+  flex:1; border:0; outline:none; font-size:1rem; padding:.6rem 1rem; border-radius:999px;
+}
+.btn-filter{
+  border:1px solid var(--line); border-radius:999px; padding:.6rem 1rem; background:#f3f4f6; cursor:pointer;
+}
+.btn-filter:hover{ background:#e5e7eb }
+
+.home-section{ margin-top: 1rem }
+.home-h2{ font-size:1rem; margin:.25rem 0 .6rem; color:#111827 }
+
+/* 新着記事リスト */
+.article-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.6rem }
+.article-item a{
+  display:flex; gap:.9rem; align-items:center; padding:.8rem 1rem; background:#fff;
+  border:1px solid var(--line); border-radius:.75rem; text-decoration:none; color:inherit;
+}
+.article-item a:hover{ border-color:var(--accent) }
+.thumb{
+  width:44px; height:44px; border-radius:999px; background:#e5e7eb; border:1px solid var(--line);
+}
+.meta .title{ font-weight:600; }
+.meta .sub{ color:var(--muted); font-size:.9rem }
+
+/* 人気記事（カテゴリカード） */
+.popular-grid{
+  display:grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap:12px; margin-top:.5rem;
+}
+.pop-card{
+  background:#fff; border:1px solid var(--line); border-radius:.75rem; padding:.5rem .5rem .2rem;
+}
+.pop-head{
+  background:#f3f4f6; border-radius:.5rem; padding:.5rem .7rem; margin:.4rem;
+}
+.pop-tag{ font-weight:600; color:#374151 }
+.pop-ol{ margin:.2rem .9rem .6rem 1.4rem; padding:0 }
+.pop-ol li{ margin:.3rem 0 }
+.pop-ol a{ text-decoration:none; color:inherit }
+.pop-ol a:hover{ text-decoration:underline }
+.rank{ display:inline-block; width:1.2rem }
+
+/* サブメニュー（中項目：以前の追記が未適用なら有効化） */
+.menu-item { display:block }
+.submenu{
+  list-style:none; margin:.4rem 0 1rem 0; padding:0 .25rem 0 .25rem;
+  border-left:2px solid #374151;
+}
+.submenu li { margin:.25rem 0 }
+.submenu-link{
+  display:block; padding:.5rem .6rem .5rem .75rem; border-radius:.45rem;
+  text-decoration:none; color:#e5e7eb;
+}
+.submenu-link:hover{ background:#243041; color:#fff }
+.menu-btn.active{ background:var(--accent); color:#fff; box-shadow:0 0 0 1px rgba(255,255,255,.15) inset }
+
+@media (max-width: 860px){
+  .hero{ height:140px }
+  .hero-search{ width:95% }
+}
