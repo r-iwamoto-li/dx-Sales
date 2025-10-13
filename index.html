@@ -13,16 +13,31 @@
   </header>
 
   <main class="layout">
-    <!-- 左：第1階層 -->
+    <!-- 左：第1階層（クリックで直下に第2階層が展開） -->
     <nav class="sidebar" aria-label="メインメニュー">
       <ul id="primary-menu" class="menu"></ul>
     </nav>
 
-    <!-- 右：第2階層の一覧（クリックで各ページへ） -->
+    <!-- 右：初期は“サイト説明＋おすすめ”、選択後はセクションの説明 -->
     <section class="content">
-      <h1 id="section-title" class="section-title">セクションを選択してください</h1>
-      <p class="section-desc" id="section-desc">左のメニューからツールやカテゴリを選ぶと、こちらに手順カテゴリが表示されます。</p>
-      <div id="sub-grid" class="sub-grid" role="list"></div>
+      <!-- 初期のヒーロー -->
+      <section id="hero" class="hero">
+        <h1 class="hero-title">営業支援マニュアルへようこそ</h1>
+        <p class="hero-lead">
+          このサイトは、SFA（Salesforce）／CRM（Sansan）／MA（Account Engagement）の運用手順を、共通ガイドとともに体系化したナレッジハブです。<br />
+          左の大項目からツールまたはカテゴリを選択し、表示された中項目（手順カテゴリ）に進んでください。
+        </p>
+
+        <h2 class="topics-title">おすすめTopics</h2>
+        <div id="topics-grid" class="topics-grid"></div>
+      </section>
+
+      <!-- セクション情報（大項目選択後に表示） -->
+      <section id="section-panel" class="section-panel" hidden>
+        <h1 id="section-title" class="section-title"></h1>
+        <p id="section-desc" class="section-desc"></p>
+        <p class="panel-hint">左メニューの中項目から、見たい手順ページを選んでください。</p>
+      </section>
     </section>
   </main>
 
@@ -31,7 +46,7 @@
   </footer>
 
   <script>
-    // --- データ定義（第1階層6つ × 各5つ）---
+    // --- 大項目・中項目データ ---
     const NAV = [
       {
         id: "salesforce",
@@ -107,47 +122,101 @@
       },
     ];
 
-    // --- 1階層の描画 ---
+    // --- おすすめTopics（自由に差し替えOK） ---
+    const TOPICS = [
+      { label: "まず読む：運用全体像", href: "pages/common/integration-map.html" },
+      { label: "商談フェーズ定義", href: "pages/salesforce/opportunity.html" },
+      { label: "名刺の表記統一ルール", href: "pages/sansan/import-normalize.html" },
+      { label: "スコアリング入門", href: "pages/ae/scoring-grading.html" },
+      { label: "データ重複の対策", href: "pages/common/dedupe.html" },
+      { label: "レポート作成のコツ", href: "pages/faq/reporting-tips.html" },
+    ];
+
+    // --- 要素参照 ---
     const primaryMenu = document.getElementById('primary-menu');
+    const hero         = document.getElementById('hero');
+    const topicsGrid   = document.getElementById('topics-grid');
+    const sectionPanel = document.getElementById('section-panel');
     const sectionTitle = document.getElementById('section-title');
     const sectionDesc  = document.getElementById('section-desc');
-    const subGrid      = document.getElementById('sub-grid');
 
-    NAV.forEach((s, i) => {
-      const li = document.createElement('li');
-      li.innerHTML = `<button class="menu-btn" data-id="${s.id}">${s.label}</button>`;
-      if (i === 0) li.firstElementChild.classList.add('active');
-      primaryMenu.appendChild(li);
-    });
-
-    function renderSub(id) {
-      const sec = NAV.find(s => s.id === id) || NAV[0];
-      sectionTitle.textContent = sec.label;
-      sectionDesc.textContent  = sec.desc;
-      subGrid.innerHTML = '';
-      sec.items.forEach(item => {
+    // ヒーローのおすすめトピック描画
+    function renderTopics(){
+      topicsGrid.innerHTML = '';
+      TOPICS.forEach(t => {
         const a = document.createElement('a');
-        a.className = 'sub-card';
-        a.href = item.href;
-        a.role = 'listitem';
-        a.innerHTML = `
-          <div class="sub-card-title">${item.label}</div>
-          <div class="sub-card-arrow">→</div>
-        `;
-        subGrid.appendChild(a);
-      });
-      // active表示
-      document.querySelectorAll('.menu-btn').forEach(b => {
-        b.classList.toggle('active', b.dataset.id === sec.id);
+        a.className = 'topic';
+        a.href = t.href;
+        a.textContent = t.label;
+        topicsGrid.appendChild(a);
       });
     }
 
+    // 左メニュー描画（大項目＋空のサブリスト）
+    function renderPrimary(){
+      primaryMenu.innerHTML = '';
+      NAV.forEach(sec => {
+        const li = document.createElement('li');
+        li.className = 'menu-item';
+        li.innerHTML = `
+          <button class="menu-btn" data-id="${sec.id}" aria-expanded="false">
+            ${sec.label}
+            <span class="caret" aria-hidden="true">▸</span>
+          </button>
+          <ul class="submenu" data-parent="${sec.id}" hidden></ul>
+        `;
+        primaryMenu.appendChild(li);
+      });
+    }
+
+    // 指定idの中項目を、該当のsubmenuに展開
+    function openSection(id){
+      // すべて閉じる
+      document.querySelectorAll('.submenu').forEach(ul => { ul.hidden = true; ul.innerHTML = ''; });
+      document.querySelectorAll('.menu-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-expanded','false'); b.querySelector('.caret').textContent = '▸'; });
+
+      // 対象セクション
+      const data = NAV.find(s => s.id === id);
+      const sub  = document.querySelector(`.submenu[data-parent="${id}"]`);
+      const btn  = document.querySelector(`.menu-btn[data-id="${id}"]`);
+      if(!data || !sub || !btn) return;
+
+      // サブを構築
+      sub.innerHTML = data.items.map(item => `
+        <li><a class="submenu-link" href="${item.href}">${item.label}</a></li>
+      `).join('');
+      sub.hidden = false;
+      btn.classList.add('active');
+      btn.setAttribute('aria-expanded','true');
+      btn.querySelector('.caret').textContent = '▾';
+
+      // 右パネル切替
+      hero.hidden = true;
+      sectionPanel.hidden = false;
+      sectionTitle.textContent = data.label;
+      sectionDesc.textContent  = data.desc;
+    }
+
+    // クリックイベント（委任）
     primaryMenu.addEventListener('click', (e) => {
-      if (e.target.matches('.menu-btn')) renderSub(e.target.dataset.id);
+      if (e.target.closest('.menu-btn')) {
+        const id = e.target.closest('.menu-btn').dataset.id;
+        // すでに開いているものを再クリック → 閉じてヒーローに戻す
+        const expanded = e.target.closest('.menu-btn').getAttribute('aria-expanded') === 'true';
+        if (expanded){
+          // 全閉じ＆ヒーローへ
+          document.querySelectorAll('.submenu').forEach(ul => { ul.hidden = true; ul.innerHTML=''; });
+          document.querySelectorAll('.menu-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-expanded','false'); b.querySelector('.caret').textContent='▸'; });
+          sectionPanel.hidden = true; hero.hidden = false;
+        } else {
+          openSection(id);
+        }
+      }
     });
 
-    // 初期表示
-    renderSub(NAV[0].id);
+    // 初期レンダリング
+    renderPrimary();
+    renderTopics();
     document.getElementById('y').textContent = new Date().getFullYear();
   </script>
 </body>
