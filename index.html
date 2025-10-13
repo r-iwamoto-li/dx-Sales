@@ -13,35 +13,40 @@
 </header>
 
 <main class="layout">
-  <!-- 左：大項目 → 直下に中項目（アコーディオン表示） -->
+  <!-- 左：大項目 + 直下に中項目（アコーディオン展開） -->
   <nav class="sidebar" aria-label="メインメニュー">
     <ul id="primary-menu" class="menu"></ul>
   </nav>
 
-  <!-- 右：常にランディング（添付イメージ風） -->
+  <!-- 右：ランディング（検索ヒーロー + 新着 + 人気） -->
   <section class="content">
-    <!-- HERO（大きい検索フィールドと絞り込み） -->
     <div class="hero">
       <div class="hero-search">
-        <input type="search" placeholder="キーワードを入力して下さい" aria-label="サイト内検索" />
-        <button class="btn-filter" type="button">絞り込み</button>
+        <input id="hero-search-input" type="search" placeholder="キーワードを入力して下さい" aria-label="サイト内検索" />
+        <button id="hero-filter-btn" class="btn-filter" type="button">絞り込み</button>
       </div>
     </div>
+
+    <!-- 検索結果（JSでprepend、初期は非表示） -->
+    <section id="search-results" class="home-section" style="display:none;">
+      <h2 class="home-h2">検索結果</h2>
+      <div class="result-head">
+        <span id="result-count"></span>
+        <button id="clear-search" class="btn-clear" type="button">クリア</button>
+      </div>
+      <div class="result-grid" id="result-grid"></div>
+    </section>
 
     <!-- 新着記事 -->
     <section class="home-section">
       <h2 class="home-h2">新着記事</h2>
-      <ul class="article-list" id="latest-list">
-        <!-- JSでダミーデータ投入。運用時はビルドや手動更新でOK -->
-      </ul>
+      <ul class="article-list" id="latest-list"></ul>
     </section>
 
-    <!-- 人気記事（カテゴリごとにランキング） -->
+    <!-- 人気記事（カテゴリごとのランキング） -->
     <section class="home-section">
       <h2 class="home-h2">人気記事</h2>
-      <div class="popular-grid" id="popular-grid">
-        <!-- JSでカードを生成 -->
-      </div>
+      <div class="popular-grid" id="popular-grid"></div>
     </section>
   </section>
 </main>
@@ -49,7 +54,7 @@
 <footer class="site-footer">© <span id="y"></span> Link innovation</footer>
 
 <script>
-  // --- 左メニュー用データ ---
+  // ====== ナビ（左メニュー）データ ======
   const NAV = [
     {
       id: "salesforce", label: "SFA：Salesforce",
@@ -113,7 +118,7 @@
     },
   ];
 
-  // --- 右側：ダミーの新着＆人気データ（運用に合わせて差し替え） ---
+  // ====== 新着 / 人気（ダミー） ======
   const LATEST = [
     { title: "日報の書き方", date: "2025.03.23", tag:"全社", href:"pages/faq/reporting-tips.html" },
     { title: "電話対応", date: "2025.03.27", tag:"営業部", href:"pages/faq/permissions.html" },
@@ -132,9 +137,8 @@
     ]}
   ];
 
+  // ====== 左メニュー描画（中項目は直下に展開） ======
   const primaryMenu = document.getElementById('primary-menu');
-
-  // 大項目＋サブメニュー（中項目）描画
   NAV.forEach((s) => {
     const li = document.createElement('li');
     li.className = 'menu-item';
@@ -146,10 +150,9 @@
   });
 
   function openSubmenu(id) {
-    // すべて畳む
-    document.querySelectorAll('.submenu').forEach(ul => { ul.hidden = true; ul.innerHTML=''; });
+    // 全て畳む → 対象のみ開く
+    document.querySelectorAll('.submenu').forEach(ul => { ul.hidden = true; ul.innerHTML = ''; });
     document.querySelectorAll('.menu-btn').forEach(b => b.classList.toggle('active', b.dataset.id === id));
-
     const sec = NAV.find(s => s.id === id);
     if (!sec) return;
     const holder = document.querySelector(`.submenu[data-parent="${id}"]`);
@@ -166,16 +169,15 @@
     const id = e.target.dataset.id;
     const isActive = e.target.classList.contains('active');
     if (isActive) {
-      // 閉じる
       document.querySelector(`.submenu[data-parent="${id}"]`).hidden = true;
       e.target.classList.remove('active');
     } else {
       openSubmenu(id);
     }
-    // 右側は常にランディングのまま（変更なし）
+    // 右側はランディングのまま
   });
 
-  // 新着リスト投入
+  // ====== ランディング生成（新着・人気） ======
   const latestList = document.getElementById('latest-list');
   LATEST.forEach(a => {
     const li = document.createElement('li');
@@ -191,13 +193,12 @@
     latestList.appendChild(li);
   });
 
-  // 人気記事（カテゴリ別カード）
   const popularGrid = document.getElementById('popular-grid');
   POPULAR.forEach(block => {
     const card = document.createElement('div');
     card.className = 'pop-card';
     card.innerHTML = `
-      <div class="pop-head"><span class="pop-tag"> ${block.cat} </span></div>
+      <div class="pop-head"><span class="pop-tag">${block.cat}</span></div>
       <ol class="pop-ol">
         ${block.items.map((it,i)=>`<li><a href="${it.href}"><span class="rank">${i+1}.</span> ${it.title}</a></li>`).join('')}
       </ol>
@@ -205,101 +206,73 @@
     popularGrid.appendChild(card);
   });
 
-  document.getElementById('y').textContent = new Date().getFullYear();
-
-  <script>
-  // ...（既存の NAV / LATEST / POPULAR / 左メニュー描画はそのまま）...
-
-  // ===== 検索UI =====
-  const searchInput  = document.getElementById('global-search');
-  const heroBox = document.querySelector('.hero-search input');
-  const heroBtn = document.querySelector('.btn-filter');
-
-  const contentEl = document.querySelector('.content');
-  let resultBox = null;
-  function ensureResultBox(){
-    if (resultBox) return resultBox;
-    resultBox = document.createElement('section');
-    resultBox.id = 'search-results';
-    resultBox.className = 'home-section';
-    resultBox.innerHTML = `
-      <div class="result-wrap">
-        <div class="result-header">
-          <h2 class="home-h2">検索結果</h2>
-          <div class="result-actions">
-            <span id="result-count" class="result-count"></span>
-            <button id="clear-search" class="btn-clear" type="button">クリア</button>
-          </div>
-        </div>
-        <div class="result-grid" role="list"></div>
-      </div>`;
-    contentEl.prepend(resultBox);
-    document.getElementById('clear-search').addEventListener('click', clearSearch);
-    return resultBox;
-  }
+  // ====== 検索：タイトルのみ表示／カード型一覧 ======
+  const searchInput = document.getElementById('global-search');
+  const heroInput = document.getElementById('hero-search-input');
+  const heroBtn = document.getElementById('hero-filter-btn');
+  const resultWrap = document.getElementById('search-results');
+  const resultGrid = document.getElementById('result-grid');
+  const resultCount = document.getElementById('result-count');
+  const clearBtn = document.getElementById('clear-search');
 
   let SEARCH_INDEX = null;
   async function loadIndex(){
     if (SEARCH_INDEX) return SEARCH_INDEX;
-    const res = await fetch('search-index.json', {cache:'no-store'});
+    const res = await fetch('search-index.json', {cache: 'no-store'});
     SEARCH_INDEX = await res.json();
     return SEARCH_INDEX;
   }
+  const tokenize = q => q.trim().toLowerCase().split(/\s+/).filter(Boolean);
 
-  // タイトル＋タグのみで検索（body不要）
-  function tokenize(q){ return q.trim().toLowerCase().split(/\s+/).filter(Boolean); }
   function searchDocs(index, query){
     const tokens = tokenize(query);
     if (!tokens.length) return [];
     return index
       .map(doc => {
-        const t = (doc.title || '').toLowerCase();
-        const tag = (doc.tags || []).join(' ').toLowerCase();
-        const hay = `${t} ${tag}`;
-        const ok = tokens.every(x => hay.includes(x));
+        const hay = (doc.title + ' ' + (doc.tags||[]).join(' ')).toLowerCase();
+        const ok = tokens.every(t => hay.includes(t));
         let score = 0;
         if (ok){
-          tokens.forEach(x => {
-            if (t.includes(x)) score += 3;
-            if (tag.includes(x)) score += 1;
+          tokens.forEach(t => {
+            if (doc.title.toLowerCase().includes(t)) score += 3;
+            if ((doc.tags||[]).join(' ').toLowerCase().includes(t)) score += 1;
           });
         }
         return ok ? {...doc, score} : null;
       })
       .filter(Boolean)
       .sort((a,b)=> b.score - a.score)
-      .slice(0,50);
+      .slice(0,60);
   }
 
   function renderResults(items, query){
-    ensureResultBox();
-    const grid = resultBox.querySelector('.result-grid');
-    grid.innerHTML = items.map(it => `
-      <a class="result-card" role="listitem" href="${it.url}">
-        <div class="result-card-body">
-          <div class="result-title">${it.title}</div>
-        </div>
-        <div class="result-arrow" aria-hidden="true">→</div>
+    resultWrap.style.display = '';
+    resultCount.textContent = `「${query}」の結果：${items.length}件`;
+    resultGrid.innerHTML = items.map(it => `
+      <a class="result-card" href="${it.url}" title="${it.title}">
+        <div class="result-title">${it.title}</div>
       </a>
-    `).join('') || `<div class="result-empty">「${query}」に一致するページが見つかりませんでした。</div>`;
-    document.getElementById('result-count').textContent = `${items.length}件`;
-    resultBox.style.display = '';
+    `).join('') || `<div class="result-empty">該当するページが見つかりませんでした。</div>`;
+    // スクロール先を上部に
+    resultWrap.scrollIntoView({behavior:'smooth', block:'start'});
   }
 
   function clearSearch(){
-    if (resultBox) resultBox.style.display = 'none';
+    resultWrap.style.display = 'none';
+    resultGrid.innerHTML = '';
+    resultCount.textContent = '';
     if (searchInput) searchInput.value = '';
-    if (heroBox) heroBox.value = '';
+    if (heroInput) heroInput.value = '';
   }
+  clearBtn.addEventListener('click', clearSearch);
 
   async function doSearch(q){
     const index = await loadIndex();
     const items = searchDocs(index, q);
     renderResults(items, q);
   }
-
   function onSubmitFrom(el){
-    const q = (el?.value || '').trim();
+    const q = el.value.trim();
     if (!q) return;
     doSearch(q);
   }
@@ -307,13 +280,15 @@
   if (searchInput){
     searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') onSubmitFrom(e.target); });
   }
-  if (heroBox){
-    heroBox.addEventListener('keydown', e => { if (e.key === 'Enter') onSubmitFrom(e.target); });
+  if (heroInput){
+    heroInput.addEventListener('keydown', e => { if (e.key === 'Enter') onSubmitFrom(e.target); });
   }
   if (heroBtn){
-    heroBtn.addEventListener('click', () => onSubmitFrom(heroBox || searchInput));
+    heroBtn.addEventListener('click', () => onSubmitFrom(heroInput || searchInput));
   }
 
+  // 年表示
+  document.getElementById('y').textContent = new Date().getFullYear();
 </script>
 </body>
 </html>
