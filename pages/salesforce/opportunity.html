@@ -38,13 +38,12 @@
             <div class="manual-num">1</div>
             <figure class="manual-figure">
               <img src="https://b2b.allis-co.com/wp-content/uploads/2024/06/e359b7a1d7514dfd7ed5f8122bf04226.jpg" alt="商談タブを開く" />
-              <figcaption class="manual-cap kicker">［商談］タブ → ［新規］</figcaption>
             </figure>
           </div>
           <div class="manual-right">
             <h3>商談タブから新規作成</h3>
-            <p>［商談］タブで［新規］をクリックします。取引先が未作成の場合は先に作成してください。</p>
-            <div class="note">入力規則：商談名は「YYYYMMDD_案件名_顧客名」で統一。」</div>
+            <p class="manual-desc">［商談］タブで［新規］をクリック。取引先が未作成の場合は先に作成してください。</p>
+            <div class="note">入力規則：商談名は「YYYYMMDD_案件名_顧客名」で統一。</div>
           </div>
         </article>
 
@@ -54,12 +53,11 @@
             <div class="manual-num">2</div>
             <figure class="manual-figure">
               <img src="https://b2b.allis-co.com/wp-content/uploads/2024/06/e359b7a1d7514dfd7ed5f8122bf04226.jpg" alt="必須項目の入力" />
-              <figcaption class="manual-cap kicker">必須フィールドを入力</figcaption>
             </figure>
           </div>
           <div class="manual-right">
             <h3>基本情報の入力</h3>
-            <p>金額、成立確度、受注予定日、フェーズを入力します。フェーズは定義に沿って選択してください。</p>
+            <p class="manual-desc">金額、成立確度、受注予定日、フェーズを入力。フェーズは定義に沿って選択。</p>
           </div>
         </article>
 
@@ -69,12 +67,11 @@
             <div class="manual-num">3</div>
             <figure class="manual-figure">
               <img src="https://b2b.allis-co.com/wp-content/uploads/2024/06/e359b7a1d7514dfd7ed5f8122bf04226.jpg" alt="活動の登録" />
-              <figcaption class="manual-cap kicker">活動・ToDo を紐付け</figcaption>
             </figure>
           </div>
           <div class="manual-right">
             <h3>次アクションの登録</h3>
-            <p>打ち合わせ・電話・メール等の活動を登録し、期日と担当者を設定します。</p>
+            <p class="manual-desc">打ち合わせ・電話・メール等の活動を登録し、期日と担当者を設定します。</p>
           </div>
         </article>
       </section>
@@ -154,9 +151,7 @@
       holder.hidden = false;
     }
 
-    // 初期展開：このページの所属（salesforce）
     openSubmenu('salesforce');
-    // 現在ページ強調
     const here = [...document.querySelectorAll('.submenu-link')].find(a => a.getAttribute('href')?.endsWith('/opportunity.html'));
     if (here) here.classList.add('is-current');
   </script>
