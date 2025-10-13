@@ -12,7 +12,7 @@
   <input class="search" type="search" placeholder="サイト内検索（ダミー）" />
 </header>
 
-<main class="content">
+<main class="content manual">
   <nav class="breadcrumb">
     <a href="../../index.html">TOP</a> ＞ <span>Salesforce</span> ＞ <span>商談の作成〜フェーズ管理</span>
   </nav>
@@ -24,42 +24,53 @@
     <strong>概要：</strong> 新規商談の作成から、フェーズ更新、次アクションの登録、クローズまでの運用を解説します。
   </div>
 
-  <article class="step">
-    <div class="step-num">STEP 1</div>
-    <figure>
-      <img src="../../assets/sample-step.png" alt="商談タブを開く" />
-      <figcaption class="kicker">［商談］タブ → ［新規］</figcaption>
-    </figure>
-    <div class="step-content">
-      <h3>商談タブから新規作成</h3>
-      <p>［商談］タブで［新規］をクリックします。取引先が未作成の場合は先に作成してください。</p>
-      <div class="note">入力規則：商談名は「YYYYMMDD_案件名_顧客名」で統一。</div>
-    </div>
-  </article>
+  <section class="manual-steps">
+    <!-- STEP 1 -->
+    <article class="manual-step">
+      <div class="manual-left">
+        <div class="manual-num">1</div>
+        <figure>
+          <img src="../../assets/sample-step.png" alt="商談タブを開く" />
+          <figcaption class="kicker">［商談］タブ → ［新規］</figcaption>
+        </figure>
+      </div>
+      <div class="manual-right">
+        <h3>商談タブから新規作成</h3>
+        <p>［商談］タブで［新規］をクリックします。取引先が未作成の場合は先に作成してください。</p>
+        <div class="note">入力規則：商談名は「YYYYMMDD_案件名_顧客名」で統一。</div>
+      </div>
+    </article>
 
-  <article class="step">
-    <div class="step-num">STEP 2</div>
-    <figure>
-      <img src="../../assets/sample-step.png" alt="必須項目の入力" />
-      <figcaption class="kicker">必須フィールドを入力</figcaption>
-    </figure>
-    <div class="step-content">
-      <h3>基本情報の入力</h3>
-      <p>金額、成立確度、受注予定日、フェーズを入力します。フェーズは定義に沿って選択してください。</p>
-    </div>
-  </article>
+    <!-- STEP 2 -->
+    <article class="manual-step">
+      <div class="manual-left">
+        <div class="manual-num">2</div>
+        <figure>
+          <img src="../../assets/sample-step.png" alt="必須項目の入力" />
+          <figcaption class="kicker">必須フィールドを入力</figcaption>
+        </figure>
+      </div>
+      <div class="manual-right">
+        <h3>基本情報の入力</h3>
+        <p>金額、成立確度、受注予定日、フェーズを入力します。フェーズは定義に沿って選択してください。</p>
+      </div>
+    </article>
 
-  <article class="step">
-    <div class="step-num">STEP 3</div>
-    <figure>
-      <img src="../../assets/sample-step.png" alt="活動の登録" />
-      <figcaption class="kicker">活動・ToDo を紐付け</figcaption>
-    </figure>
-    <div class="step-content">
-      <h3>次アクションの登録</h3>
-      <p>打ち合わせ・電話・メール等の活動を登録し、期日と担当者を設定します。</p>
-    </div>
-  </article>
+    <!-- STEP 3 -->
+    <article class="manual-step">
+      <div class="manual-left">
+        <div class="manual-num">3</div>
+        <figure>
+          <img src="../../assets/sample-step.png" alt="活動の登録" />
+          <figcaption class="kicker">活動・ToDo を紐付け</figcaption>
+        </figure>
+      </div>
+      <div class="manual-right">
+        <h3>次アクションの登録</h3>
+        <p>打ち合わせ・電話・メール等の活動を登録し、期日と担当者を設定します。</p>
+      </div>
+    </article>
+  </section>
 
   <footer class="site-footer">© <script>document.write(new Date().getFullYear())</script> Link innovation</footer>
 </main>
