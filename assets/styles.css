@@ -426,3 +426,50 @@ body{
     max-height: 260px;
   }
 }
+/* ===========================
+   手順ページ（manualスコープ）
+   =========================== */
+.manual { max-width: 1100px; margin: 0 auto; padding: 1rem 1.25rem 2rem; }
+.manual .page-title{ margin:.2rem 0 .8rem; }
+.manual .page-lead{ margin-bottom: 1.2rem; }
+
+/* ステップ一覧 */
+.manual-steps{ display:flex; flex-direction:column; gap:14px; }
+
+/* ステップカード */
+.manual-step{
+  display:grid; grid-template-columns: 280px 1fr; gap:18px;
+  background:#fff; border:1px solid var(--line); border-radius:12px; padding:16px; align-items:start; position:relative;
+}
+
+/* 左：番号＋画像 */
+.manual-left{ position:relative; padding-left:10px; }
+.manual-step:not(:last-child) .manual-left::after{
+  content:""; position:absolute; left:26px; top:42px; width:2px; height:calc(100% + 14px); background:var(--line);
+}
+.manual-num{
+  width:36px; height:36px; border-radius:999px; border:2px solid var(--accent); color:var(--accent);
+  display:flex; align-items:center; justify-content:center; font-weight:700; background:#fff; margin-bottom:10px; position:relative; z-index:1;
+}
+.manual-left figure{ margin:0 }
+.manual-left img{
+  width:100%; max-width:100%; max-height:320px; object-fit:contain; background:#f8fafc; border:1px solid var(--line); border-radius:8px;
+}
+.manual-left figcaption{ margin-top:6px; color:var(--muted) }
+
+/* 右：テキスト */
+.manual-right h3{ margin:.1rem 0 .4rem }
+.manual-right p{ margin:.25rem 0 .6rem; line-height:1.8 }
+.manual-right .note{ background:#eef2ff; border-left:4px solid var(--accent); padding:.6rem .8rem; border-radius:.4rem }
+
+/* サイドバーの現在ページ強調 */
+.submenu-link.is-current{
+  background:#243041; color:#fff;
+}
+
+/* レスポンシブ */
+@media (max-width: 960px){
+  .manual-step{ grid-template-columns: 1fr }
+  .manual-left::after{ display:none }
+  .manual-left img{ max-height:260px }
+}
