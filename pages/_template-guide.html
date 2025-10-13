@@ -12,7 +12,8 @@
     <input class="search" type="search" placeholder="サイト内検索（ダミー）" />
   </header>
 
-  <main class="content">
+  <!-- ★ ここからガイド専用のスコープ -->
+  <main class="content guide">
     <nav class="breadcrumb">
       <a href="../../index.html">TOP</a> ＞ <span>ツール名/カテゴリ</span> ＞ <span>ページ名</span>
     </nav>
@@ -24,50 +25,60 @@
       <strong>概要：</strong> ここにページの目的やユースケース、到達状態（この手順を完了すると何ができるか）を2〜4文で書きます。
     </div>
 
-    <!-- Step 1 -->
-    <article class="step">
-      <div class="step-num">STEP 1</div>
-      <figure>
-        <img src="../../assets/sample-step.png" alt="手順1の画面例" />
-        <figcaption class="kicker">画面例（差し替えてください）</figcaption>
-      </figure>
-      <div class="step-content">
-        <h3>タイトル：新規作成ページを開く</h3>
-        <p>手順の説明テキストを記述します。クリック箇所や入力ルール、注意点を具体的に。</p>
-        <div class="note">注意：権限が不足している場合は管理者に申請してください。</div>
-      </div>
-    </article>
+    <section class="guide-steps">
 
-    <!-- Step 2 -->
-    <article class="step">
-      <div class="step-num">STEP 2</div>
-      <figure>
-        <img src="../../assets/sample-step.png" alt="手順2の画面例" />
-        <figcaption class="kicker">画面例</figcaption>
-      </figure>
-      <div class="step-content">
-        <h3>タイトル：タイトルを入力</h3>
-        <p>入力フィールド名・入力規則・例など。</p>
-      </div>
-    </article>
+      <!-- STEP 1 -->
+      <article class="guide-step">
+        <div class="guide-left">
+          <div class="guide-bullet">1</div>
+          <figure class="guide-figure">
+            <img src="../../assets/sample-step.png" alt="手順1の画面例" />
+            <figcaption class="guide-cap kicker">画面例（差し替えてください）</figcaption>
+          </figure>
+        </div>
+        <div class="guide-right">
+          <h3>商談タブから新規作成</h3>
+          <p>［商談］タブで［新規］をクリックします。取引先が未作成の場合は先に作成してください。</p>
+          <div class="guide-note note">入力規則：商談名は「YYYYMMDD_案件名_顧客名」で統一。</div>
+        </div>
+      </article>
 
-    <!-- Step 3 -->
-    <article class="step">
-      <div class="step-num">STEP 3</div>
-      <figure>
-        <!-- 画像は左でもOK。縦長はCSSで自動縮小 -->
-        <img src="../../assets/sample-step.png" alt="手順3の画面例" />
-        <figcaption class="kicker">画面例</figcaption>
-      </figure>
-      <div class="step-content">
-        <h3>タイトル：本文の入力</h3>
-        <p>ポイント・チェックリスト・NG例など。</p>
-      </div>
-    </article>
+      <!-- STEP 2 -->
+      <article class="guide-step">
+        <div class="guide-left">
+          <div class="guide-bullet">2</div>
+          <figure class="guide-figure">
+            <img src="../../assets/sample-step.png" alt="手順2の画面例" />
+            <figcaption class="guide-cap kicker">画面例</figcaption>
+          </figure>
+        </div>
+        <div class="guide-right">
+          <h3>必須項目の入力</h3>
+          <p>金額、成立確度、受注予定日、フェーズを入力します。フェーズは定義に沿って選択してください。</p>
+        </div>
+      </article>
 
-    <!-- 以降、STEP 4/5…を同じブロックで追加 -->
+      <!-- STEP 3 -->
+      <article class="guide-step">
+        <div class="guide-left">
+          <div class="guide-bullet">3</div>
+          <figure class="guide-figure">
+            <img src="../../assets/sample-step.png" alt="手順3の画面例" />
+            <figcaption class="guide-cap kicker">画面例</figcaption>
+          </figure>
+        </div>
+        <div class="guide-right">
+          <h3>次アクションの登録</h3>
+          <p>打ち合わせ・電話・メール等の活動を登録し、期日と担当者を設定します。</p>
+        </div>
+      </article>
 
-    <footer class="site-footer">© <script>document.write(new Date().getFullYear())</script> Link innovation</footer>
+      <!-- 以降、STEP 4/5… を同構造で追加 -->
+    </section>
+
+    <footer class="site-footer">
+      © <script>document.write(new Date().getFullYear())</script> Link innovation
+    </footer>
   </main>
 </body>
 </html>
