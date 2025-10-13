@@ -18,35 +18,42 @@
       <ul id="primary-menu" class="menu"></ul>
     </nav>
 
-    <!-- 右：初期は“サイト説明＋おすすめ”、選択後はセクションの説明 -->
+    <!-- 右：初期は説明＋おすすめ。大項目選択後はセクションの概要だけ表示 -->
     <section class="content">
-      <!-- 初期のヒーロー -->
-      <section id="hero" class="hero">
-        <h1 class="hero-title">営業支援マニュアルへようこそ</h1>
-        <p class="hero-lead">
-          このサイトは、SFA（Salesforce）／CRM（Sansan）／MA（Account Engagement）の運用手順を、共通ガイドとともに体系化したナレッジハブです。<br />
-          左の大項目からツールまたはカテゴリを選択し、表示された中項目（手順カテゴリ）に進んでください。
+      <!-- 初期のウェルカム -->
+      <div id="welcome">
+        <h1 class="section-title">営業支援マニュアルへようこそ</h1>
+        <p class="section-desc">
+          ここは SFA（Salesforce）・CRM（Sansan）・MA（Account Engagement）の運用手順を統合したポータルです。
+          左のメニューからツール／カテゴリを選ぶと、直下に手順カテゴリ（中項目）が表示されます。
         </p>
 
-        <h2 class="topics-title">おすすめTopics</h2>
-        <div id="topics-grid" class="topics-grid"></div>
-      </section>
+        <div class="page-lead">
+          <strong>まずは：</strong>「共通：初期セットアップ」→「連携マップ（全体像）」を見ると全体把握がスムーズです。
+        </div>
 
-      <!-- セクション情報（大項目選択後に表示） -->
-      <section id="section-panel" class="section-panel" hidden>
+        <h2 class="section-title" style="margin-top:1.25rem;">おすすめトピックス</h2>
+        <div class="sub-grid">
+          <a class="sub-card" href="pages/common/integration-map.html"><div class="sub-card-title">連携マップ（全体像）</div><div class="sub-card-arrow">→</div></a>
+          <a class="sub-card" href="pages/salesforce/report.html"><div class="sub-card-title">Salesforce：レポート／ダッシュボード</div><div class="sub-card-arrow">→</div></a>
+          <a class="sub-card" href="pages/sansan/sf-sync.html"><div class="sub-card-title">Sansan × Salesforce 連携</div><div class="sub-card-arrow">→</div></a>
+          <a class="sub-card" href="pages/ae/engagement.html"><div class="sub-card-title">MA：エンゲージメントプログラム</div><div class="sub-card-arrow">→</div></a>
+        </div>
+      </div>
+
+      <!-- 大項目選択後の説明（中項目は左に展開されるため右側は概要のみ） -->
+      <div id="section-info" style="display:none;">
         <h1 id="section-title" class="section-title"></h1>
         <p id="section-desc" class="section-desc"></p>
-        <p class="panel-hint">左メニューの中項目から、見たい手順ページを選んでください。</p>
-      </section>
+        <div class="note">中項目は左メニューの大項目の下に表示されています。手順ページを選んでください。</div>
+      </div>
     </section>
   </main>
 
-  <footer class="site-footer">
-    © <span id="y"></span> Link innovation
-  </footer>
+  <footer class="site-footer">© <span id="y"></span> Link innovation</footer>
 
   <script>
-    // --- 大項目・中項目データ ---
+    // --- データ定義 ---
     const NAV = [
       {
         id: "salesforce",
@@ -122,101 +129,69 @@
       },
     ];
 
-    // --- おすすめTopics（自由に差し替えOK） ---
-    const TOPICS = [
-      { label: "まず読む：運用全体像", href: "pages/common/integration-map.html" },
-      { label: "商談フェーズ定義", href: "pages/salesforce/opportunity.html" },
-      { label: "名刺の表記統一ルール", href: "pages/sansan/import-normalize.html" },
-      { label: "スコアリング入門", href: "pages/ae/scoring-grading.html" },
-      { label: "データ重複の対策", href: "pages/common/dedupe.html" },
-      { label: "レポート作成のコツ", href: "pages/faq/reporting-tips.html" },
-    ];
-
-    // --- 要素参照 ---
     const primaryMenu = document.getElementById('primary-menu');
-    const hero         = document.getElementById('hero');
-    const topicsGrid   = document.getElementById('topics-grid');
-    const sectionPanel = document.getElementById('section-panel');
+    const sectionInfo  = document.getElementById('section-info');
+    const welcome      = document.getElementById('welcome');
     const sectionTitle = document.getElementById('section-title');
     const sectionDesc  = document.getElementById('section-desc');
 
-    // ヒーローのおすすめトピック描画
-    function renderTopics(){
-      topicsGrid.innerHTML = '';
-      TOPICS.forEach(t => {
-        const a = document.createElement('a');
-        a.className = 'topic';
-        a.href = t.href;
-        a.textContent = t.label;
-        topicsGrid.appendChild(a);
-      });
-    }
+    // 大項目を描画（中項目コンテナを各<li>の後に用意）
+    NAV.forEach((s) => {
+      const li = document.createElement('li');
+      li.className = 'menu-item';
+      li.innerHTML = `
+        <button class="menu-btn" data-id="${s.id}">${s.label}</button>
+        <ul class="submenu" data-parent="${s.id}" hidden></ul>
+      `;
+      primaryMenu.appendChild(li);
+    });
 
-    // 左メニュー描画（大項目＋空のサブリスト）
-    function renderPrimary(){
-      primaryMenu.innerHTML = '';
-      NAV.forEach(sec => {
+    // 中項目（サブメニュー）を描画
+    function renderSubmenu(id) {
+      // いったん全て畳む
+      document.querySelectorAll('.submenu').forEach(ul => {
+        ul.hidden = true; ul.innerHTML = '';
+      });
+      document.querySelectorAll('.menu-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.id === id);
+      });
+
+      const sec = NAV.find(s => s.id === id);
+      if (!sec) return;
+
+      const holder = document.querySelector(`.submenu[data-parent="${id}"]`);
+      sec.items.forEach(item => {
         const li = document.createElement('li');
-        li.className = 'menu-item';
-        li.innerHTML = `
-          <button class="menu-btn" data-id="${sec.id}" aria-expanded="false">
-            ${sec.label}
-            <span class="caret" aria-hidden="true">▸</span>
-          </button>
-          <ul class="submenu" data-parent="${sec.id}" hidden></ul>
-        `;
-        primaryMenu.appendChild(li);
+        li.innerHTML = `<a class="submenu-link" href="${item.href}">${item.label}</a>`;
+        holder.appendChild(li);
       });
+      holder.hidden = false;
+
+      // 右側は概要のみ表示
+      welcome.style.display = 'none';
+      sectionInfo.style.display = '';
+      sectionTitle.textContent = sec.label;
+      sectionDesc.textContent  = sec.desc;
     }
 
-    // 指定idの中項目を、該当のsubmenuに展開
-    function openSection(id){
-      // すべて閉じる
-      document.querySelectorAll('.submenu').forEach(ul => { ul.hidden = true; ul.innerHTML = ''; });
-      document.querySelectorAll('.menu-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-expanded','false'); b.querySelector('.caret').textContent = '▸'; });
-
-      // 対象セクション
-      const data = NAV.find(s => s.id === id);
-      const sub  = document.querySelector(`.submenu[data-parent="${id}"]`);
-      const btn  = document.querySelector(`.menu-btn[data-id="${id}"]`);
-      if(!data || !sub || !btn) return;
-
-      // サブを構築
-      sub.innerHTML = data.items.map(item => `
-        <li><a class="submenu-link" href="${item.href}">${item.label}</a></li>
-      `).join('');
-      sub.hidden = false;
-      btn.classList.add('active');
-      btn.setAttribute('aria-expanded','true');
-      btn.querySelector('.caret').textContent = '▾';
-
-      // 右パネル切替
-      hero.hidden = true;
-      sectionPanel.hidden = false;
-      sectionTitle.textContent = data.label;
-      sectionDesc.textContent  = data.desc;
-    }
-
-    // クリックイベント（委任）
+    // クリック動作
     primaryMenu.addEventListener('click', (e) => {
-      if (e.target.closest('.menu-btn')) {
-        const id = e.target.closest('.menu-btn').dataset.id;
-        // すでに開いているものを再クリック → 閉じてヒーローに戻す
-        const expanded = e.target.closest('.menu-btn').getAttribute('aria-expanded') === 'true';
-        if (expanded){
-          // 全閉じ＆ヒーローへ
-          document.querySelectorAll('.submenu').forEach(ul => { ul.hidden = true; ul.innerHTML=''; });
-          document.querySelectorAll('.menu-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-expanded','false'); b.querySelector('.caret').textContent='▸'; });
-          sectionPanel.hidden = true; hero.hidden = false;
+      if (e.target.matches('.menu-btn')) {
+        const id = e.target.dataset.id;
+        const isActive = e.target.classList.contains('active');
+        if (isActive) {
+          // 既に開いている場合は閉じる＝初期画面へ
+          document.querySelector(`.submenu[data-parent="${id}"]`).hidden = true;
+          e.target.classList.remove('active');
+          welcome.style.display = '';
+          sectionInfo.style.display = 'none';
         } else {
-          openSection(id);
+          renderSubmenu(id);
         }
       }
     });
 
-    // 初期レンダリング
-    renderPrimary();
-    renderTopics();
+    // 初期：未選択（ウェルカム表示）
     document.getElementById('y').textContent = new Date().getFullYear();
   </script>
 </body>
