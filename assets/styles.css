@@ -315,3 +315,114 @@ body{
   .guide-left::after{ left:18px; }
   .guide-figure img{ max-height: 260px; }
 }
+/* ===========================
+   手順ページ（manual）
+   =========================== */
+.manual {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-bottom: 2rem;
+}
+
+/* ステップ全体 */
+.manual-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 1.25rem;
+}
+
+/* 各ステップ */
+.manual-step {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 24px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px;
+  align-items: start;
+  position: relative;
+}
+
+/* 左（画像＋番号） */
+.manual-left {
+  position: relative;
+  padding-left: 10px;
+}
+
+/* 縦のライン */
+.manual-step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 34px;
+  top: calc(40px + 10px);
+  width: 2px;
+  height: calc(100% + 24px);
+  background: var(--line);
+  z-index: 0;
+}
+
+/* 番号バッジ */
+.manual-num {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 2px solid var(--accent);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  background: #fff;
+  margin-bottom: 12px;
+  z-index: 1;
+  position: relative;
+}
+
+/* 画像 */
+.manual-left figure {
+  margin: 0;
+}
+.manual-left img {
+  width: 100%;
+  max-width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+}
+.manual-left figcaption {
+  margin-top: 4px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+/* 右（テキスト） */
+.manual-right h3 {
+  margin: 0.25rem 0 0.4rem;
+}
+.manual-right p {
+  margin: 0.2rem 0 0.6rem;
+  line-height: 1.8;
+}
+.manual-right .note {
+  background: #eef2ff;
+  border-left: 4px solid var(--accent);
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.4rem;
+}
+
+/* レスポンシブ */
+@media (max-width: 900px) {
+  .manual-step {
+    grid-template-columns: 1fr;
+  }
+  .manual-step:not(:last-child)::after {
+    display: none;
+  }
+  .manual-left img {
+    max-height: 260px;
+  }
+}
