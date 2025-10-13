@@ -172,3 +172,23 @@ body{
   .hero{ height:140px }
   .hero-search{ width:95% }
 }
+/* 検索結果 */
+.result-head{
+  display:flex; align-items:center; justify-content:space-between;
+  margin:.25rem 0 .5rem;
+}
+.btn-clear{
+  border:1px solid var(--line); border-radius:.5rem; padding:.4rem .7rem; background:#fff; cursor:pointer;
+}
+.btn-clear:hover{ background:#f3f4f6 }
+.result-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.5rem }
+.result-item a{
+  display:block; padding:.9rem 1rem; background:#fff; border:1px solid var(--line);
+  border-radius:.75rem; text-decoration:none; color:inherit;
+}
+.result-item a:hover{ border-color: var(--accent) }
+.result-item .title{ font-weight:700; margin-bottom:.25rem }
+.result-item .snippet{ color:var(--muted); font-size:.92rem }
+.result-item .tags{ margin-top:.25rem; opacity:.9 }
+.result-item .tags span{ font-size:.85rem; margin-right:.35rem }
+.result-empty{ color:var(--muted); padding:.75rem }
