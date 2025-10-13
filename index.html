@@ -289,6 +289,52 @@
 
   // 年表示
   document.getElementById('y').textContent = new Date().getFullYear();
+
+/* ===== サイドバーの出し入れ（ホットゾーン方式） ===== */
+(function(){
+  // 1) 左端に透明のホットゾーンを置く
+  const zone = document.createElement('div');
+  zone.className = 'edge-hotzone';
+  document.body.appendChild(zone);
+
+  const OPEN_CLASS = 'sidebar-open';
+  let closeTimer = null;
+
+  // 2) ホットゾーンに入ったら開く
+  const openSidebar = () => {
+    if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
+    document.body.classList.add(OPEN_CLASS);
+  };
+
+  // 3) サイドバー/ホットゾーンから離れたら少し遅延して閉じる（誤操作対策）
+  const maybeClose = () => {
+    if (closeTimer) clearTimeout(closeTimer);
+    closeTimer = setTimeout(() => {
+      document.body.classList.remove(OPEN_CLASS);
+    }, 200); // 200ms余裕
+  };
+
+  // 4) マウスイベント
+  zone.addEventListener('mouseenter', openSidebar);
+  zone.addEventListener('mouseleave', maybeClose);
+
+  const sidebar = document.querySelector('.sidebar');
+  if (sidebar) {
+    sidebar.addEventListener('mouseenter', openSidebar);
+    sidebar.addEventListener('mouseleave', maybeClose);
+  }
+
+  // 5) キーボード操作（Escで閉じる／Tab移動で開いたまま）
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.body.classList.remove(OPEN_CLASS);
+    }
+  });
+
+  // 6) 初期状態（閉じる）
+  document.body.classList.remove(OPEN_CLASS);
+})();
+
 </script>
 </body>
 </html>
