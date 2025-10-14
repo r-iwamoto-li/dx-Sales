@@ -9,12 +9,11 @@
 <body>
   <header class="site-header">
     <div class="logo"><a href="../../index.html" style="color:#fff; text-decoration:none;">Sales Ops Manual</a></div>
-    <!-- 検索バーを実動させるため id 付与 -->
     <input id="global-search" class="search" type="search" placeholder="キーワードを入力してください" />
   </header>
 
   <main class="layout">
-    <!-- 左：メニュー（ホバーで出現） -->
+    <!-- 左：メニュー -->
     <nav class="sidebar" aria-label="メインメニュー">
       <ul id="primary-menu" class="menu"></ul>
     </nav>
@@ -25,10 +24,9 @@
         <a href="../../index.html">TOP</a> ＞ <span>SFA：Salesforce</span> ＞ <span>商談の作成〜フェーズ管理</span>
       </nav>
 
-      <!-- ※ 重複の「SFA：Salesforce」キッカーは削除 -->
       <h1 class="page-title">商談の作成〜フェーズ管理</h1>
 
-      <!-- 概要：背景＝白／目次セクション風 -->
+      <!-- 概要 -->
       <section class="summary-box summary--white" aria-labelledby="summary-label">
         <div class="summary-head" id="summary-label">概要</div>
         <div class="summary-body">
@@ -49,9 +47,10 @@
             <h3>商談タブから新規作成</h3>
             <p class="manual-desc">［商談］タブで［新規］をクリック。取引先が未作成の場合は先に作成してください。</p>
 
-            <!-- 注意・ルール（濃紺フレーム＋⚠️タブ） -->
             <div class="rule-box rule--caution">
-              <div class="rule-label"><span class="ico"></span>注意事項</div>
+              <div class="rule-label">
+                <span class="ico">⚠️</span><span>注意事項</span>
+              </div>
               <div class="rule-body"><strong>入力規則：</strong> 商談名は「YYYYMMDD_案件名_顧客名」で統一。</div>
             </div>
           </div>
@@ -90,9 +89,9 @@
     </section>
   </main>
 
-  <!-- 左メニュー構築 & 画像拡大 & 検索 & サイドバー出し入れ -->
   <script>
-    /* ===== ナビ定義 ===== */
+  document.addEventListener("DOMContentLoaded", () => {
+    /* ====== 左メニュー ====== */
     const NAV = [
       { id: "salesforce", label: "SFA：Salesforce", items: [
         { label: "はじめに（運用方針）", href: "../salesforce/intro.html" },
@@ -122,13 +121,6 @@
         { label: "連携マップ（全体像）", href: "../common/integration-map.html" },
         { label: "トラブルシュートの基本", href: "../common/troubleshoot.html" },
       ]},
-      { id: "governance", label: "共通：データガバナンス", items: [
-        { label: "重複チェックの運用", href: "../common/dedupe.html" },
-        { label: "項目設計ガイド", href: "../common/field-design.html" },
-        { label: "データ品質監視", href: "../common/data-quality.html" },
-        { label: "匿名化・削除ポリシー", href: "../common/privacy.html" },
-        { label: "変更申請フロー", href: "../common/change-request.html" },
-      ]},
       { id: "faq", label: "FAQ／ベストプラクティス", items: [
         { label: "パーミッションで詰まったら", href: "../faq/permissions.html" },
         { label: "レポート設計のコツ", href: "../faq/reporting-tips.html" },
@@ -138,7 +130,6 @@
       ]},
     ];
 
-    /* ===== 左メニュー描画 ===== */
     const primaryMenu = document.getElementById('primary-menu');
     NAV.forEach((s) => {
       const li = document.createElement('li');
@@ -165,24 +156,20 @@
     const here = [...document.querySelectorAll('.submenu-link')].find(a => a.getAttribute('href')?.endsWith('/opportunity.html'));
     if (here) here.classList.add('is-current');
 
-    /* ===== 画像クリック拡大（lightbox） ===== */
-    document.addEventListener("DOMContentLoaded", () => {
-      const lightbox = document.createElement("div");
-      lightbox.className = "lightbox";
-      lightbox.innerHTML = `<img src="" alt="拡大画像">`;
-      document.body.appendChild(lightbox);
-      const lightboxImg = lightbox.querySelector("img");
-      document.querySelectorAll(".manual-figure img").forEach(img => {
-        img.addEventListener("click", () => { lightboxImg.src = img.src; lightbox.classList.add("show"); });
-      });
-      lightbox.addEventListener("click", () => { lightbox.classList.remove("show"); lightboxImg.src = ""; });
-      document.addEventListener("keydown", e => { if (e.key === "Escape") lightbox.classList.remove("show"); });
+    /* ===== Lightbox ===== */
+    const lightbox = document.createElement("div");
+    lightbox.className = "lightbox";
+    lightbox.innerHTML = `<img src="" alt="拡大画像">`;
+    document.body.appendChild(lightbox);
+    const lightboxImg = lightbox.querySelector("img");
+    document.querySelectorAll(".manual-figure img").forEach(img => {
+      img.addEventListener("click", () => { lightboxImg.src = img.src; lightbox.classList.add("show"); });
     });
+    lightbox.addEventListener("click", () => { lightbox.classList.remove("show"); lightboxImg.src = ""; });
 
-    /* ===== 検索（TOPと同じ動き） ===== */
-    (function(){
-      const input = document.getElementById('global-search');
-      if (!input) return;
+    /* ===== 検索（Enterで実行） ===== */
+    const input = document.getElementById('global-search');
+    if (input) {
       const tokenize = q => q.trim().toLowerCase().split(/\s+/).filter(Boolean);
       let INDEX=null;
       async function loadIndex(){
@@ -198,83 +185,36 @@
           const hay=(doc.title+' '+(doc.tags||[]).join(' ')).toLowerCase();
           const ok=tokens.every(t=>hay.includes(t));
           let score=0;
-          if(ok){ tokens.forEach(t=>{ if(doc.title.toLowerCase().includes(t)) score+=3; if((doc.tags||[]).join(' ').toLowerCase().includes(t)) score+=1; }); }
+          if(ok){
+            tokens.forEach(t=>{
+              if(doc.title.toLowerCase().includes(t)) score+=3;
+              if((doc.tags||[]).join(' ').toLowerCase().includes(t)) score+=1;
+            });
+          }
           return ok?{...doc,score}:null;
         }).filter(Boolean).sort((a,b)=>b.score-a.score).slice(0,60);
       }
-      function showResults(items,q){
-        // 結果はそのまま遷移でOK。ここでは最上位を開く or 別タブなどにしたければ調整
-        if(items[0]) location.href = '../../' + items[0].url.replace(/^\/?/,'');
-      }
+      function navigateTo(item){ if(!item) return; location.href='../../'+item.url.replace(/^\/?/,''); }
       input.addEventListener('keydown', async e=>{
         if(e.key!=='Enter') return;
         const q=input.value.trim(); if(!q) return;
-        const idx=await loadIndex(); const items=searchDocs(idx,q); showResults(items,q);
+        const idx=await loadIndex(); const items=searchDocs(idx,q);
+        navigateTo(items[0]);
       });
-    })();
+    }
 
-    /* ===== サイドバーの出し入れ（ホットゾーン） ===== */
-    (function(){
-      const zone = document.createElement('div');
-      zone.className = 'edge-hotzone';
-      document.body.appendChild(zone);
-      const OPEN_CLASS = 'sidebar-open';
-      let closeTimer=null;
-      const open = ()=>{ if(closeTimer){clearTimeout(closeTimer);closeTimer=null;} document.body.classList.add(OPEN_CLASS); };
-      const closeLater = ()=>{ if(closeTimer) clearTimeout(closeTimer); closeTimer=setTimeout(()=>document.body.classList.remove(OPEN_CLASS),200); };
-      zone.addEventListener('mouseenter', open);
-      zone.addEventListener('mouseleave', closeLater);
-      const sidebar=document.querySelector('.sidebar');
-      if(sidebar){ sidebar.addEventListener('mouseenter', open); sidebar.addEventListener('mouseleave', closeLater); }
-      document.addEventListener('keydown', e=>{ if(e.key==='Escape') document.body.classList.remove(OPEN_CLASS); });
-      document.body.classList.remove(OPEN_CLASS);
-    })();
-    /* ===== 検索（Enterで実行） ===== */
-(function(){
-  const input = document.getElementById('global-search');
-  if (!input) return;
-
-  const tokenize = q => q.trim().toLowerCase().split(/\s+/).filter(Boolean);
-  let INDEX=null;
-
-  async function loadIndex(){
-    if (INDEX) return INDEX;
-    const res = await fetch('../../search-index.json', {cache:'no-store'}); // ← 相対パス注意
-    INDEX = await res.json();
-    return INDEX;
-  }
-
-  function searchDocs(index, query){
-    const tokens = tokenize(query);
-    if (!tokens.length) return [];
-    return index.map(doc=>{
-      const hay=(doc.title+' '+(doc.tags||[]).join(' ')).toLowerCase();
-      const ok=tokens.every(t=>hay.includes(t));
-      let score=0;
-      if(ok){
-        tokens.forEach(t=>{
-          if(doc.title.toLowerCase().includes(t)) score+=3;
-          if((doc.tags||[]).join(' ').toLowerCase().includes(t)) score+=1;
-        });
-      }
-      return ok?{...doc,score}:null;
-    }).filter(Boolean).sort((a,b)=>b.score-a.score).slice(0,60);
-  }
-
-  function navigateTo(item){
-    if(!item) return;
-    // ルート相対のURL（例: "pages/faq/xxx.html"）を現在階層からの相対に変換
-    location.href = '../../' + item.url.replace(/^\/?/,'');
-  }
-
-  input.addEventListener('keydown', async e=>{
-    if(e.key!=='Enter') return;
-    const q=input.value.trim(); if(!q) return;
-    const idx=await loadIndex();
-    const items=searchDocs(idx,q);
-    navigateTo(items[0]);  // 最上位に遷移（必要なら結果一覧UIに差し替え可）
+    /* ===== サイドバー出し入れ ===== */
+    const zone = document.createElement('div');
+    zone.className = 'edge-hotzone';
+    document.body.appendChild(zone);
+    const OPEN_CLASS='sidebar-open';
+    let timer=null;
+    const open=()=>{ if(timer){clearTimeout(timer);timer=null;} document.body.classList.add(OPEN_CLASS); };
+    const close=()=>{ if(timer)clearTimeout(timer); timer=setTimeout(()=>document.body.classList.remove(OPEN_CLASS),200); };
+    zone.addEventListener('mouseenter',open); zone.addEventListener('mouseleave',close);
+    const sidebar=document.querySelector('.sidebar');
+    if(sidebar){ sidebar.addEventListener('mouseenter',open); sidebar.addEventListener('mouseleave',close); }
   });
-})();
   </script>
 </body>
 </html>
