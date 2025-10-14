@@ -283,67 +283,69 @@ body{
   box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   background: #fff;
 }
-/* ========== manual: 概要カード ========== */
-.manual .lead-card{
-  display:flex; gap:.9rem; align-items:flex-start;
-  background: #fff;
-  border: 1px solid #bfdbfe;
-  border-left: 6px solid var(--accent);
-  border-radius: .8rem;
-  padding: .9rem 1rem;
-  box-shadow: 0 3px 14px rgba(16,24,40,.05);
-  margin: 0 0 1.2rem;
+/* ===== 概要（目次セクション風） ===== */
+.summary-box{
+  background:#f6f8fc;                 /* 薄いグレー寄り */
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  padding:12px 14px 14px;
+  margin: 0 0 18px;
 }
-.manual .lead-icon{
-  width: 32px; height: 32px; border-radius: 999px;
+.summary-head{
+  display:inline-block;
+  background: var(--accent);
+  color:#fff;
+  font-weight:700;
+  font-size:.9rem;
+  padding:.35rem .8rem;
+  border-radius:999px;                 /* バッジ風 */
+  letter-spacing:.02em;
+}
+.summary-body{
+  margin-top:.6rem;
+  color:var(--ink);
+  line-height:1.9;
+}
+
+/* ===== 注意・ルール（青系ボックス） ===== */
+.rule-box{
+  position:relative;
+  background:#eff6ff;                  /* 淡い青背景 */
+  border:1px solid #bfdbfe;            /* 輪郭 */
+  border-left:6px solid var(--accent); /* 目立つ左帯 */
+  border-radius:12px;
+  padding:.85rem .95rem .85rem 3.2rem; /* 左にアイコン余白 */
+  box-shadow:0 2px 10px rgba(37,99,235,.06);
+}
+.rule-box::before{
+  content:"!";                          /* アイコン（任意で変更可） */
+  position:absolute; left:.9rem; top:50%; transform:translateY(-50%);
+  width:1.8rem; height:1.8rem; border-radius:999px;
+  background: var(--accent); color:#fff; font-weight:800;
   display:flex; align-items:center; justify-content:center;
-  background: var(--accent-weak);
-  font-size: 18px; line-height:1;
+  box-shadow:0 2px 6px rgba(37,99,235,.25);
 }
-.manual .lead-title{
-  margin: .05rem 0 .3rem;
-  font-size: 1.05rem; font-weight: 700;
-}
-.manual .lead-text{
-  margin: 0;
-  line-height: 1.85;
-  color: var(--ink);
+.rule-box strong{ font-weight:800 }
+
+/* ===== manual画像 少し拡大（共通） ===== */
+.manual-figure img{
+  height: 280px;            /* 260px→280px に拡大 */
+  object-fit: contain;
+  cursor: zoom-in;
 }
 
-/* ========== manual: コールアウト（ルール／注意） ========== */
-.manual .callout{
-  border: 1px solid var(--line);
-  border-radius: .7rem;
-  background: #fff;
-  padding: .75rem .9rem;
-  margin-top: .65rem;
-  box-shadow: 0 2px 10px rgba(16,24,40,.04);
+/* ===== Lightbox（既出） ===== */
+.lightbox{
+  position: fixed; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  background: rgba(0,0,0,.75);
+  z-index: 999;
+  opacity:0; pointer-events:none;
+  transition: opacity .2s ease;
 }
-.manual .callout .callout-head{
-  display:flex; align-items:center; gap:.5rem;
-  font-weight: 700; margin: 0 0 .35rem;
-}
-.manual .callout .callout-head::before{
-  content: "⚑";
-  width: 22px; height: 22px; border-radius:999px;
-  display:inline-flex; align-items:center; justify-content:center;
-  background: var(--accent-weak);
-  font-size: 12px;
-}
-.manual .callout .callout-body{
-  margin: 0; line-height: 1.8;
-}
-.manual .callout code{
-  background: #f3f4f6; border: 1px solid var(--line); border-radius: .35rem;
-  padding: .1rem .35rem; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-}
-
-/* バリエーション：ルールをより目立たせる */
-.manual .callout--rule{
-  border-color: #bfdbfe;
-  background: linear-gradient(180deg, #ffffff, #f8fbff);
-}
-.manual .callout--rule .callout-head::before{
-  content: "📏";
-  background: #e0ecff;
+.lightbox.show{ opacity:1; pointer-events:auto }
+.lightbox img{
+  max-width:90vw; max-height:90vh;
+  border-radius:8px; background:#fff;
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
 }
