@@ -145,7 +145,7 @@
 
       // 初回だけ 0.8s 自動で開いて存在を知らせる
       document.body.classList.add(OPEN_CLASS);
-      setTimeout(() => document.body.classList.remove(OPEN_CLASS), 800);
+      setTimeout(() => document.body.classList.remove(OPEN_CLASS), 2000);
     }
 
     // ===== 4) 予備のトグルボタン（万一ホットゾーンが効かない環境向け）
