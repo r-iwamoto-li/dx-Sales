@@ -229,6 +229,52 @@
       document.addEventListener('keydown', e=>{ if(e.key==='Escape') document.body.classList.remove(OPEN_CLASS); });
       document.body.classList.remove(OPEN_CLASS);
     })();
+    /* ===== 検索（Enterで実行） ===== */
+(function(){
+  const input = document.getElementById('global-search');
+  if (!input) return;
+
+  const tokenize = q => q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  let INDEX=null;
+
+  async function loadIndex(){
+    if (INDEX) return INDEX;
+    const res = await fetch('../../search-index.json', {cache:'no-store'}); // ← 相対パス注意
+    INDEX = await res.json();
+    return INDEX;
+  }
+
+  function searchDocs(index, query){
+    const tokens = tokenize(query);
+    if (!tokens.length) return [];
+    return index.map(doc=>{
+      const hay=(doc.title+' '+(doc.tags||[]).join(' ')).toLowerCase();
+      const ok=tokens.every(t=>hay.includes(t));
+      let score=0;
+      if(ok){
+        tokens.forEach(t=>{
+          if(doc.title.toLowerCase().includes(t)) score+=3;
+          if((doc.tags||[]).join(' ').toLowerCase().includes(t)) score+=1;
+        });
+      }
+      return ok?{...doc,score}:null;
+    }).filter(Boolean).sort((a,b)=>b.score-a.score).slice(0,60);
+  }
+
+  function navigateTo(item){
+    if(!item) return;
+    // ルート相対のURL（例: "pages/faq/xxx.html"）を現在階層からの相対に変換
+    location.href = '../../' + item.url.replace(/^\/?/,'');
+  }
+
+  input.addEventListener('keydown', async e=>{
+    if(e.key!=='Enter') return;
+    const q=input.value.trim(); if(!q) return;
+    const idx=await loadIndex();
+    const items=searchDocs(idx,q);
+    navigateTo(items[0]);  // 最上位に遷移（必要なら結果一覧UIに差し替え可）
+  });
+})();
   </script>
 </body>
 </html>
