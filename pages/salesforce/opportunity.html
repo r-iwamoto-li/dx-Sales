@@ -154,6 +154,37 @@
     openSubmenu('salesforce');
     const here = [...document.querySelectorAll('.submenu-link')].find(a => a.getAttribute('href')?.endsWith('/opportunity.html'));
     if (here) here.classList.add('is-current');
-  </script>
+    
+/* ====== manual内の画像クリック拡大（Lightbox） ====== */
+document.addEventListener("DOMContentLoaded", () => {
+  // 1) Lightbox要素を動的に生成
+  const lightbox = document.createElement("div");
+  lightbox.className = "lightbox";
+  lightbox.innerHTML = `<img src="" alt="拡大画像">`;
+  document.body.appendChild(lightbox);
+
+  const lightboxImg = lightbox.querySelector("img");
+
+  // 2) manual内の全画像にクリックイベント付与
+  document.querySelectorAll(".manual-figure img").forEach(img => {
+    img.addEventListener("click", () => {
+      lightboxImg.src = img.src;
+      lightbox.classList.add("show");
+    });
+  });
+
+  // 3) Lightboxをクリックで閉じる
+  lightbox.addEventListener("click", () => {
+    lightbox.classList.remove("show");
+    lightboxImg.src = "";
+  });
+
+  // 4) Escキーで閉じる
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") lightbox.classList.remove("show");
+  });
+});
+</script>
+
 </body>
 </html>
