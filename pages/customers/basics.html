@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>顧客管理｜基本ルール・定義</title>
+  <link rel="stylesheet" href="../../assets/styles.css" />
+  <!-- 共通ナビ（deferで安全に） -->
+  <script src="../../assets/nav.js" defer></script>
+
+  <style>
+    /* やさしい注意ボックス（上下余白 + 目に優しい赤） */
+    .rule-box{
+      background:#fff7f7;
+      border:2px solid #ef4444;
+      border-radius:12px;
+      padding:22px 14px;
+      margin:16px 0;
+      position:relative;
+    }
+    .rule-box .rule-label{
+      position:absolute; left:14px; top:-14px;
+      display:flex; align-items:center; gap:.4rem;
+      background:#ef4444; color:#fff;
+      font-weight:700; font-size:.88rem;
+      border-radius:6px; padding:.4rem .7rem;
+      line-height:1; box-shadow:0 2px 6px rgba(0,0,0,.12);
+    }
+    .rule-box .ico-img{
+      width:18px; height:18px; object-fit:contain;
+      display:inline-block; vertical-align:middle; margin-right:2px;
+      filter: drop-shadow(0 1px 1px rgba(0,0,0,.15));
+    }
+    .rule-box .rule-body{ line-height:1.9 }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo"><a href="../../index.html" style="color:#fff; text-decoration:none;">Sales Ops Manual</a></div>
+    <!-- 詳細ページは検索バーなし -->
+  </header>
+
+  <main class="layout">
+    <!-- 左：共通メニュー（nav.js が生成） -->
+    <nav class="sidebar" aria-label="メインメニュー">
+      <ul id="primary-menu" class="menu"></ul>
+    </nav>
+
+    <!-- 右：本文 -->
+    <section class="content manual">
+      <nav class="breadcrumb">
+        <a href="../../index.html">TOP</a> ＞ <span>顧客管理</span> ＞ <span>基本ルール・定義</span>
+      </nav>
+
+      <h1 class="page-title">基本ルール・定義</h1>
+
+      <!-- 概要 -->
+      <section class="summary-box" aria-labelledby="summary-label">
+        <div class="summary-head" id="summary-label">概要</div>
+        <div class="summary-body">
+          <p>顧客管理で使用する主要オブジェクトの定義と、登録・更新・命名規則などの基本ルールをまとめています。具体的な操作手順は各ページ（名刺登録方法／リード登録方法／取引先・取引先責任者登録方法）を参照してください。</p>
+        </div>
+      </section>
+
+      <!-- 定義 -->
+      <section class="manual-steps">
+        <article class="manual-step">
+          <div class="manual-left">
+            <div class="manual-num">1</div>
+            <figure class="manual-figure">
+              <img src="https://b2b.allis-co.com/wp-content/uploads/2024/06/e359b7a1d7514dfd7ed5f8122bf04226.jpg" alt="顧客データの構造図（例）">
+            </figure>
+          </div>
+          <div class="manual-right">
+            <h3>主要オブジェクトの定義</h3>
+            <p class="manual-desc">
+              <strong>名刺</strong>：人物の一次情報。OCR 補正後、人物（取引先責任者）へ反映します。<br>
+              <strong>リード</strong>：見込み顧客。人物と企業が確定していない段階の問い合わせ等。<br>
+              <strong>取引先</strong>：企業／部署単位のマスタ。正式名称・本社情報・企業コードを保持。<br>
+              <strong>取引先責任者</strong>：人物マスタ。役職・部署・メール・電話を保持。
+            </p>
+            <div class="rule-box">
+              <div class="rule-label">
+                <img src="https://twemoji.maxcdn.com/v/latest/72x72/26a0.png" alt="注意" class="ico-img">
+                <span>注意事項</span>
+              </div>
+              <div class="rule-body">
+                取引先責任者は<strong>同一メール</strong>を原則ユニークとします。フリーメールやメール不明の場合は、会社名＋氏名＋支社などで重複に注意してください。
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 命名・表記 -->
+        <article class="manual-step">
+          <div class="manual-left">
+            <div class="manual-num">2</div>
+            <figure class="manual-figure">
+              <img src="https://b2b.allis-co.com/wp-content/uploads/2024/06/e359b7a1d7514dfd7ed5f8122bf04226.jpg" alt="命名規則イメージ">
+            </figure>
+          </div>
+          <div class="manual-right">
+            <h3>命名規則・表記統一</h3>
+            <p class="manual-desc">
+              ・会社名は「株式会社」を省略しない（例：× ㈱、〇 株式会社）。<br>
+              ・部署は正式表記（「情シス部」→「情報システム部」）。<br>
+              ・役職は略さない（「Mgr」→「マネージャー」）。<br>
+              ・姓／名の区切りは全角スペース。カナは全角カタカナ。
+            </p>
+            <div class="rule-box">
+              <div class="rule-label">
+                <img src="https://twemoji.maxcdn.com/v/latest/72x72/26a0.png" alt="注意" class="ico-img">
+                <span>注意事項</span>
+              </div>
+              <div class="rule-body">
+                名寄せ精度を保つため、<strong>表記ゆれを登録時に直す</strong>運用とします。迷った場合は既存レコードの表記に合わせてください。
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 登録・更新の基本 -->
+        <article class="manual-step">
+          <div class="manual-left">
+            <div class="manual-num">3</div>
+            <figure class="manual-figure">
+              <img src="https://b2b.allis-co.com/wp-content/uploads/2024/06/e359b7a1d7514dfd7ed5f8122bf04226.jpg" alt="登録と更新のフロー">
+            </figure>
+          </div>
+          <div class="manual-right">
+            <h3>登録・更新の基本ルール</h3>
+            <p class="manual-desc">
+              ・まず検索して既存確認（重複作成を防止）。<br>
+              ・名刺→人物反映、人物→取引先リンクの順に整備。<br>
+              ・部署異動／メール変更は人物レコードを更新し、履歴項目に記録。<br>
+              ・取引先の部門追加は部署名を明確に（例：本社／関西支社）。
+            </p>
+            <div class="rule-box">
+              <div class="rule-label">
+                <img src="https://twemoji.maxcdn.com/v/latest/72x72/26a0.png" alt="注意" class="ico-img">
+                <span>個人情報</span>
+              </div>
+              <div class="rule-body">
+                退職者・無関係連絡先は<strong>配信停止</strong>に変更のうえ、個人メールアドレスへの営業配信は禁止。削除ではなく状態管理を基本とします。
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <footer class="site-footer">© <script>document.write(new Date().getFullYear())</script> Link innovation</footer>
+    </section>
+  </main>
+
+  <script>
+    // ページ読み込み後：共通ナビ初期化 + 現在位置ハイライト + ライトボックス
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof window.initPortalNav === 'function' && !window.__nav_initialized) {
+        window.__nav_initialized = true;
+        window.initPortalNav();
+      }
+      // 現在ページをハイライト（basics.html）
+      const here = [...document.querySelectorAll('.submenu-link')]
+        .find(a => a.getAttribute('href')?.endsWith('pages/customers/basics.html'));
+      if (here) here.classList.add('is-current');
+
+      // 画像ライトボックス
+      const lb = document.createElement('div');
+      lb.className = 'lightbox';
+      lb.innerHTML = '<img src="" alt="拡大画像">';
+      document.body.appendChild(lb);
+      const lbImg = lb.querySelector('img');
+      document.querySelectorAll('.manual-figure img').forEach(img=>{
+        img.addEventListener('click', ()=>{ lbImg.src = img.src; lb.classList.add('show'); });
+      });
+      lb.addEventListener('click', ()=>{ lb.classList.remove('show'); lbImg.src=''; });
+    });
+  </script>
+</body>
+</html>
