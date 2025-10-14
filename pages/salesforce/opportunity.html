@@ -13,10 +13,12 @@
   </header>
 
   <main class="layout">
+    <!-- 左：メニュー（ホバーで出現） -->
     <nav class="sidebar" aria-label="メインメニュー">
       <ul id="primary-menu" class="menu"></ul>
     </nav>
 
+    <!-- 右：本文 -->
     <section class="content manual">
       <nav class="breadcrumb">
         <a href="../../index.html">TOP</a> ＞ <span>SFA：Salesforce</span> ＞ <span>商談の作成〜フェーズ管理</span>
@@ -24,6 +26,17 @@
 
       <h1 class="page-title">商談の作成〜フェーズ管理</h1>
 
+      <!-- ★ 追加：検索結果表示エリア（TOPと同じ構造） -->
+      <section id="search-results" class="home-section" style="display:none;">
+        <h2 class="home-h2">検索結果</h2>
+        <div class="result-head">
+          <span id="result-count"></span>
+          <button id="clear-search" class="btn-clear" type="button">クリア</button>
+        </div>
+        <div class="result-grid" id="result-grid"></div>
+      </section>
+
+      <!-- 概要 -->
       <section class="summary-box summary--white" aria-labelledby="summary-label">
         <div class="summary-head" id="summary-label">概要</div>
         <div class="summary-body">
@@ -137,8 +150,8 @@
       const li = document.createElement('li');
       li.className = 'menu-item';
       li.innerHTML = `
-        <button class="menu-btn" data-id="${s.id}">${s.label}</button>
-        <ul class="submenu" data-parent="${s.id}" hidden></ul>
+        <button class="menu-btn" data-id="\${s.id}">\${s.label}</button>
+        <ul class="submenu" data-parent="\${s.id}" hidden></ul>
       `;
       primaryMenu.appendChild(li);
     });
@@ -146,10 +159,10 @@
       document.querySelectorAll('.submenu').forEach(ul => { ul.hidden = true; ul.innerHTML=''; });
       document.querySelectorAll('.menu-btn').forEach(b => b.classList.toggle('active', b.dataset.id === id));
       const sec = NAV.find(s => s.id === id); if (!sec) return;
-      const holder = document.querySelector(`.submenu[data-parent="${id}"]`);
+      const holder = document.querySelector(\`.submenu[data-parent="\${id}"]\`);
       sec.items.forEach(item => {
         const li = document.createElement('li');
-        li.innerHTML = `<a class="submenu-link" href="${item.href}">${item.label}</a>`;
+        li.innerHTML = \`<a class="submenu-link" href="\${item.href}">\${item.label}</a>\`;
         holder.appendChild(li);
       });
       holder.hidden = false;
@@ -158,7 +171,7 @@
     const here = [...document.querySelectorAll('.submenu-link')].find(a => a.getAttribute('href')?.endsWith('/opportunity.html'));
     if (here) here.classList.add('is-current');
 
-    /* ===== Lightbox ===== */
+    /* ===== 画像拡大（Lightbox） ===== */
     const lightbox = document.createElement("div");
     lightbox.className = "lightbox";
     lightbox.innerHTML = `<img src="" alt="拡大画像">`;
@@ -169,43 +182,81 @@
     });
     lightbox.addEventListener("click", () => { lightbox.classList.remove("show"); lightboxImg.src = ""; });
 
-    /* ===== 検索 ===== */
-    const input = document.getElementById('global-search');
-    if (input) {
-      const tokenize = q => q.trim().toLowerCase().split(/\s+/).filter(Boolean);
-      let INDEX=null;
-      async function loadIndex(){
-        if (INDEX) return INDEX;
-        const res = await fetch('../../search-index.json', {cache:'no-store'});
-        INDEX = await res.json();
-        return INDEX;
-      }
-      function searchDocs(index, query){
-        const tokens = tokenize(query);
-        if (!tokens.length) return [];
-        return index.map(doc=>{
-          const hay=(doc.title+' '+(doc.tags||[]).join(' ')).toLowerCase();
-          const ok=tokens.every(t=>hay.includes(t));
-          let score=0;
-          if(ok){
-            tokens.forEach(t=>{
-              if(doc.title.toLowerCase().includes(t)) score+=3;
-              if((doc.tags||[]).join(' ').toLowerCase().includes(t)) score+=1;
+    /* ===== 検索（TOPと同じ表示ロジック） ===== */
+    const searchInput = document.getElementById('global-search');
+    const resultWrap  = document.getElementById('search-results');
+    const resultGrid  = document.getElementById('result-grid');
+    const resultCount = document.getElementById('result-count');
+    const clearBtn    = document.getElementById('clear-search');
+
+    let SEARCH_INDEX = null;
+    async function loadIndex(){
+      if (SEARCH_INDEX) return SEARCH_INDEX;
+      // ルートの search-index.json を相対で取得（このページは /pages/salesforce 配下）
+      const res = await fetch('../../search-index.json', {cache: 'no-store'});
+      SEARCH_INDEX = await res.json();
+      return SEARCH_INDEX;
+    }
+    const tokenize = q => q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+
+    function searchDocs(index, query){
+      const tokens = tokenize(query);
+      if (!tokens.length) return [];
+      return index
+        .map(doc => {
+          const hay = (doc.title + ' ' + (doc.tags||[]).join(' ')).toLowerCase();
+          const ok = tokens.every(t => hay.includes(t));
+          let score = 0;
+          if (ok){
+            tokens.forEach(t => {
+              if (doc.title.toLowerCase().includes(t)) score += 3;
+              if ((doc.tags||[]).join(' ').toLowerCase().includes(t)) score += 1;
             });
           }
-          return ok?{...doc,score}:null;
-        }).filter(Boolean).sort((a,b)=>b.score-a.score).slice(0,60);
-      }
-      function navigateTo(item){ if(!item) return; location.href='../../'+item.url.replace(/^\/?/,''); }
-      input.addEventListener('keydown', async e=>{
-        if(e.key!=='Enter') return;
-        const q=input.value.trim(); if(!q) return;
-        const idx=await loadIndex(); const items=searchDocs(idx,q);
-        navigateTo(items[0]);
+          return ok ? {...doc, score} : null;
+        })
+        .filter(Boolean)
+        .sort((a,b)=> b.score - a.score)
+        .slice(0,60);
+    }
+
+    function renderResults(items, query){
+      resultWrap.style.display = '';
+      resultCount.textContent = `「${query}」の結果：${items.length}件`;
+      // このページからの相対パスでリンクを生成
+      resultGrid.innerHTML = items.map(it => `
+        <a class="result-card" href="../../${it.url.replace(/^\\/?/,'')}" title="${it.title}">
+          <div class="result-title">${it.title}</div>
+        </a>
+      `).join('') || `<div class="result-empty">該当するページが見つかりませんでした。</div>`;
+      resultWrap.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    function clearSearch(){
+      if (!resultWrap) return;
+      resultWrap.style.display = 'none';
+      resultGrid.innerHTML = '';
+      resultCount.textContent = '';
+      if (searchInput) searchInput.value = '';
+    }
+    if (clearBtn) clearBtn.addEventListener('click', clearSearch);
+
+    async function doSearch(q){
+      const index = await loadIndex();
+      const items = searchDocs(index, q);
+      renderResults(items, q);
+    }
+
+    if (searchInput){
+      searchInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter'){
+          const q = searchInput.value.trim();
+          if (q) doSearch(q);
+        }
       });
     }
 
-    /* ===== サイドバー出し入れ ===== */
+    /* ===== サイドバーの出し入れ（ホットゾーン） ===== */
     const zone = document.createElement('div');
     zone.className = 'edge-hotzone';
     document.body.appendChild(zone);
@@ -217,14 +268,13 @@
     const sidebar=document.querySelector('.sidebar');
     if(sidebar){ sidebar.addEventListener('mouseenter',open); sidebar.addEventListener('mouseleave',close); }
 
-    /* ★ 修正：もし別のWebアイコンURLに差し替えたい場合のワンライナー（任意）
-       document.querySelector('.ico-img').src = 'https://あなたのドメイン/path/to/icon.png';
-       // 読み込み失敗時はTwemojiに自動フォールバック
-    */
+    /* 予備：注意アイコンURLが無効な場合のフォールバック */
     const ico = document.querySelector('.ico-img');
-    ico.addEventListener('error', () => {
-      ico.src = 'https://twemoji.maxcdn.com/v/latest/72x72/26a0.png';
-    });
+    if (ico){
+      ico.addEventListener('error', () => {
+        ico.src = 'https://twemoji.maxcdn.com/v/latest/72x72/26a0.png';
+      });
+    }
   });
   </script>
 </body>
