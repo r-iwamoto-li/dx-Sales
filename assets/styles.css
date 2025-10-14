@@ -291,3 +291,25 @@ body{
   .hero-search{ width:96% }
   .result-grid{ grid-template-columns:1fr }
 }
+/* ===== サイドバー（出し入れ）補強 ===== */
+.edge-hotzone {
+  position: fixed;
+  top: 56px;
+  left: 0;
+  bottom: 0;
+  width: 18px; /* ← クリック領域を少し広げる */
+  z-index: 2000; /* ← ヘッダーや他要素より前面に */
+  background: transparent;
+  cursor: ew-resize;
+}
+
+/* サイドバー展開アニメーション補強 */
+.sidebar {
+  transition: opacity .2s ease, transform .25s ease;
+  transform: translateX(-100%);
+}
+.sidebar-open .sidebar {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
