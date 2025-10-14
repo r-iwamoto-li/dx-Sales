@@ -130,6 +130,7 @@
         timer = setTimeout(() => document.body.classList.remove(OPEN_CLASS), 200);
       };
 
+      // マウスで開閉
       zone.addEventListener('mouseenter', openSidebar);
       zone.addEventListener('mouseleave', maybeClose);
 
@@ -143,8 +144,11 @@
         if (e.key === 'Escape') document.body.classList.remove(OPEN_CLASS);
       });
 
+      // ✅ 初期状態：開いた状態でスタート
+      document.body.classList.add(OPEN_CLASS);
+    }
 
-    // ===== 4) 予備のトグルボタン（万一ホットゾーンが効かない環境向け）
+    // ===== 4) 予備のトグルボタン（ホットゾーンが効かない環境向け）
     if (!document.getElementById('nav-toggle')) {
       const btn = document.createElement('button');
       btn.id = 'nav-toggle';
