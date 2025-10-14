@@ -9,27 +9,27 @@
 <body>
   <header class="site-header">
     <div class="logo"><a href="../../index.html" style="color:#fff; text-decoration:none;">Sales Ops Manual</a></div>
-    <input class="search" type="search" placeholder="サイト内検索（ダミー）" />
+    <!-- 検索バーを実動させるため id 付与 -->
+    <input id="global-search" class="search" type="search" placeholder="キーワードを入力してください" />
   </header>
 
   <main class="layout">
-    <!-- 左：常時表示メニュー -->
+    <!-- 左：メニュー（ホバーで出現） -->
     <nav class="sidebar" aria-label="メインメニュー">
       <ul id="primary-menu" class="menu"></ul>
     </nav>
 
-    <!-- 右：本文（manualスコープ） -->
+    <!-- 右：本文 -->
     <section class="content manual">
       <nav class="breadcrumb">
         <a href="../../index.html">TOP</a> ＞ <span>SFA：Salesforce</span> ＞ <span>商談の作成〜フェーズ管理</span>
       </nav>
 
-      <!-- ▼ 重複の「SFA：Salesforce」キッカーは削除しました -->
-
+      <!-- ※ 重複の「SFA：Salesforce」キッカーは削除 -->
       <h1 class="page-title">商談の作成〜フェーズ管理</h1>
 
-      <!-- ▼ 目次セクション風の概要ボックス -->
-      <section class="summary-box" aria-labelledby="summary-label">
+      <!-- 概要：背景＝白／目次セクション風 -->
+      <section class="summary-box summary--white" aria-labelledby="summary-label">
         <div class="summary-head" id="summary-label">概要</div>
         <div class="summary-body">
           <p>新規商談の作成から、フェーズ更新、次アクションの登録、クローズまでの運用を解説します。</p>
@@ -49,9 +49,10 @@
             <h3>商談タブから新規作成</h3>
             <p class="manual-desc">［商談］タブで［新規］をクリック。取引先が未作成の場合は先に作成してください。</p>
 
-            <!-- ▼ 注意・ルールの強調ボックス（青系） -->
-            <div class="rule-box">
-              <strong>入力規則：</strong> 商談名は「YYYYMMDD_案件名_顧客名」で統一。
+            <!-- 注意・ルール（濃紺フレーム＋⚠️タブ） -->
+            <div class="rule-box rule--caution">
+              <div class="rule-label"><span class="ico"></span>注意事項</div>
+              <div class="rule-body"><strong>入力規則：</strong> 商談名は「YYYYMMDD_案件名_顧客名」で統一。</div>
             </div>
           </div>
         </article>
@@ -89,8 +90,9 @@
     </section>
   </main>
 
-  <!-- 左メニュー（このページは salesforce を初期展開） -->
+  <!-- 左メニュー構築 & 画像拡大 & 検索 & サイドバー出し入れ -->
   <script>
+    /* ===== ナビ定義 ===== */
     const NAV = [
       { id: "salesforce", label: "SFA：Salesforce", items: [
         { label: "はじめに（運用方針）", href: "../salesforce/intro.html" },
@@ -136,6 +138,7 @@
       ]},
     ];
 
+    /* ===== 左メニュー描画 ===== */
     const primaryMenu = document.getElementById('primary-menu');
     NAV.forEach((s) => {
       const li = document.createElement('li');
@@ -146,7 +149,6 @@
       `;
       primaryMenu.appendChild(li);
     });
-
     function openSubmenu(id) {
       document.querySelectorAll('.submenu').forEach(ul => { ul.hidden = true; ul.innerHTML=''; });
       document.querySelectorAll('.menu-btn').forEach(b => b.classList.toggle('active', b.dataset.id === id));
@@ -159,33 +161,74 @@
       });
       holder.hidden = false;
     }
-
     openSubmenu('salesforce');
     const here = [...document.querySelectorAll('.submenu-link')].find(a => a.getAttribute('href')?.endsWith('/opportunity.html'));
     if (here) here.classList.add('is-current');
 
-    /* ====== manual内の画像クリック拡大（Lightbox） ====== */
+    /* ===== 画像クリック拡大（lightbox） ===== */
     document.addEventListener("DOMContentLoaded", () => {
       const lightbox = document.createElement("div");
       lightbox.className = "lightbox";
       lightbox.innerHTML = `<img src="" alt="拡大画像">`;
       document.body.appendChild(lightbox);
-
       const lightboxImg = lightbox.querySelector("img");
       document.querySelectorAll(".manual-figure img").forEach(img => {
-        img.addEventListener("click", () => {
-          lightboxImg.src = img.src;
-          lightbox.classList.add("show");
-        });
+        img.addEventListener("click", () => { lightboxImg.src = img.src; lightbox.classList.add("show"); });
       });
-      lightbox.addEventListener("click", () => {
-        lightbox.classList.remove("show");
-        lightboxImg.src = "";
-      });
-      document.addEventListener("keydown", e => {
-        if (e.key === "Escape") lightbox.classList.remove("show");
-      });
+      lightbox.addEventListener("click", () => { lightbox.classList.remove("show"); lightboxImg.src = ""; });
+      document.addEventListener("keydown", e => { if (e.key === "Escape") lightbox.classList.remove("show"); });
     });
+
+    /* ===== 検索（TOPと同じ動き） ===== */
+    (function(){
+      const input = document.getElementById('global-search');
+      if (!input) return;
+      const tokenize = q => q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+      let INDEX=null;
+      async function loadIndex(){
+        if (INDEX) return INDEX;
+        const res = await fetch('../../search-index.json', {cache:'no-store'});
+        INDEX = await res.json();
+        return INDEX;
+      }
+      function searchDocs(index, query){
+        const tokens = tokenize(query);
+        if (!tokens.length) return [];
+        return index.map(doc=>{
+          const hay=(doc.title+' '+(doc.tags||[]).join(' ')).toLowerCase();
+          const ok=tokens.every(t=>hay.includes(t));
+          let score=0;
+          if(ok){ tokens.forEach(t=>{ if(doc.title.toLowerCase().includes(t)) score+=3; if((doc.tags||[]).join(' ').toLowerCase().includes(t)) score+=1; }); }
+          return ok?{...doc,score}:null;
+        }).filter(Boolean).sort((a,b)=>b.score-a.score).slice(0,60);
+      }
+      function showResults(items,q){
+        // 結果はそのまま遷移でOK。ここでは最上位を開く or 別タブなどにしたければ調整
+        if(items[0]) location.href = '../../' + items[0].url.replace(/^\/?/,'');
+      }
+      input.addEventListener('keydown', async e=>{
+        if(e.key!=='Enter') return;
+        const q=input.value.trim(); if(!q) return;
+        const idx=await loadIndex(); const items=searchDocs(idx,q); showResults(items,q);
+      });
+    })();
+
+    /* ===== サイドバーの出し入れ（ホットゾーン） ===== */
+    (function(){
+      const zone = document.createElement('div');
+      zone.className = 'edge-hotzone';
+      document.body.appendChild(zone);
+      const OPEN_CLASS = 'sidebar-open';
+      let closeTimer=null;
+      const open = ()=>{ if(closeTimer){clearTimeout(closeTimer);closeTimer=null;} document.body.classList.add(OPEN_CLASS); };
+      const closeLater = ()=>{ if(closeTimer) clearTimeout(closeTimer); closeTimer=setTimeout(()=>document.body.classList.remove(OPEN_CLASS),200); };
+      zone.addEventListener('mouseenter', open);
+      zone.addEventListener('mouseleave', closeLater);
+      const sidebar=document.querySelector('.sidebar');
+      if(sidebar){ sidebar.addEventListener('mouseenter', open); sidebar.addEventListener('mouseleave', closeLater); }
+      document.addEventListener('keydown', e=>{ if(e.key==='Escape') document.body.classList.remove(OPEN_CLASS); });
+      document.body.classList.remove(OPEN_CLASS);
+    })();
   </script>
 </body>
 </html>
