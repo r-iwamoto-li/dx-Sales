@@ -13,12 +13,10 @@
 </header>
 
 <main class="layout">
-  <!-- 左：大項目 + 直下に中項目 -->
   <nav class="sidebar" aria-label="メインメニュー">
     <ul id="primary-menu" class="menu"></ul>
   </nav>
 
-  <!-- 右：コンテンツ -->
   <section class="content">
     <div class="hero">
       <div class="hero-search">
@@ -27,7 +25,6 @@
       </div>
     </div>
 
-    <!-- 検索結果 -->
     <section id="search-results" class="home-section" style="display:none;">
       <h2 class="home-h2">検索結果</h2>
       <div class="result-head">
@@ -37,13 +34,11 @@
       <div class="result-grid" id="result-grid"></div>
     </section>
 
-    <!-- 新着記事 -->
     <section class="home-section">
       <h2 class="home-h2">新着記事</h2>
       <ul class="article-list" id="latest-list"></ul>
     </section>
 
-    <!-- 人気記事 -->
     <section class="home-section">
       <h2 class="home-h2">人気記事</h2>
       <div class="popular-grid" id="popular-grid"></div>
@@ -53,11 +48,12 @@
 
 <footer class="site-footer">© <span id="y"></span> Link innovation</footer>
 
-<!-- ===== 共通NAV読込 ===== -->
+<!-- 共通NAV -->
 <script src="assets/nav.js"></script>
+
 <script>
-  // NAV初期化
-  initPortalNav();
+  // nav.js が自動初期化しますが、念のため
+  window.initPortalNav?.();
 
   // ===== 新着 / 人気（ダミー） =====
   const LATEST = [
@@ -78,7 +74,6 @@
     ]}
   ];
 
-  // ===== ランディング生成 =====
   const latestList = document.getElementById('latest-list');
   LATEST.forEach(a => {
     const li = document.createElement('li');
@@ -128,22 +123,18 @@
   function searchDocs(index, query){
     const tokens = tokenize(query);
     if (!tokens.length) return [];
-    return index
-      .map(doc => {
-        const hay = (doc.title + ' ' + (doc.tags||[]).join(' ')).toLowerCase();
-        const ok = tokens.every(t => hay.includes(t));
-        let score = 0;
-        if (ok){
-          tokens.forEach(t=>{
-            if(doc.title.toLowerCase().includes(t)) score+=3;
-            if((doc.tags||[]).join(' ').toLowerCase().includes(t)) score+=1;
-          });
-        }
-        return ok?{...doc,score}:null;
-      })
-      .filter(Boolean)
-      .sort((a,b)=>b.score-a.score)
-      .slice(0,60);
+    return index.map(doc=>{
+      const hay=(doc.title+' '+(doc.tags||[]).join(' ')).toLowerCase();
+      const ok=tokens.every(t=>hay.includes(t));
+      let score=0;
+      if(ok){
+        tokens.forEach(t=>{
+          if(doc.title.toLowerCase().includes(t)) score+=3;
+          if((doc.tags||[]).join(' ').toLowerCase().includes(t)) score+=1;
+        });
+      }
+      return ok?{...doc,score}:null;
+    }).filter(Boolean).sort((a,b)=>b.score-a.score).slice(0,60);
   }
 
   function renderResults(items, query){
@@ -152,8 +143,9 @@
     resultGrid.innerHTML = items.map(it => `
       <a class="result-card" href="${it.url}" title="${it.title}">
         <div class="result-title">${it.title}</div>
-      </a>`).join('') || `<div class="result-empty">該当するページが見つかりませんでした。</div>`;
-    resultWrap.scrollIntoView({behavior:'smooth',block:'start'});
+      </a>
+    `).join('') || `<div class="result-empty">該当するページが見つかりませんでした。</div>`;
+    resultWrap.scrollIntoView({behavior:'smooth', block:'start'});
   }
 
   function clearSearch(){
@@ -171,16 +163,14 @@
     renderResults(items,q);
   }
   function onSubmitFrom(el){
-    const q=el.value.trim();
-    if(!q) return;
+    const q=el.value.trim(); if(!q) return;
     doSearch(q);
   }
+  if (searchInput) searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') onSubmitFrom(e.target); });
+  if (heroInput)   heroInput.addEventListener('keydown', e => { if (e.key === 'Enter') onSubmitFrom(e.target); });
+  if (heroBtn)     heroBtn.addEventListener('click', () => onSubmitFrom(heroInput || searchInput));
 
-  if(searchInput) searchInput.addEventListener('keydown', e=>{ if(e.key==='Enter') onSubmitFrom(e.target); });
-  if(heroInput)   heroInput.addEventListener('keydown', e=>{ if(e.key==='Enter') onSubmitFrom(e.target); });
-  if(heroBtn)     heroBtn.addEventListener('click', ()=>onSubmitFrom(heroInput || searchInput));
-
-  document.getElementById('y').textContent=new Date().getFullYear();
+  document.getElementById('y').textContent = new Date().getFullYear();
 </script>
 </body>
 </html>
