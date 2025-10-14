@@ -283,14 +283,15 @@ body{
   box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   background: #fff;
 }
-/* ===== 概要（目次セクション風） ===== */
+/* ===== 概要（白背景バージョン） ===== */
 .summary-box{
-  background:#f6f8fc;                 /* 薄いグレー寄り */
   border:1px solid #e5e7eb;
   border-radius:12px;
   padding:12px 14px 14px;
-  margin: 0 0 18px;
+  margin:0 0 18px;
+  background:#fff;                 /* デフォルト白 */
 }
+.summary--white{ background:#fff; }
 .summary-head{
   display:inline-block;
   background: var(--accent);
@@ -298,54 +299,64 @@ body{
   font-weight:700;
   font-size:.9rem;
   padding:.35rem .8rem;
-  border-radius:999px;                 /* バッジ風 */
+  border-radius:999px;
   letter-spacing:.02em;
 }
-.summary-body{
-  margin-top:.6rem;
-  color:var(--ink);
-  line-height:1.9;
-}
+.summary-body{ margin-top:.6rem; line-height:1.9 }
 
-/* ===== 注意・ルール（青系ボックス） ===== */
+/* ===== ルール/注意（濃紺枠＋⚠️タブ） ===== */
 .rule-box{
-  position:relative;
-  background:#eff6ff;                  /* 淡い青背景 */
-  border:1px solid #bfdbfe;            /* 輪郭 */
-  border-left:6px solid var(--accent); /* 目立つ左帯 */
+  background:#fff;
+  border:2px solid var(--bg);      /* サイトフレームと同じ濃紺 */
   border-radius:12px;
-  padding:.85rem .95rem .85rem 3.2rem; /* 左にアイコン余白 */
-  box-shadow:0 2px 10px rgba(37,99,235,.06);
+  padding:14px 14px 14px;
+  position:relative;
 }
-.rule-box::before{
-  content:"!";                          /* アイコン（任意で変更可） */
-  position:absolute; left:.9rem; top:50%; transform:translateY(-50%);
-  width:1.8rem; height:1.8rem; border-radius:999px;
-  background: var(--accent); color:#fff; font-weight:800;
-  display:flex; align-items:center; justify-content:center;
-  box-shadow:0 2px 6px rgba(37,99,235,.25);
+.rule-box .rule-label{
+  position:absolute; left:14px; top:-14px;
+  background: var(--bg);
+  color:#fff; font-weight:800; font-size:.88rem;
+  border-radius:.5rem;
+  padding:.3rem .7rem .35rem .55rem;
+  display:flex; align-items:center; gap:.45rem;
+  box-shadow:0 2px 6px rgba(0,0,0,.12);
 }
-.rule-box strong{ font-weight:800 }
+.rule-box .rule-label .ico{
+  width:1.05rem; height:1.05rem; display:inline-block; position:relative;
+}
+.rule-box .rule-label .ico::before{
+  /* 三角＋! の簡易アイコン（CSS描画） */
+  content:"";
+  position:absolute; left:0; top:0;
+  width:0; height:0;
+  border-left:.53rem solid transparent;
+  border-right:.53rem solid transparent;
+  border-bottom:.95rem solid #fff;       /* 白い三角 */
+}
+.rule-box .rule-label .ico::after{
+  content:"!"; position:absolute; left:.05rem; top:.08rem;
+  font-weight:900; font-size:.7rem; color:var(--bg);
+}
+.rule-box .rule-body{ line-height:1.9 }
 
-/* ===== manual画像 少し拡大（共通） ===== */
-.manual-figure img{
-  height: 280px;            /* 260px→280px に拡大 */
-  object-fit: contain;
-  cursor: zoom-in;
+/* ===== manual画像 少し拡大（既存調整） ===== */
+.manual-figure img{ height:280px; object-fit:contain; cursor:zoom-in }
+
+/* ===== サイドバーのホットゾーン（TOPと共通） ===== */
+:root{ --sidebar-width:260px; --sidebar-hotzone:12px; }
+.layout{ grid-template-columns:0 1fr; transition:grid-template-columns .18s ease; }
+.sidebar{ width:var(--sidebar-width); overflow:auto; pointer-events:none; opacity:0; transition:opacity .12s linear; }
+.sidebar-open .layout{ grid-template-columns:var(--sidebar-width) 1fr; }
+.sidebar-open .sidebar{ pointer-events:auto; opacity:1; }
+.edge-hotzone{ position:fixed; inset:56px auto 0 0; width:var(--sidebar-hotzone); z-index:20; background:transparent; }
+.edge-hotzone:hover{ cursor:ew-resize; }
+@media (max-width:900px){
+  .layout{ grid-template-columns:1fr !important; }
+  .sidebar{ position:fixed; left:0; top:56px; height:calc(100vh - 56px); box-shadow:8px 0 24px rgba(0,0,0,.2); }
+  .sidebar-open .layout{ grid-template-columns:1fr !important; }
 }
 
-/* ===== Lightbox（既出） ===== */
-.lightbox{
-  position: fixed; inset:0;
-  display:flex; align-items:center; justify-content:center;
-  background: rgba(0,0,0,.75);
-  z-index: 999;
-  opacity:0; pointer-events:none;
-  transition: opacity .2s ease;
-}
-.lightbox.show{ opacity:1; pointer-events:auto }
-.lightbox img{
-  max-width:90vw; max-height:90vh;
-  border-radius:8px; background:#fff;
-  box-shadow:0 4px 20px rgba(0,0,0,.3);
-}
+/* ===== lightbox（再掲・安全のため） ===== */
+.lightbox{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.75); z-index:999; opacity:0; pointer-events:none; transition:opacity .2s ease; }
+.lightbox.show{ opacity:1; pointer-events:auto; }
+.lightbox img{ max-width:90vw; max-height:90vh; border-radius:8px; background:#fff; box-shadow:0 4px 20px rgba(0,0,0,.3); }
