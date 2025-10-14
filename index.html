@@ -69,23 +69,25 @@
 
     /* ===== 目次（= PORTAL_NAV をカード化） ===== */
     function buildTocFromNav(){
-      const grid = $('#popular-grid');
-      const NAV = window.PORTAL_NAV || [];
-      grid.innerHTML = '';
-      NAV.forEach(block=>{
-        const card = document.createElement('div');
-        card.className = 'pop-card';
-        card.innerHTML = `
-          <div class="pop-head"><span class="pop-tag">${block.label}</span></div>
-          <ol class="pop-ol">
-            ${ (block.items||[])
-                .map((it,i)=>`<li><a href="${it.href}"><span class="rank">${i+1}.</span> ${it.label}</a></li>`)
-                .join('') }
-          </ol>
-        `;
-        grid.appendChild(card);
-      });
-    }
+  const grid = $('#popular-grid');
+  const NAV = window.PORTAL_NAV || [];
+  grid.innerHTML = '';
+
+  NAV.forEach(block=>{
+    const card = document.createElement('div');
+    card.className = 'pop-card';
+    card.innerHTML = `
+      <div class="pop-head"><span class="pop-tag">${block.label}</span></div>
+      <ul class="pop-ul">
+        ${(block.items||[])
+          .map((it,i)=>`<li><a href="${it.href}"><span class="rank">${i+1}.</span> ${it.label}</a></li>`)
+          .join('')}
+      </ul>
+    `;
+    grid.appendChild(card);
+  });
+}
+
 
     /* ===== 検索（TOPだけカード表示） ===== */
     function initSearch(){
