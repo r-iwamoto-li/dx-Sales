@@ -1,37 +1,68 @@
 /* ============ Core tokens ============ */
 :root{
-  --bg:#0f172a;           /* header/nav 背景 */
+  --bg:#0f172a;           /* header/nav 背景（濃紺） */
   --ink:#0b1220;          /* 本文文字色(濃) */
   --muted:#6b7280;        /* 補助文字 */
   --card:#ffffff;
   --line:#e5e7eb;
-  --accent:#2563eb;       /* 青 */
+  --accent:#2563eb;       /* アクセント青 */
   --accent-weak:#dbeafe;
+
+  /* サイドバー（出し入れ） */
+  --sidebar-width:260px;
+  --sidebar-hotzone:12px;
 }
 *{ box-sizing:border-box }
 html,body{ height:100% }
 body{
-  margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,Apple Color Emoji,Segoe UI Emoji;
-  color:var(--ink); background:#f8fafc;
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,Apple Color Emoji,Segoe UI Emoji;
+  color:var(--ink);
+  background:#f8fafc;
 }
 
 /* ============ Header ============ */
 .site-header{
   display:flex; align-items:center; gap:.75rem;
-  padding:.75rem 1rem; background:var(--bg); color:#fff; position:sticky; top:0; z-index:10;
+  padding:.75rem 1rem; background:var(--bg); color:#fff;
+  position:sticky; top:0; z-index:10;
 }
 .logo{ font-weight:700 }
 .search{ flex:1; max-width:720px; padding:.6rem .8rem; border-radius:.5rem; border:1px solid #1f2937 }
 
-/* ============ 2-column Layout ============ */
-.layout{ display:grid; grid-template-columns:260px 1fr; gap:0; min-height:calc(100vh - 64px) }
+/* ============ Layout（サイドバーはホバーで出現） ============ */
+.layout{
+  display:grid;
+  grid-template-columns: 0 1fr;               /* 初期＝サイドバー非表示で右全幅 */
+  gap:0; min-height:calc(100vh - 64px);
+  transition:grid-template-columns .18s ease;
+}
 .sidebar{
   background:#111827; color:#e5e7eb; padding:1rem; border-right:1px solid #0b1220;
   position:sticky; top:56px; height:calc(100vh - 56px); overflow:auto;
+  width:var(--sidebar-width);
+  pointer-events:none; opacity:0; transition:opacity .12s linear;
 }
+.sidebar-open .layout{ grid-template-columns: var(--sidebar-width) 1fr; }
+.sidebar-open .sidebar{ pointer-events:auto; opacity:1; }
 .content{ padding:1.25rem 1.5rem }
 
-/* メインメニュー */
+/* 左端ホットゾーン（見えないがホバー可能） */
+.edge-hotzone{
+  position: fixed; inset: 56px auto 0 0;
+  width: var(--sidebar-hotzone); z-index: 20; background: transparent;
+}
+.edge-hotzone:hover{ cursor: ew-resize; }
+
+/* モバイルは1カラム固定 */
+@media (max-width: 900px){
+  .layout{ grid-template-columns: 1fr !important; }
+  .sidebar{ position: fixed; left: 0; top: 56px; height: calc(100vh - 56px);
+            box-shadow: 8px 0 24px rgba(0,0,0,.2); }
+  .sidebar-open .layout{ grid-template-columns: 1fr !important; }
+}
+
+/* ============ メニュー ============ */
 .menu{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.5rem }
 .menu-btn{
   width:100%; text-align:left; padding:.75rem .9rem; border:1px solid transparent; border-radius:.6rem;
@@ -40,7 +71,6 @@ body{
 .menu-btn:hover{ background:#243041 }
 .menu-btn.active{ background:var(--accent); color:#fff; box-shadow:0 0 0 1px rgba(255,255,255,.15) inset }
 
-/* サブメニュー（中項目）— 重複を一本化 */
 .menu-item { display:block }
 .submenu{
   list-style:none; margin:.4rem 0 1rem 0; padding:0 .25rem 0 .25rem; border-left:2px solid #374151;
@@ -50,19 +80,13 @@ body{
   display:block; padding:.5rem .6rem .5rem .75rem; border-radius:.45rem; text-decoration:none; color:#e5e7eb;
 }
 .submenu-link:hover{ background:#243041; color:#fff }
-.submenu-link.is-current{ background:#243041; color:#fff; }
+.submenu-link.is-current{ background:#243041; color:#fff }
 
-/* ============ 共通コンポーネント ============ */
+/* ============ 共通 ============ */
 .section-title{ margin:.25rem 0 .25rem; font-size:1.25rem }
 .section-desc{ color:var(--muted); margin:0 0 1rem }
 .breadcrumb{ font-size:.9rem; color:var(--muted); margin:0 0 1rem }
 .page-title{ margin:.2rem 0 .75rem }
-.page-lead{
-  background:var(--accent-weak); border:1px solid #bfdbfe; padding:1rem; border-radius:.8rem; margin:0 0 1.25rem;
-}
-.note{
-  padding:.75rem .9rem; border-left:4px solid var(--accent); background:#eef2ff; border-radius:.4rem; margin-top:.5rem;
-}
 .kicker{ font-size:.85rem; color:var(--muted) }
 .site-footer{ color:var(--muted); font-size:.9rem; text-align:center; padding:1rem 0 2rem }
 
@@ -119,8 +143,7 @@ body{
 .result-title{ font-weight:700; line-height:1.5 }
 .result-empty{ grid-column:1 / -1; color:var(--muted); background:#fff; border:1px dashed var(--line); border-radius:.8rem; padding:1rem 1.1rem; text-align:center }
 
-/* ============ 旧 .step（レガシー） ============ */
-/* ※ 既存ページで使っている可能性があるため残置。ただし manual と競合しないよう軽めに。 */
+/* ============ 旧 .step（保守） ============ */
 .step{
   display:grid; grid-template-columns:160px 1fr; gap:1rem; align-items:start;
   background:var(--card); border:1px solid var(--line); border-radius:1rem; padding:1rem; margin:0 0 1rem;
@@ -132,7 +155,7 @@ body{
 .step figure{ margin:0 } .step img{ width:100%; height:auto; border:1px solid var(--line); border-radius:.5rem }
 .step-content h3{ margin:.1rem 0 .4rem } .step-content p{ margin:.3rem 0 .6rem; line-height:1.7 }
 
-/* ============ Guide（独立スコープのまま） ============ */
+/* ============ Guide（独立スコープ） ============ */
 .guide{ padding-top:.75rem }
 .guide .page-title{ margin:.2rem 0 .8rem } .guide .page-lead{ margin-bottom:1.2rem }
 .guide-steps{ display:flex; flex-direction:column; gap:14px }
@@ -150,20 +173,22 @@ body{
 .guide-cap{ margin-top:6px; color:var(--muted) }
 .guide-right h3{ margin:.1rem 0 .35rem } .guide-right p{ margin:.25rem 0 .5rem; line-height:1.8 }
 
-/* ============ Manual（本番の手順スタイル） ============ */
+/* ============ Manual（手順ページ） ============ */
 .manual{ max-width:1200px; margin:0 auto; padding:1rem 1.25rem 2.25rem }
-.manual .page-title{ margin:.2rem 0 .9rem } .manual .page-lead{ margin-bottom:1.25rem }
+.manual .page-title{ margin:.2rem 0 .9rem }
+
+/* ステップ一覧 */
 .manual-steps{ display:flex; flex-direction:column; gap:18px }
 
-/* カード */
+/* ステップカード */
 .manual-step{
   display:grid; grid-template-columns:360px 1fr; gap:22px;
   background:#fff; border:1px solid #e6e8ef; border-radius:14px; padding:18px;
   box-shadow:0 4px 18px rgba(16,24,40,.06); position:relative;
 }
-.manual-left{ position:relative }       /* ← タイムラインは使わない */
 
-/* 丸番号 */
+/* 左：番号＋画像（タイムライン無し） */
+.manual-left{ position:relative }
 .manual-num{
   width:38px; height:38px; border-radius:999px; background:#fff;
   border:2px solid var(--accent); color:var(--accent); font-weight:700;
@@ -171,13 +196,15 @@ body{
   margin-bottom:10px;
 }
 
-/* 画像：統一サイズ */
+/* 画像：統一サイズ＆拡大可能 */
 .manual-figure{ margin:0 }
 .manual-figure img{
-  display:block; width:100%; height:220px;           /* 高さ固定で統一 */
+  display:block; width:100%; height:280px;   /* ← 最終サイズ */
   object-fit:contain; background:#f8fafc; border:1px solid var(--line); border-radius:10px;
+  cursor:zoom-in; transition: transform .2s ease;
 }
-.manual-cap{ display:none }                           /* キャプションは非表示 */
+.manual-figure img:hover{ transform: scale(1.02) }
+.manual-cap{ display:none }
 
 /* 右：縦境界線＋文字組み */
 .manual-right{
@@ -186,152 +213,35 @@ body{
 }
 .manual-right h3{ margin:0; font-size:1.18rem; line-height:1.5; font-weight:700; }
 .manual-right .manual-desc{ margin:0; color:var(--muted); font-size:.98rem; line-height:1.85 }
-.manual-right .note{ background:#eef2ff; border-left:4px solid var(--accent); padding:.65rem .85rem; border-radius:.5rem }
 
-/* ============ Responsive ============ */
-@media (max-width: 1100px){
-  .manual-step{ grid-template-columns:320px 1fr }
-}
-@media (max-width: 900px){
-  .layout{ grid-template-columns:1fr }
-  .sidebar{ position:static; height:auto }
-  .manual-step{ grid-template-columns:1fr }
-  .manual-right{ border-left:0; padding-left:0 }
-  .hero{ height:150px }
-  .hero-search{ width:96% }
-  .result-grid{ grid-template-columns:1fr }
-}
-/* ===== Hoverで出入りするサイドバー ===== */
-:root{
-  --sidebar-width: 260px;
-  --sidebar-hotzone: 12px;  /* 左端の感知幅 */
-}
-/* 既存の .layout を可変グリッド化（初期＝サイドバー非表示） */
-.layout{
-  grid-template-columns: 0 1fr;               /* ← 隠れている時は全幅 */
-  transition: grid-template-columns .18s ease;
-}
-/* サイドバー自体の状態 */
-.sidebar{
-  width: var(--sidebar-width);
-  overflow: auto;
-  pointer-events: none;                       /* 非表示時は操作不可 */
-  opacity: 0;
-  transition: opacity .12s linear;
-}
-/* 表示状態（bodyにクラス付与） */
-.sidebar-open .layout{
-  grid-template-columns: var(--sidebar-width) 1fr;
-}
-.sidebar-open .sidebar{
-  pointer-events: auto;
-  opacity: 1;
-}
-
-/* 左端の“ホットゾーン”（JSで要素を追加） */
-.edge-hotzone{
-  position: fixed; inset: 56px auto 0 0;      /* ヘッダー下から画面下まで */
-  width: var(--sidebar-hotzone);
-  z-index: 20;
-  /* 見えないがホバー可能に */
-  background: transparent;
-}
-
-/* ホットゾーンに触れている間はカーソルを示唆 */
-.edge-hotzone:hover{ cursor: ew-resize; }
-
-/* モバイルでは常に1カラム。必要に応じてボタン化してもOK */
-@media (max-width: 900px){
-  .layout{ grid-template-columns: 1fr !important; }
-  .sidebar{ position: fixed; left: 0; top: 56px; height: calc(100vh - 56px);
-            box-shadow: 8px 0 24px rgba(0,0,0,.2); }
-  .sidebar-open .layout{ grid-template-columns: 1fr !important; }
-}
-/* ============ manual内の画像拡大対応 ============ */
-.manual-figure img {
-  width: 100%;
-  height: 260px;                /* 少し大きめに */
-  object-fit: contain;
-  cursor: zoom-in;              /* 拡大可能なカーソル */
-  transition: transform 0.2s ease;
-}
-.manual-figure img:hover {
-  transform: scale(1.02);
-}
-
-/* Lightbox（拡大表示） */
-.lightbox {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-}
-.lightbox.show {
-  opacity: 1;
-  pointer-events: auto;
-}
-.lightbox img {
-  max-width: 90vw;
-  max-height: 90vh;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-  background: #fff;
-}
-/* ===== 概要（白背景バージョン） ===== */
+/* 概要（白背景・目次風） */
 .summary-box{
-  border:1px solid #e5e7eb;
-  border-radius:12px;
-  padding:12px 14px 14px;
-  margin:0 0 18px;
-  background:#fff;                 /* デフォルト白 */
+  border:1px solid #e5e7eb; border-radius:12px;
+  padding:12px 14px 14px; margin:0 0 18px; background:#fff;
 }
-.summary--white{ background:#fff; }
 .summary-head{
-  display:inline-block;
-  background: var(--accent);
-  color:#fff;
-  font-weight:700;
-  font-size:.9rem;
-  padding:.35rem .8rem;
-  border-radius:999px;
-  letter-spacing:.02em;
+  display:inline-block; background: var(--accent); color:#fff; font-weight:700; font-size:.9rem;
+  padding:.35rem .8rem; border-radius:999px; letter-spacing:.02em;
 }
 .summary-body{ margin-top:.6rem; line-height:1.9 }
 
-/* ===== ルール/注意（濃紺枠＋⚠️タブ） ===== */
+/* 注意・ルール（濃紺枠＋⚠️タブ） */
 .rule-box{
-  background:#fff;
-  border:2px solid var(--bg);      /* サイトフレームと同じ濃紺 */
-  border-radius:12px;
-  padding:14px 14px 14px;
-  position:relative;
+  background:#fff; border:2px solid var(--bg);
+  border-radius:12px; padding:14px; position:relative;
 }
 .rule-box .rule-label{
-  position:absolute; left:14px; top:-14px;
-  background: var(--bg);
+  position:absolute; left:14px; top:-14px; background: var(--bg);
   color:#fff; font-weight:800; font-size:.88rem;
-  border-radius:.5rem;
-  padding:.3rem .7rem .35rem .55rem;
+  border-radius:.5rem; padding:.3rem .7rem .35rem .55rem;
   display:flex; align-items:center; gap:.45rem;
   box-shadow:0 2px 6px rgba(0,0,0,.12);
 }
-.rule-box .rule-label .ico{
-  width:1.05rem; height:1.05rem; display:inline-block; position:relative;
-}
+.rule-box .rule-label .ico{ width:1.05rem; height:1.05rem; display:inline-block; position:relative; }
 .rule-box .rule-label .ico::before{
-  /* 三角＋! の簡易アイコン（CSS描画） */
-  content:"";
-  position:absolute; left:0; top:0;
-  width:0; height:0;
-  border-left:.53rem solid transparent;
-  border-right:.53rem solid transparent;
-  border-bottom:.95rem solid #fff;       /* 白い三角 */
+  content:""; position:absolute; left:0; top:0; width:0; height:0;
+  border-left:.53rem solid transparent; border-right:.53rem solid transparent;
+  border-bottom:.95rem solid #fff; /* 白三角 */
 }
 .rule-box .rule-label .ico::after{
   content:"!"; position:absolute; left:.05rem; top:.08rem;
@@ -339,24 +249,26 @@ body{
 }
 .rule-box .rule-body{ line-height:1.9 }
 
-/* ===== manual画像 少し拡大（既存調整） ===== */
-.manual-figure img{ height:280px; object-fit:contain; cursor:zoom-in }
-
-/* ===== サイドバーのホットゾーン（TOPと共通） ===== */
-:root{ --sidebar-width:260px; --sidebar-hotzone:12px; }
-.layout{ grid-template-columns:0 1fr; transition:grid-template-columns .18s ease; }
-.sidebar{ width:var(--sidebar-width); overflow:auto; pointer-events:none; opacity:0; transition:opacity .12s linear; }
-.sidebar-open .layout{ grid-template-columns:var(--sidebar-width) 1fr; }
-.sidebar-open .sidebar{ pointer-events:auto; opacity:1; }
-.edge-hotzone{ position:fixed; inset:56px auto 0 0; width:var(--sidebar-hotzone); z-index:20; background:transparent; }
-.edge-hotzone:hover{ cursor:ew-resize; }
-@media (max-width:900px){
-  .layout{ grid-template-columns:1fr !important; }
-  .sidebar{ position:fixed; left:0; top:56px; height:calc(100vh - 56px); box-shadow:8px 0 24px rgba(0,0,0,.2); }
-  .sidebar-open .layout{ grid-template-columns:1fr !important; }
+/* Lightbox（拡大表示） */
+.lightbox{
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75);
+  display:flex; justify-content:center; align-items:center;
+  z-index: 999; opacity:0; pointer-events:none; transition: opacity .2s ease;
+}
+.lightbox.show{ opacity:1; pointer-events:auto }
+.lightbox img{
+  max-width: 90vw; max-height: 90vh; border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3); background:#fff;
 }
 
-/* ===== lightbox（再掲・安全のため） ===== */
-.lightbox{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.75); z-index:999; opacity:0; pointer-events:none; transition:opacity .2s ease; }
-.lightbox.show{ opacity:1; pointer-events:auto; }
-.lightbox img{ max-width:90vw; max-height:90vh; border-radius:8px; background:#fff; box-shadow:0 4px 20px rgba(0,0,0,.3); }
+/* ============ Responsive ============ */
+@media (max-width: 1100px){
+  .manual-step{ grid-template-columns:320px 1fr }
+}
+@media (max-width: 900px){
+  .manual-step{ grid-template-columns:1fr }
+  .manual-right{ border-left:0; padding-left:0 }
+  .hero{ height:150px }
+  .hero-search{ width:96% }
+  .result-grid{ grid-template-columns:1fr }
+}
