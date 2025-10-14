@@ -5,13 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>営業支援マニュアルポータル</title>
   <link rel="stylesheet" href="assets/styles.css" />
-  <!-- ① NAV を先に、必ず defer で読み込む -->
+
+  <!-- NAV を先に読み込み -->
   <script src="assets/nav.js" defer></script>
-  <!-- ② TOP 専用スクリプト（本ファイル内に記述）も defer で後続実行 -->
+
+  <!-- TOP 専用スクリプト -->
   <script defer>
-    /* ========= ユーティリティ ========= */
     const $ = (s,sc=document)=>sc.querySelector(s);
 
+    /* ===== 日付正規化（ISO, 2025-03-27 など） ===== */
     function normalizeDate(d){
       if (!d) return null;
       const s = String(d).trim().replace(/[./]/g,'-');
@@ -19,7 +21,7 @@
       return isNaN(dt) ? null : dt;
     }
 
-    /* ========= 新着（search-index.json 由来、なければフォールバック） ========= */
+    /* ===== 新着（search-index.json から最新2件） ===== */
     const FALLBACK_LATEST = [
       { title:"Salesforce｜商談の作成〜フェーズ管理", date:"2025-03-27", tag:"salesforce", url:"pages/salesforce/opportunity.html" },
       { title:"Sansan｜Salesforce連携",              date:"2025-03-23", tag:"sansan",     url:"pages/sansan/sf-sync.html" },
@@ -30,26 +32,29 @@
       try{
         const res = await fetch('search-index.json', {cache:'no-store'});
         const index = await res.json();
+
+        // date を必須基準としてソート → 最新2件
         const items = index
           .map(it => {
-            const dt = normalizeDate(it.date || it.updated || it.lastmod);
+            const dt = normalizeDate(it.date);
             return {...it, __date: dt ? dt.getTime() : -1, tag: (it.tags && it.tags[0]) || ''};
           })
+          .filter(it => it.__date > 0)          // 日付が取れないものは除外
           .sort((a,b)=> b.__date - a.__date)
-          .slice(0, 10);
-        renderLatest(list, items.length ? items : FALLBACK_LATEST);
+          .slice(0, 2);
+
+        renderLatest(list, items.length ? items : FALLBACK_LATEST.slice(0,2));
       }catch(e){
-        renderLatest(list, FALLBACK_LATEST);
+        renderLatest(list, FALLBACK_LATEST.slice(0,2));
       }
     }
+
     function renderLatest(list, items){
       list.innerHTML = '';
       items.forEach(a=>{
         const li = document.createElement('li');
         li.className = 'article-item';
-        const dateStr = a.date
-          ? String(a.date).replace(/\./g,'-')
-          : (a.__date>0 ? new Date(a.__date).toISOString().slice(0,10) : '');
+        const dateStr = a.date ? String(a.date).replace(/\./g,'-') : '';
         li.innerHTML = `
           <a href="${a.url}">
             <div class="thumb" aria-hidden="true"></div>
@@ -62,7 +67,7 @@
       });
     }
 
-    /* ========= 目次（= PORTAL_NAV をカード化） ========= */
+    /* ===== 目次（= PORTAL_NAV をカード化） ===== */
     function buildTocFromNav(){
       const grid = $('#popular-grid');
       const NAV = window.PORTAL_NAV || [];
@@ -82,7 +87,7 @@
       });
     }
 
-    /* ========= 検索（TOPだけカード表示） ========= */
+    /* ===== 検索（TOPだけカード表示） ===== */
     function initSearch(){
       const searchInput = $('#global-search');
       const heroInput   = $('#hero-search-input');
@@ -151,44 +156,24 @@
       if (heroBtn)     heroBtn.addEventListener('click', () => onSubmitFrom(heroInput || searchInput));
     }
 
-    /* ========= 起動（defer 順序で nav.js → こちら の順に必ず実行） ========= */
+    /* ===== 起動 ===== */
     document.addEventListener('DOMContentLoaded', () => {
-      // 年号
       $('#y').textContent = new Date().getFullYear();
 
-      // 新着
       buildLatest();
-
-      // 検索
       initSearch();
 
-      // ---- サイドバー初期化（必ず一度だけ） ----
-      if (typeof window.initPortalNav === 'function') {
-        if (!window.__nav_initialized){
-          window.__nav_initialized = true;
-          window.initPortalNav();
-        }
-      } else {
-        // 念のため 1 秒だけ再試行（キャッシュ・遅延対策）
-        setTimeout(()=>{ 
-          if (typeof window.initPortalNav === 'function' && !window.__nav_initialized){
-            window.__nav_initialized = true;
-            window.initPortalNav();
-          }
-        }, 1000);
+      // サイドバー（nav.js で初期表示ON。ここでは余計な開閉はしない）
+      if (typeof window.initPortalNav === 'function' && !window.__nav_initialized){
+        window.__nav_initialized = true;
+        window.initPortalNav();
       }
 
-      // 目次（NAV → カード）
       if (Array.isArray(window.PORTAL_NAV)) {
         buildTocFromNav();
       } else {
-        // 遅延対策：1 秒後にもう一度
-        setTimeout(()=>{ if (Array.isArray(window.PORTAL_NAV)) buildTocFromNav(); }, 1000);
+        setTimeout(()=>{ if (Array.isArray(window.PORTAL_NAV)) buildTocFromNav(); }, 800);
       }
-
-      // フェイルセーフ：初回だけサイドバーを一瞬開閉（ホットゾーン無効時の保険）
-      document.body.classList.add('sidebar-open');
-      setTimeout(()=>document.body.classList.remove('sidebar-open'), 20);
     });
   </script>
 </head>
@@ -199,12 +184,10 @@
   </header>
 
   <main class="layout">
-    <!-- 左メニュー（nav.js が自動生成） -->
     <nav class="sidebar" aria-label="メインメニュー">
       <ul id="primary-menu" class="menu"></ul>
     </nav>
 
-    <!-- 右：ランディング -->
     <section class="content">
       <div class="hero">
         <div class="hero-search">
@@ -213,7 +196,6 @@
         </div>
       </div>
 
-      <!-- 検索結果 -->
       <section id="search-results" class="home-section" style="display:none;">
         <h2 class="home-h2">検索結果</h2>
         <div class="result-head">
@@ -223,13 +205,11 @@
         <div class="result-grid" id="result-grid"></div>
       </section>
 
-      <!-- 新着 -->
       <section class="home-section">
         <h2 class="home-h2">新着記事</h2>
         <ul class="article-list" id="latest-list"></ul>
       </section>
 
-      <!-- 目次（= NAV） -->
       <section class="home-section">
         <h2 class="home-h2">目次（カテゴリ別）</h2>
         <div class="popular-grid" id="popular-grid"></div>
