@@ -13,12 +13,10 @@
   </header>
 
   <main class="layout">
-    <!-- 左：メニュー -->
     <nav class="sidebar" aria-label="メインメニュー">
       <ul id="primary-menu" class="menu"></ul>
     </nav>
 
-    <!-- 右：本文 -->
     <section class="content manual">
       <nav class="breadcrumb">
         <a href="../../index.html">TOP</a> ＞ <span>SFA：Salesforce</span> ＞ <span>商談の作成〜フェーズ管理</span>
@@ -26,7 +24,6 @@
 
       <h1 class="page-title">商談の作成〜フェーズ管理</h1>
 
-      <!-- 概要 -->
       <section class="summary-box summary--white" aria-labelledby="summary-label">
         <div class="summary-head" id="summary-label">概要</div>
         <div class="summary-body">
@@ -49,8 +46,12 @@
 
             <div class="rule-box rule--caution">
               <div class="rule-label">
-                 <img src="https://example.com/assets/icons/icon-alert.png" alt="注意アイコン" class="ico-img">
-                 <span>注意事項</span>
+                <img
+                  src="https://twemoji.maxcdn.com/v/latest/72x72/26a0.png"
+                  alt="注意アイコン"
+                  class="ico-img"
+                >
+                <span>注意事項</span>
               </div>
               <div class="rule-body"><strong>入力規則：</strong> 商談名は「YYYYMMDD_案件名_顧客名」で統一。</div>
             </div>
@@ -92,7 +93,7 @@
 
   <script>
   document.addEventListener("DOMContentLoaded", () => {
-    /* ====== 左メニュー ====== */
+    /* ===== 左メニュー ===== */
     const NAV = [
       { id: "salesforce", label: "SFA：Salesforce", items: [
         { label: "はじめに（運用方針）", href: "../salesforce/intro.html" },
@@ -122,12 +123,12 @@
         { label: "連携マップ（全体像）", href: "../common/integration-map.html" },
         { label: "トラブルシュートの基本", href: "../common/troubleshoot.html" },
       ]},
-      { id: "faq", label: "FAQ／ベストプラクティス", items: [
-        { label: "パーミッションで詰まったら", href: "../faq/permissions.html" },
-        { label: "レポート設計のコツ", href: "../faq/reporting-tips.html" },
-        { label: "名寄せの落とし穴", href: "../faq/merge-pitfalls.html" },
-        { label: "MAとSFAの同期遅延", href: "../faq/sync-latency.html" },
-        { label: "問い合わせ先", href: "../faq/contact.html" },
+      { id: "governance", label: "共通：データガバナンス", items: [
+        { label: "重複チェックの運用", href: "../common/dedupe.html" },
+        { label: "項目設計ガイド", href: "../common/field-design.html" },
+        { label: "データ品質監視", href: "../common/data-quality.html" },
+        { label: "匿名化・削除ポリシー", href: "../common/privacy.html" },
+        { label: "変更申請フロー", href: "../common/change-request.html" },
       ]},
     ];
 
@@ -168,7 +169,7 @@
     });
     lightbox.addEventListener("click", () => { lightbox.classList.remove("show"); lightboxImg.src = ""; });
 
-    /* ===== 検索（Enterで実行） ===== */
+    /* ===== 検索 ===== */
     const input = document.getElementById('global-search');
     if (input) {
       const tokenize = q => q.trim().toLowerCase().split(/\s+/).filter(Boolean);
@@ -215,6 +216,15 @@
     zone.addEventListener('mouseenter',open); zone.addEventListener('mouseleave',close);
     const sidebar=document.querySelector('.sidebar');
     if(sidebar){ sidebar.addEventListener('mouseenter',open); sidebar.addEventListener('mouseleave',close); }
+
+    /* ★ 修正：もし別のWebアイコンURLに差し替えたい場合のワンライナー（任意）
+       document.querySelector('.ico-img').src = 'https://あなたのドメイン/path/to/icon.png';
+       // 読み込み失敗時はTwemojiに自動フォールバック
+    */
+    const ico = document.querySelector('.ico-img');
+    ico.addEventListener('error', () => {
+      ico.src = 'https://twemoji.maxcdn.com/v/latest/72x72/26a0.png';
+    });
   });
   </script>
 </body>
