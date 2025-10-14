@@ -118,39 +118,39 @@
     if (window.PORTAL_NAV[0]) openSubmenu(window.PORTAL_NAV[0].id);
   }
 
-  // ====== サイドバーの出し入れ（ホットゾーン） ======
-  function setupSidebarHover() {
-    const zone = document.createElement('div');
-    zone.className = 'edge-hotzone';
-    document.body.appendChild(zone);
+function setupSidebarHover() {
+  const zone = document.createElement('div');
+  zone.className = 'edge-hotzone';
+  document.body.appendChild(zone);
 
-    const OPEN_CLASS = 'sidebar-open';
-    let closeTimer = null;
+  const OPEN_CLASS = 'sidebar-open';
+  let timer = null;
 
-    const open = () => {
-      if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
-      document.body.classList.add(OPEN_CLASS);
-    };
-    const closeLater = () => {
-      if (closeTimer) clearTimeout(closeTimer);
-      closeTimer = setTimeout(() => { document.body.classList.remove(OPEN_CLASS); }, 200);
-    };
+  const open = () => {
+    if (timer) { clearTimeout(timer); timer = null; }
+    document.body.classList.add(OPEN_CLASS);
+  };
+  const closeLater = () => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => { document.body.classList.remove(OPEN_CLASS); }, 200);
+  };
 
-    zone.addEventListener('mouseenter', open);
-    zone.addEventListener('mouseleave', closeLater);
+  zone.addEventListener('mouseenter', open);
+  zone.addEventListener('mouseleave', closeLater);
 
-    const sidebar = document.querySelector('.sidebar');
-    if (sidebar) {
-      sidebar.addEventListener('mouseenter', open);
-      sidebar.addEventListener('mouseleave', closeLater);
-    }
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') document.body.classList.remove(OPEN_CLASS);
-    });
-
-    document.body.classList.remove(OPEN_CLASS);
+  const sidebar = document.querySelector('.sidebar');
+  if (sidebar) {
+    sidebar.addEventListener('mouseenter', open);
+    sidebar.addEventListener('mouseleave', closeLater);
   }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') document.body.classList.remove(OPEN_CLASS);
+  });
+
+  document.body.classList.remove(OPEN_CLASS);
+}
+
 
   // ====== 公開API ======
   window.initPortalNav = function () {
