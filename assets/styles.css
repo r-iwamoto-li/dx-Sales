@@ -231,13 +231,22 @@ body{
   border-radius:12px; padding:14px; position:relative;
 }
 .rule-box .rule-label{
-  position:absolute; left:14px; top:-14px; background: var(--bg);
+  position:absolute; left:14px; top:-14px;
+  display:flex; align-items:center; gap:.45rem; /* ← 縦中央&等間隔 */
+  background: var(--bg);
   color:#fff; font-weight:800; font-size:.88rem;
-  border-radius:.5rem; padding:.3rem .7rem .35rem .55rem;
-  display:flex; align-items:center; gap:.45rem;
+  border-radius:.5rem;
+  padding:.35rem .75rem;                       /* 行高さを安定化 */
+  line-height:1;                               /* アイコンの縦揃え */
   box-shadow:0 2px 6px rgba(0,0,0,.12);
 }
-.rule-box .rule-label .ico{ width:1.05rem; height:1.05rem; display:inline-block; position:relative; }
+
+.rule-box .rule-label .ico{
+  display:inline-block;
+  font-size:1rem;       /* ⚠️ の見た目サイズ */
+  line-height:1;
+  transform:translateY(0.5px); /* 微調整でベースライン合わせ */
+}
 .rule-box .rule-label .ico::before{
   content:""; position:absolute; left:0; top:0; width:0; height:0;
   border-left:.53rem solid transparent; border-right:.53rem solid transparent;
