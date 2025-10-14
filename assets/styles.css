@@ -225,29 +225,48 @@ body{
 }
 .summary-body{ margin-top:.6rem; line-height:1.9 }
 
-/* 注意・ルール（濃紺枠＋⚠️タブ） */
+/* ===== ルール/注意（濃紺枠＋⚠️タブ） ===== */
 .rule-box{
-  background:#fff; border:2px solid var(--bg);
-  border-radius:12px; padding:14px; position:relative;
+  background:#fff;
+  border:2px solid var(--bg);
+  border-radius:12px;
+  padding:14px;
+  position:relative;
 }
+
+/* ラベルタブ */
 .rule-box .rule-label{
-  position:absolute; left:14px; top:-14px;
-  display:flex; align-items:center; gap:.45rem; /* ← 縦中央&等間隔 */
+  position:absolute;
+  left:14px;
+  top:-14px;
+  display:flex;
+  align-items:center;
+  gap:.45rem;
   background: var(--bg);
-  color:#fff; font-weight:800; font-size:.88rem;
+  color:#fff;
+  font-weight:800;
+  font-size:.88rem;
   border-radius:.5rem;
-  padding:.35rem .75rem;                       /* 行高さを安定化 */
-  line-height:1;                               /* アイコンの縦揃え */
+  padding:.35rem .75rem;
+  line-height:1;
   box-shadow:0 2px 6px rgba(0,0,0,.12);
 }
 
-.rule-box .rule-label .ico{
+/* Web画像アイコン */
+.rule-box .ico-img{
+  width:18px;              /* サイズ調整 */
+  height:18px;
+  object-fit:contain;
   display:inline-block;
-  font-size:1rem;       /* ⚠️ の見た目サイズ */
-  line-height:1;
-  transform:translateY(0.5px); /* 微調整でベースライン合わせ */
+  vertical-align:middle;
+  margin-right:2px;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.15));
 }
-.rule-box .rule-body{ line-height:1.9 }
+
+.rule-box .rule-body{
+  line-height:1.9;
+}
+
 
 /* Lightbox（拡大表示） */
 .lightbox{
