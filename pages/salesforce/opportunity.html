@@ -24,18 +24,15 @@
         <a href="../../index.html">TOP</a> ＞ <span>SFA：Salesforce</span> ＞ <span>商談の作成〜フェーズ管理</span>
       </nav>
 
-      <!-- ★ 重複していた kicker を削除 -->
+      <!-- ▼ 重複の「SFA：Salesforce」キッカーは削除しました -->
 
       <h1 class="page-title">商談の作成〜フェーズ管理</h1>
 
-      <!-- ★ 概要のデザインを強化（lead-card） -->
-      <section class="lead-card" aria-labelledby="lead-title">
-        <div class="lead-icon" aria-hidden="true">ℹ️</div>
-        <div class="lead-body">
-          <h2 id="lead-title" class="lead-title">このページの概要</h2>
-          <p class="lead-text">
-            新規商談の作成から、フェーズ更新、次アクションの登録、クローズまでの運用を解説します。
-          </p>
+      <!-- ▼ 目次セクション風の概要ボックス -->
+      <section class="summary-box" aria-labelledby="summary-label">
+        <div class="summary-head" id="summary-label">概要</div>
+        <div class="summary-body">
+          <p>新規商談の作成から、フェーズ更新、次アクションの登録、クローズまでの運用を解説します。</p>
         </div>
       </section>
 
@@ -52,12 +49,9 @@
             <h3>商談タブから新規作成</h3>
             <p class="manual-desc">［商談］タブで［新規］をクリック。取引先が未作成の場合は先に作成してください。</p>
 
-            <!-- ★ ルール／注意点のコールアウト -->
-            <div class="callout callout--rule">
-              <div class="callout-head">命名規則</div>
-              <div class="callout-body">
-                商談名は <code>YYYYMMDD_案件名_顧客名</code> で統一してください。
-              </div>
+            <!-- ▼ 注意・ルールの強調ボックス（青系） -->
+            <div class="rule-box">
+              <strong>入力規則：</strong> 商談名は「YYYYMMDD_案件名_顧客名」で統一。
             </div>
           </div>
         </article>
@@ -176,8 +170,8 @@
       lightbox.className = "lightbox";
       lightbox.innerHTML = `<img src="" alt="拡大画像">`;
       document.body.appendChild(lightbox);
-      const lightboxImg = lightbox.querySelector("img");
 
+      const lightboxImg = lightbox.querySelector("img");
       document.querySelectorAll(".manual-figure img").forEach(img => {
         img.addEventListener("click", () => {
           lightboxImg.src = img.src;
