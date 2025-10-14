@@ -37,13 +37,13 @@
       <div class="result-grid" id="result-grid"></div>
     </section>
 
-    <!-- 新着（＝search-index.jsonの最新順） -->
+    <!-- 新着（search-index.jsonの更新順） -->
     <section class="home-section">
       <h2 class="home-h2">新着記事</h2>
       <ul class="article-list" id="latest-list"></ul>
     </section>
 
-    <!-- 人気記事（＝NAVの目次） -->
+    <!-- 目次（= NAV） -->
     <section class="home-section">
       <h2 class="home-h2">目次（カテゴリ別）</h2>
       <div class="popular-grid" id="popular-grid"></div>
@@ -53,46 +53,31 @@
 
 <footer class="site-footer">© <span id="y"></span> Link innovation</footer>
 
-<!-- ✅ 共通ナビ（※この1本だけを読み込む。ページ内のNAV定義は置かない） -->
+<!-- ✅ 共通ナビ（必ず1本だけ読み込む） -->
 <script src="assets/nav.js"></script>
 
 <script>
-/* =========================
-   初期化（重複防止ガード付き）
-========================= */
-(function initNavOnce(){
-  if (window.__nav_initialized) return;
-  window.__nav_initialized = true;
-  // nav.js 側の公開関数を起動
-  if (typeof window.initPortalNav === 'function') window.initPortalNav();
-})();
-
-/* =========================
-   新着：search-index.json から最新順に生成
-   想定スキーマ: [{title,url,tags?,date?}]  ※dateが無ければ末尾に回す
-========================= */
-const latestList = document.getElementById('latest-list');
-
-const FALLBACK_LATEST = [
-  { title: "名刺登録方法の更新", date: "2025-03-27", tag:"顧客管理", url:"pages/customers/business-card.html" },
-  { title: "新規案件（リード）の手順", date: "2025-03-23", tag:"案件管理", url:"pages/deals/opportunity-new-lead.html" },
-  { title: "施策ダッシュボード集", date: "2025-03-19", tag:"施策管理", url:"pages/programs/dashboards-reports.html" },
-];
-
+/* ========= ユーティリティ ========= */
 function normalizeDate(d){
-  // "2025.03.27" / "2025-03-27" / "2025/03/27" 想定
   if (!d) return null;
   const s = String(d).trim().replace(/[./]/g,'-');
   const dt = new Date(s);
   return isNaN(dt) ? null : dt;
 }
 
+/* ========= 新着生成 ========= */
+const latestList = document.getElementById('latest-list');
+const FALLBACK_LATEST = [
+  { title:"Salesforce｜商談の作成〜フェーズ管理", date:"2025-03-27", tag:"salesforce", url:"pages/salesforce/opportunity.html" },
+  { title:"Sansan｜Salesforce連携",              date:"2025-03-23", tag:"sansan",     url:"pages/sansan/sf-sync.html" },
+  { title:"MA｜エンゲージメントプログラム",       date:"2025-03-19", tag:"account engagement", url:"pages/ae/engagement.html" },
+  { title:"共通｜連携マップ（全体像）",             date:"2025-03-10", tag:"全体像",     url:"pages/common/integration-map.html" },
+];
+
 async function buildLatest(){
   try{
     const res = await fetch('search-index.json', {cache:'no-store'});
     const index = await res.json();
-
-    // 並べ替え（dateが無いものは最後）
     const items = index
       .map(it => {
         const dt = normalizeDate(it.date || it.updated || it.lastmod);
@@ -100,14 +85,11 @@ async function buildLatest(){
       })
       .sort((a,b)=> b.__date - a.__date)
       .slice(0, 10);
-
     renderLatest(items.length ? items : FALLBACK_LATEST);
   }catch(e){
-    // インデックス読み込み失敗時はフォールバック
     renderLatest(FALLBACK_LATEST);
   }
 }
-
 function renderLatest(items){
   latestList.innerHTML = '';
   items.forEach(a=>{
@@ -128,13 +110,11 @@ function renderLatest(items){
   });
 }
 
-/* =========================
-   目次：PORTAL_NAV から自動生成
-========================= */
-function buildToc(){
+/* ========= 目次生成（NAV -> カード） ========= */
+function buildTocFromNav(){
   const grid = document.getElementById('popular-grid');
-  grid.innerHTML = '';
   const NAV = window.PORTAL_NAV || [];
+  grid.innerHTML = '';
   NAV.forEach(block=>{
     const card = document.createElement('div');
     card.className = 'pop-card';
@@ -150,86 +130,112 @@ function buildToc(){
   });
 }
 
-/* =========================
-   検索（TOP内でカード表示）
-========================= */
-const searchInput = document.getElementById('global-search');
-const heroInput   = document.getElementById('hero-search-input');
-const heroBtn     = document.getElementById('hero-filter-btn');
-const resultWrap  = document.getElementById('search-results');
-const resultGrid  = document.getElementById('result-grid');
-const resultCount = document.getElementById('result-count');
-const clearBtn    = document.getElementById('clear-search');
-
-let SEARCH_INDEX = null;
-async function loadIndex(){
-  if (SEARCH_INDEX) return SEARCH_INDEX;
-  const res = await fetch('search-index.json', {cache: 'no-store'});
-  SEARCH_INDEX = await res.json();
-  return SEARCH_INDEX;
+/* ========= NAV 読み込み待機（ここが今回の修正点） ========= */
+async function waitForNav(maxMs = 5000){
+  const start = Date.now();
+  return new Promise((resolve, reject)=>{
+    (function tick(){
+      const ready = (typeof window.initPortalNav === 'function') && Array.isArray(window.PORTAL_NAV);
+      if (ready){
+        resolve(true);
+        return;
+      }
+      if (Date.now() - start > maxMs){
+        reject(new Error('NAV not ready'));
+        return;
+      }
+      setTimeout(tick, 100);
+    })();
+  });
 }
-const tokenize = q => q.trim().toLowerCase().split(/\s+/).filter(Boolean);
 
-function searchDocs(index, query){
-  const tokens = tokenize(query);
-  if (!tokens.length) return [];
-  return index
-    .map(doc => {
+(async function bootstrap(){
+  // 年号
+  document.getElementById('y').textContent = new Date().getFullYear();
+
+  // 検索（TOPのみカード表示）
+  const searchInput = document.getElementById('global-search');
+  const heroInput   = document.getElementById('hero-search-input');
+  const heroBtn     = document.getElementById('hero-filter-btn');
+  const resultWrap  = document.getElementById('search-results');
+  const resultGrid  = document.getElementById('result-grid');
+  const resultCount = document.getElementById('result-count');
+  const clearBtn    = document.getElementById('clear-search');
+
+  let SEARCH_INDEX = null;
+  async function loadIndex(){
+    if (SEARCH_INDEX) return SEARCH_INDEX;
+    const res = await fetch('search-index.json', {cache: 'no-store'});
+    SEARCH_INDEX = await res.json();
+    return SEARCH_INDEX;
+  }
+  const tokenize = q => q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  function searchDocs(index, query){
+    const tokens = tokenize(query);
+    if (!tokens.length) return [];
+    return index.map(doc=>{
       const hay = (doc.title + ' ' + (doc.tags||[]).join(' ')).toLowerCase();
       const ok = tokens.every(t => hay.includes(t));
-      let score = 0;
+      let score=0;
       if (ok){
-        tokens.forEach(t => {
-          if (doc.title.toLowerCase().includes(t)) score += 3;
-          if ((doc.tags||[]).join(' ').toLowerCase().includes(t)) score += 1;
+        tokens.forEach(t=>{
+          if (doc.title.toLowerCase().includes(t)) score+=3;
+          if ((doc.tags||[]).join(' ').toLowerCase().includes(t)) score+=1;
         });
       }
-      return ok ? {...doc, score} : null;
-    })
-    .filter(Boolean)
-    .sort((a,b)=> b.score - a.score)
-    .slice(0,60);
-}
+      return ok?{...doc,score}:null;
+    }).filter(Boolean).sort((a,b)=>b.score-a.score).slice(0,60);
+  }
+  function renderResults(items, query){
+    resultWrap.style.display = '';
+    resultCount.textContent = `「${query}」の結果：${items.length}件`;
+    resultGrid.innerHTML = items.map(it => `
+      <a class="result-card" href="${it.url}" title="${it.title}">
+        <div class="result-title">${it.title}</div>
+      </a>
+    `).join('') || `<div class="result-empty">該当するページが見つかりませんでした。</div>`;
+    resultWrap.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+  function clearSearch(){
+    resultWrap.style.display = 'none';
+    resultGrid.innerHTML = '';
+    resultCount.textContent = '';
+    if (searchInput) searchInput.value = '';
+    if (heroInput) heroInput.value = '';
+  }
+  clearBtn.addEventListener('click', clearSearch);
+  async function doSearch(q){
+    const index = await loadIndex();
+    const items = searchDocs(index, q);
+    renderResults(items, q);
+  }
+  function onSubmitFrom(el){
+    const q = el.value.trim();
+    if (!q) return;
+    doSearch(q);
+  }
+  if (searchInput) searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') onSubmitFrom(e.target); });
+  if (heroInput)   heroInput.addEventListener('keydown', e => { if (e.key === 'Enter') onSubmitFrom(e.target); });
+  if (heroBtn)     heroBtn.addEventListener('click', () => onSubmitFrom(heroInput || searchInput));
 
-function renderResults(items, query){
-  resultWrap.style.display = '';
-  resultCount.textContent = `「${query}」の結果：${items.length}件`;
-  resultGrid.innerHTML = items.map(it => `
-    <a class="result-card" href="${it.url}" title="${it.title}">
-      <div class="result-title">${it.title}</div>
-    </a>
-  `).join('') || `<div class="result-empty">該当するページが見つかりませんでした。</div>`;
-  resultWrap.scrollIntoView({behavior:'smooth', block:'start'});
-}
-function clearSearch(){
-  resultWrap.style.display = 'none';
-  resultGrid.innerHTML = '';
-  resultCount.textContent = '';
-  if (searchInput) searchInput.value = '';
-  if (heroInput) heroInput.value = '';
-}
-clearBtn.addEventListener('click', clearSearch);
+  // 新着生成はすぐ実行
+  buildLatest();
 
-async function doSearch(q){
-  const index = await loadIndex();
-  const items = searchDocs(index, q);
-  renderResults(items, q);
-}
-function onSubmitFrom(el){
-  const q = el.value.trim();
-  if (!q) return;
-  doSearch(q);
-}
-if (searchInput) searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') onSubmitFrom(e.target); });
-if (heroInput)   heroInput.addEventListener('keydown', e => { if (e.key === 'Enter') onSubmitFrom(e.target); });
-if (heroBtn)     heroBtn.addEventListener('click', () => onSubmitFrom(heroInput || searchInput));
+  // ===== NAV が来るまで待ってから初期化・目次作成 =====
+  try{
+    await waitForNav(5000);
 
-/* フッター年号 */
-document.getElementById('y').textContent = new Date().getFullYear();
+    // 二重実行ガード
+    if (!window.__nav_initialized){
+      window.__nav_initialized = true;
+      window.initPortalNav();   // ← nav.js の関数（サイドバー + ホットゾーン）
+    }
 
-/* 起動 */
-buildLatest();
-buildToc();
+    buildTocFromNav();          // ← 目次（カテゴリ別）
+  }catch(e){
+    console.warn('NAVの読み込みに失敗しました。assets/nav.js のパスやキャッシュをご確認ください。', e);
+  }
+})();
 </script>
 </body>
 </html>
