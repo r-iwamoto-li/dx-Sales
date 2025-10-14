@@ -1,6 +1,26 @@
 [
-  { "title": "Salesforce｜商談の作成〜フェーズ管理", "url": "pages/salesforce/opportunity.html", "tags": ["salesforce","商談","フェーズ","SFA"] },
-  { "title": "Sansan｜Salesforce連携", "url": "pages/sansan/sf-sync.html", "tags": ["sansan","salesforce","連携","CRM"] },
-  { "title": "MA｜エンゲージメントプログラム", "url": "pages/ae/engagement.html", "tags": ["account engagement","MA","オートメーション"] },
-  { "title": "共通｜連携マップ（全体像）", "url": "pages/common/integration-map.html", "tags": ["全体像","アーキテクチャ","データフロー"] }
+  {
+    "title": "Salesforce｜商談の作成〜フェーズ管理",
+    "url": "pages/salesforce/opportunity.html",
+    "tags": ["salesforce", "商談", "フェーズ", "SFA"],
+    "date": "2025-03-27"
+  },
+  {
+    "title": "Sansan｜Salesforce連携",
+    "url": "pages/sansan/sf-sync.html",
+    "tags": ["sansan", "salesforce", "連携", "CRM"],
+    "date": "2025-03-23"
+  },
+  {
+    "title": "MA｜エンゲージメントプログラム",
+    "url": "pages/ae/engagement.html",
+    "tags": ["account engagement", "MA", "オートメーション"],
+    "date": "2025-03-19"
+  },
+  {
+    "title": "共通｜連携マップ（全体像）",
+    "url": "pages/common/integration-map.html",
+    "tags": ["全体像", "アーキテクチャ", "データフロー"],
+    "date": "2025-03-10"
+  }
 ]
