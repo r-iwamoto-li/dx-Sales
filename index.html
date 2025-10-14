@@ -5,237 +5,240 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>営業支援マニュアルポータル</title>
   <link rel="stylesheet" href="assets/styles.css" />
-</head>
-<body>
-<header class="site-header">
-  <div class="logo">Sales Ops Manual</div>
-  <input id="global-search" class="search" type="search" placeholder="キーワードを入力してください" />
-</header>
+  <!-- ① NAV を先に、必ず defer で読み込む -->
+  <script src="assets/nav.js" defer></script>
+  <!-- ② TOP 専用スクリプト（本ファイル内に記述）も defer で後続実行 -->
+  <script defer>
+    /* ========= ユーティリティ ========= */
+    const $ = (s,sc=document)=>sc.querySelector(s);
 
-<main class="layout">
-  <!-- 左メニュー（nav.js が自動生成） -->
-  <nav class="sidebar" aria-label="メインメニュー">
-    <ul id="primary-menu" class="menu"></ul>
-  </nav>
-
-  <!-- 右：ランディング -->
-  <section class="content">
-    <div class="hero">
-      <div class="hero-search">
-        <input id="hero-search-input" type="search" placeholder="キーワードを入力して下さい" aria-label="サイト内検索" />
-        <button id="hero-filter-btn" class="btn-filter" type="button">絞り込み</button>
-      </div>
-    </div>
-
-    <!-- 検索結果 -->
-    <section id="search-results" class="home-section" style="display:none;">
-      <h2 class="home-h2">検索結果</h2>
-      <div class="result-head">
-        <span id="result-count"></span>
-        <button id="clear-search" class="btn-clear" type="button">クリア</button>
-      </div>
-      <div class="result-grid" id="result-grid"></div>
-    </section>
-
-    <!-- 新着（search-index.jsonの更新順） -->
-    <section class="home-section">
-      <h2 class="home-h2">新着記事</h2>
-      <ul class="article-list" id="latest-list"></ul>
-    </section>
-
-    <!-- 目次（= NAV） -->
-    <section class="home-section">
-      <h2 class="home-h2">目次（カテゴリ別）</h2>
-      <div class="popular-grid" id="popular-grid"></div>
-    </section>
-  </section>
-</main>
-
-<footer class="site-footer">© <span id="y"></span> Link innovation</footer>
-
-<!-- ✅ 共通ナビ（必ず1本だけ読み込む） -->
-<script src="assets/nav.js"></script>
-
-<script>
-/* ========= ユーティリティ ========= */
-function normalizeDate(d){
-  if (!d) return null;
-  const s = String(d).trim().replace(/[./]/g,'-');
-  const dt = new Date(s);
-  return isNaN(dt) ? null : dt;
-}
-
-/* ========= 新着生成 ========= */
-const latestList = document.getElementById('latest-list');
-const FALLBACK_LATEST = [
-  { title:"Salesforce｜商談の作成〜フェーズ管理", date:"2025-03-27", tag:"salesforce", url:"pages/salesforce/opportunity.html" },
-  { title:"Sansan｜Salesforce連携",              date:"2025-03-23", tag:"sansan",     url:"pages/sansan/sf-sync.html" },
-  { title:"MA｜エンゲージメントプログラム",       date:"2025-03-19", tag:"account engagement", url:"pages/ae/engagement.html" },
-  { title:"共通｜連携マップ（全体像）",             date:"2025-03-10", tag:"全体像",     url:"pages/common/integration-map.html" },
-];
-
-async function buildLatest(){
-  try{
-    const res = await fetch('search-index.json', {cache:'no-store'});
-    const index = await res.json();
-    const items = index
-      .map(it => {
-        const dt = normalizeDate(it.date || it.updated || it.lastmod);
-        return {...it, __date: dt ? dt.getTime() : -1, tag: (it.tags && it.tags[0]) || ''};
-      })
-      .sort((a,b)=> b.__date - a.__date)
-      .slice(0, 10);
-    renderLatest(items.length ? items : FALLBACK_LATEST);
-  }catch(e){
-    renderLatest(FALLBACK_LATEST);
-  }
-}
-function renderLatest(items){
-  latestList.innerHTML = '';
-  items.forEach(a=>{
-    const li = document.createElement('li');
-    li.className = 'article-item';
-    const dateStr = a.date
-      ? String(a.date).replace(/\./g,'-')
-      : (a.__date>0 ? new Date(a.__date).toISOString().slice(0,10) : '');
-    li.innerHTML = `
-      <a href="${a.url}">
-        <div class="thumb" aria-hidden="true"></div>
-        <div class="meta">
-          <div class="title">${a.title}</div>
-          <div class="sub"><span class="date">${dateStr}</span>${a.tag ? '・<span class="tag">'+a.tag+'</span>' : ''}</div>
-        </div>
-      </a>`;
-    latestList.appendChild(li);
-  });
-}
-
-/* ========= 目次生成（NAV -> カード） ========= */
-function buildTocFromNav(){
-  const grid = document.getElementById('popular-grid');
-  const NAV = window.PORTAL_NAV || [];
-  grid.innerHTML = '';
-  NAV.forEach(block=>{
-    const card = document.createElement('div');
-    card.className = 'pop-card';
-    card.innerHTML = `
-      <div class="pop-head"><span class="pop-tag">${block.label}</span></div>
-      <ol class="pop-ol">
-        ${ (block.items||[])
-            .map((it,i)=>`<li><a href="${it.href}"><span class="rank">${i+1}.</span> ${it.label}</a></li>`)
-            .join('') }
-      </ol>
-    `;
-    grid.appendChild(card);
-  });
-}
-
-/* ========= NAV 読み込み待機（ここが今回の修正点） ========= */
-async function waitForNav(maxMs = 5000){
-  const start = Date.now();
-  return new Promise((resolve, reject)=>{
-    (function tick(){
-      const ready = (typeof window.initPortalNav === 'function') && Array.isArray(window.PORTAL_NAV);
-      if (ready){
-        resolve(true);
-        return;
-      }
-      if (Date.now() - start > maxMs){
-        reject(new Error('NAV not ready'));
-        return;
-      }
-      setTimeout(tick, 100);
-    })();
-  });
-}
-
-(async function bootstrap(){
-  // 年号
-  document.getElementById('y').textContent = new Date().getFullYear();
-
-  // 検索（TOPのみカード表示）
-  const searchInput = document.getElementById('global-search');
-  const heroInput   = document.getElementById('hero-search-input');
-  const heroBtn     = document.getElementById('hero-filter-btn');
-  const resultWrap  = document.getElementById('search-results');
-  const resultGrid  = document.getElementById('result-grid');
-  const resultCount = document.getElementById('result-count');
-  const clearBtn    = document.getElementById('clear-search');
-
-  let SEARCH_INDEX = null;
-  async function loadIndex(){
-    if (SEARCH_INDEX) return SEARCH_INDEX;
-    const res = await fetch('search-index.json', {cache: 'no-store'});
-    SEARCH_INDEX = await res.json();
-    return SEARCH_INDEX;
-  }
-  const tokenize = q => q.trim().toLowerCase().split(/\s+/).filter(Boolean);
-  function searchDocs(index, query){
-    const tokens = tokenize(query);
-    if (!tokens.length) return [];
-    return index.map(doc=>{
-      const hay = (doc.title + ' ' + (doc.tags||[]).join(' ')).toLowerCase();
-      const ok = tokens.every(t => hay.includes(t));
-      let score=0;
-      if (ok){
-        tokens.forEach(t=>{
-          if (doc.title.toLowerCase().includes(t)) score+=3;
-          if ((doc.tags||[]).join(' ').toLowerCase().includes(t)) score+=1;
-        });
-      }
-      return ok?{...doc,score}:null;
-    }).filter(Boolean).sort((a,b)=>b.score-a.score).slice(0,60);
-  }
-  function renderResults(items, query){
-    resultWrap.style.display = '';
-    resultCount.textContent = `「${query}」の結果：${items.length}件`;
-    resultGrid.innerHTML = items.map(it => `
-      <a class="result-card" href="${it.url}" title="${it.title}">
-        <div class="result-title">${it.title}</div>
-      </a>
-    `).join('') || `<div class="result-empty">該当するページが見つかりませんでした。</div>`;
-    resultWrap.scrollIntoView({behavior:'smooth', block:'start'});
-  }
-  function clearSearch(){
-    resultWrap.style.display = 'none';
-    resultGrid.innerHTML = '';
-    resultCount.textContent = '';
-    if (searchInput) searchInput.value = '';
-    if (heroInput) heroInput.value = '';
-  }
-  clearBtn.addEventListener('click', clearSearch);
-  async function doSearch(q){
-    const index = await loadIndex();
-    const items = searchDocs(index, q);
-    renderResults(items, q);
-  }
-  function onSubmitFrom(el){
-    const q = el.value.trim();
-    if (!q) return;
-    doSearch(q);
-  }
-  if (searchInput) searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') onSubmitFrom(e.target); });
-  if (heroInput)   heroInput.addEventListener('keydown', e => { if (e.key === 'Enter') onSubmitFrom(e.target); });
-  if (heroBtn)     heroBtn.addEventListener('click', () => onSubmitFrom(heroInput || searchInput));
-
-  // 新着生成はすぐ実行
-  buildLatest();
-
-  // ===== NAV が来るまで待ってから初期化・目次作成 =====
-  try{
-    await waitForNav(5000);
-
-    // 二重実行ガード
-    if (!window.__nav_initialized){
-      window.__nav_initialized = true;
-      window.initPortalNav();   // ← nav.js の関数（サイドバー + ホットゾーン）
+    function normalizeDate(d){
+      if (!d) return null;
+      const s = String(d).trim().replace(/[./]/g,'-');
+      const dt = new Date(s);
+      return isNaN(dt) ? null : dt;
     }
 
-    buildTocFromNav();          // ← 目次（カテゴリ別）
-  }catch(e){
-    console.warn('NAVの読み込みに失敗しました。assets/nav.js のパスやキャッシュをご確認ください。', e);
-  }
-})();
-</script>
+    /* ========= 新着（search-index.json 由来、なければフォールバック） ========= */
+    const FALLBACK_LATEST = [
+      { title:"Salesforce｜商談の作成〜フェーズ管理", date:"2025-03-27", tag:"salesforce", url:"pages/salesforce/opportunity.html" },
+      { title:"Sansan｜Salesforce連携",              date:"2025-03-23", tag:"sansan",     url:"pages/sansan/sf-sync.html" },
+      { title:"MA｜エンゲージメントプログラム",       date:"2025-03-19", tag:"account engagement", url:"pages/ae/engagement.html" },
+      { title:"共通｜連携マップ（全体像）",             date:"2025-03-10", tag:"全体像",     url:"pages/common/integration-map.html" },
+    ];
+
+    async function buildLatest(){
+      const list = $('#latest-list');
+      try{
+        const res = await fetch('search-index.json', {cache:'no-store'});
+        const index = await res.json();
+        const items = index
+          .map(it => {
+            const dt = normalizeDate(it.date || it.updated || it.lastmod);
+            return {...it, __date: dt ? dt.getTime() : -1, tag: (it.tags && it.tags[0]) || ''};
+          })
+          .sort((a,b)=> b.__date - a.__date)
+          .slice(0, 10);
+        renderLatest(list, items.length ? items : FALLBACK_LATEST);
+      }catch(e){
+        renderLatest(list, FALLBACK_LATEST);
+      }
+    }
+    function renderLatest(list, items){
+      list.innerHTML = '';
+      items.forEach(a=>{
+        const li = document.createElement('li');
+        li.className = 'article-item';
+        const dateStr = a.date
+          ? String(a.date).replace(/\./g,'-')
+          : (a.__date>0 ? new Date(a.__date).toISOString().slice(0,10) : '');
+        li.innerHTML = `
+          <a href="${a.url}">
+            <div class="thumb" aria-hidden="true"></div>
+            <div class="meta">
+              <div class="title">${a.title}</div>
+              <div class="sub"><span class="date">${dateStr}</span>${a.tag ? '・<span class="tag">'+a.tag+'</span>' : ''}</div>
+            </div>
+          </a>`;
+        list.appendChild(li);
+      });
+    }
+
+    /* ========= 目次（= PORTAL_NAV をカード化） ========= */
+    function buildTocFromNav(){
+      const grid = $('#popular-grid');
+      const NAV = window.PORTAL_NAV || [];
+      grid.innerHTML = '';
+      NAV.forEach(block=>{
+        const card = document.createElement('div');
+        card.className = 'pop-card';
+        card.innerHTML = `
+          <div class="pop-head"><span class="pop-tag">${block.label}</span></div>
+          <ol class="pop-ol">
+            ${ (block.items||[])
+                .map((it,i)=>`<li><a href="${it.href}"><span class="rank">${i+1}.</span> ${it.label}</a></li>`)
+                .join('') }
+          </ol>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    /* ========= 検索（TOPだけカード表示） ========= */
+    function initSearch(){
+      const searchInput = $('#global-search');
+      const heroInput   = $('#hero-search-input');
+      const heroBtn     = $('#hero-filter-btn');
+      const resultWrap  = $('#search-results');
+      const resultGrid  = $('#result-grid');
+      const resultCount = $('#result-count');
+      const clearBtn    = $('#clear-search');
+
+      let SEARCH_INDEX = null;
+      async function loadIndex(){
+        if (SEARCH_INDEX) return SEARCH_INDEX;
+        const res = await fetch('search-index.json', {cache: 'no-store'});
+        SEARCH_INDEX = await res.json();
+        return SEARCH_INDEX;
+      }
+      const tokenize = q => q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+
+      function searchDocs(index, query){
+        const tokens = tokenize(query);
+        if (!tokens.length) return [];
+        return index.map(doc=>{
+          const hay = (doc.title + ' ' + (doc.tags||[]).join(' ')).toLowerCase();
+          const ok = tokens.every(t => hay.includes(t));
+          let score=0;
+          if (ok){
+            tokens.forEach(t=>{
+              if (doc.title.toLowerCase().includes(t)) score+=3;
+              if ((doc.tags||[]).join(' ').toLowerCase().includes(t)) score+=1;
+            });
+          }
+          return ok?{...doc,score}:null;
+        }).filter(Boolean).sort((a,b)=>b.score-a.score).slice(0,60);
+      }
+      function renderResults(items, query){
+        resultWrap.style.display = '';
+        resultCount.textContent = `「${query}」の結果：${items.length}件`;
+        resultGrid.innerHTML = items.map(it => `
+          <a class="result-card" href="${it.url}" title="${it.title}">
+            <div class="result-title">${it.title}</div>
+          </a>
+        `).join('') || `<div class="result-empty">該当するページが見つかりませんでした。</div>`;
+        resultWrap.scrollIntoView({behavior:'smooth', block:'start'});
+      }
+      function clearSearch(){
+        resultWrap.style.display = 'none';
+        resultGrid.innerHTML = '';
+        resultCount.textContent = '';
+        if (searchInput) searchInput.value = '';
+        if (heroInput) heroInput.value = '';
+      }
+      clearBtn.addEventListener('click', clearSearch);
+
+      async function doSearch(q){
+        const index = await loadIndex();
+        const items = searchDocs(index, q);
+        renderResults(items, q);
+      }
+      function onSubmitFrom(el){
+        const q = el.value.trim();
+        if (!q) return;
+        doSearch(q);
+      }
+      if (searchInput) searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') onSubmitFrom(e.target); });
+      if (heroInput)   heroInput.addEventListener('keydown', e => { if (e.key === 'Enter') onSubmitFrom(e.target); });
+      if (heroBtn)     heroBtn.addEventListener('click', () => onSubmitFrom(heroInput || searchInput));
+    }
+
+    /* ========= 起動（defer 順序で nav.js → こちら の順に必ず実行） ========= */
+    document.addEventListener('DOMContentLoaded', () => {
+      // 年号
+      $('#y').textContent = new Date().getFullYear();
+
+      // 新着
+      buildLatest();
+
+      // 検索
+      initSearch();
+
+      // ---- サイドバー初期化（必ず一度だけ） ----
+      if (typeof window.initPortalNav === 'function') {
+        if (!window.__nav_initialized){
+          window.__nav_initialized = true;
+          window.initPortalNav();
+        }
+      } else {
+        // 念のため 1 秒だけ再試行（キャッシュ・遅延対策）
+        setTimeout(()=>{ 
+          if (typeof window.initPortalNav === 'function' && !window.__nav_initialized){
+            window.__nav_initialized = true;
+            window.initPortalNav();
+          }
+        }, 1000);
+      }
+
+      // 目次（NAV → カード）
+      if (Array.isArray(window.PORTAL_NAV)) {
+        buildTocFromNav();
+      } else {
+        // 遅延対策：1 秒後にもう一度
+        setTimeout(()=>{ if (Array.isArray(window.PORTAL_NAV)) buildTocFromNav(); }, 1000);
+      }
+
+      // フェイルセーフ：初回だけサイドバーを一瞬開閉（ホットゾーン無効時の保険）
+      document.body.classList.add('sidebar-open');
+      setTimeout(()=>document.body.classList.remove('sidebar-open'), 20);
+    });
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo">Sales Ops Manual</div>
+    <input id="global-search" class="search" type="search" placeholder="キーワードを入力してください" />
+  </header>
+
+  <main class="layout">
+    <!-- 左メニュー（nav.js が自動生成） -->
+    <nav class="sidebar" aria-label="メインメニュー">
+      <ul id="primary-menu" class="menu"></ul>
+    </nav>
+
+    <!-- 右：ランディング -->
+    <section class="content">
+      <div class="hero">
+        <div class="hero-search">
+          <input id="hero-search-input" type="search" placeholder="キーワードを入力して下さい" aria-label="サイト内検索" />
+          <button id="hero-filter-btn" class="btn-filter" type="button">絞り込み</button>
+        </div>
+      </div>
+
+      <!-- 検索結果 -->
+      <section id="search-results" class="home-section" style="display:none;">
+        <h2 class="home-h2">検索結果</h2>
+        <div class="result-head">
+          <span id="result-count"></span>
+          <button id="clear-search" class="btn-clear" type="button">クリア</button>
+        </div>
+        <div class="result-grid" id="result-grid"></div>
+      </section>
+
+      <!-- 新着 -->
+      <section class="home-section">
+        <h2 class="home-h2">新着記事</h2>
+        <ul class="article-list" id="latest-list"></ul>
+      </section>
+
+      <!-- 目次（= NAV） -->
+      <section class="home-section">
+        <h2 class="home-h2">目次（カテゴリ別）</h2>
+        <div class="popular-grid" id="popular-grid"></div>
+      </section>
+    </section>
+  </main>
+
+  <footer class="site-footer">© <span id="y"></span> Link innovation</footer>
 </body>
 </html>
