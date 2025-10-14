@@ -247,3 +247,39 @@ body{
             box-shadow: 8px 0 24px rgba(0,0,0,.2); }
   .sidebar-open .layout{ grid-template-columns: 1fr !important; }
 }
+/* ============ manual内の画像拡大対応 ============ */
+.manual-figure img {
+  width: 100%;
+  height: 260px;                /* 少し大きめに */
+  object-fit: contain;
+  cursor: zoom-in;              /* 拡大可能なカーソル */
+  transition: transform 0.2s ease;
+}
+.manual-figure img:hover {
+  transform: scale(1.02);
+}
+
+/* Lightbox（拡大表示） */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.lightbox.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+.lightbox img {
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  background: #fff;
+}
