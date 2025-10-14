@@ -13,6 +13,7 @@
 </header>
 
 <main class="layout">
+  <!-- 左メニュー（nav.js が自動生成） -->
   <nav class="sidebar" aria-label="メインメニュー">
     <ul id="primary-menu" class="menu"></ul>
   </nav>
@@ -48,14 +49,14 @@
 
 <footer class="site-footer">© <span id="y"></span> Link innovation</footer>
 
-<!-- 共通NAV -->
+<!-- ✅ 共通ナビ生成スクリプト -->
 <script src="assets/nav.js"></script>
 
 <script>
-  // nav.js が自動初期化しますが、念のため
+  // nav.js が初期化する
   window.initPortalNav?.();
 
-  // ===== 新着 / 人気（ダミー） =====
+  /* ====== 新着・人気 記事のダミーデータ ====== */
   const LATEST = [
     { title: "名刺登録方法の更新", date: "2025.03.27", tag:"顧客管理", href:"pages/customers/business-card.html" },
     { title: "新規案件（リード）の手順", date: "2025.03.23", tag:"案件管理", href:"pages/deals/opportunity-new-lead.html" },
@@ -74,6 +75,7 @@
     ]}
   ];
 
+  // ====== 新着・人気生成処理 ======
   const latestList = document.getElementById('latest-list');
   LATEST.forEach(a => {
     const li = document.createElement('li');
@@ -102,14 +104,14 @@
     popularGrid.appendChild(card);
   });
 
-  // ===== 検索（カード表示） =====
+  /* ====== 検索機能（TOPページ限定） ====== */
   const searchInput = document.getElementById('global-search');
-  const heroInput   = document.getElementById('hero-search-input');
-  const heroBtn     = document.getElementById('hero-filter-btn');
-  const resultWrap  = document.getElementById('search-results');
-  const resultGrid  = document.getElementById('result-grid');
+  const heroInput = document.getElementById('hero-search-input');
+  const heroBtn = document.getElementById('hero-filter-btn');
+  const resultWrap = document.getElementById('search-results');
+  const resultGrid = document.getElementById('result-grid');
   const resultCount = document.getElementById('result-count');
-  const clearBtn    = document.getElementById('clear-search');
+  const clearBtn = document.getElementById('clear-search');
 
   let SEARCH_INDEX = null;
   async function loadIndex(){
@@ -118,28 +120,33 @@
     SEARCH_INDEX = await res.json();
     return SEARCH_INDEX;
   }
+
   const tokenize = q => q.trim().toLowerCase().split(/\s+/).filter(Boolean);
 
   function searchDocs(index, query){
     const tokens = tokenize(query);
     if (!tokens.length) return [];
-    return index.map(doc=>{
-      const hay=(doc.title+' '+(doc.tags||[]).join(' ')).toLowerCase();
-      const ok=tokens.every(t=>hay.includes(t));
-      let score=0;
-      if(ok){
-        tokens.forEach(t=>{
-          if(doc.title.toLowerCase().includes(t)) score+=3;
-          if((doc.tags||[]).join(' ').toLowerCase().includes(t)) score+=1;
-        });
-      }
-      return ok?{...doc,score}:null;
-    }).filter(Boolean).sort((a,b)=>b.score-a.score).slice(0,60);
+    return index
+      .map(doc => {
+        const hay = (doc.title + ' ' + (doc.tags||[]).join(' ')).toLowerCase();
+        const ok = tokens.every(t => hay.includes(t));
+        let score = 0;
+        if (ok){
+          tokens.forEach(t => {
+            if (doc.title.toLowerCase().includes(t)) score += 3;
+            if ((doc.tags||[]).join(' ').toLowerCase().includes(t)) score += 1;
+          });
+        }
+        return ok ? {...doc, score} : null;
+      })
+      .filter(Boolean)
+      .sort((a,b)=> b.score - a.score)
+      .slice(0,60);
   }
 
   function renderResults(items, query){
-    resultWrap.style.display='';
-    resultCount.textContent=`「${query}」の結果：${items.length}件`;
+    resultWrap.style.display = '';
+    resultCount.textContent = `「${query}」の結果：${items.length}件`;
     resultGrid.innerHTML = items.map(it => `
       <a class="result-card" href="${it.url}" title="${it.title}">
         <div class="result-title">${it.title}</div>
@@ -149,23 +156,26 @@
   }
 
   function clearSearch(){
-    resultWrap.style.display='none';
-    resultGrid.innerHTML='';
-    resultCount.textContent='';
-    if(searchInput) searchInput.value='';
-    if(heroInput) heroInput.value='';
+    resultWrap.style.display = 'none';
+    resultGrid.innerHTML = '';
+    resultCount.textContent = '';
+    if (searchInput) searchInput.value = '';
+    if (heroInput) heroInput.value = '';
   }
   clearBtn.addEventListener('click', clearSearch);
 
   async function doSearch(q){
-    const idx=await loadIndex();
-    const items=searchDocs(idx,q);
-    renderResults(items,q);
+    const index = await loadIndex();
+    const items = searchDocs(index, q);
+    renderResults(items, q);
   }
+
   function onSubmitFrom(el){
-    const q=el.value.trim(); if(!q) return;
+    const q = el.value.trim();
+    if (!q) return;
     doSearch(q);
   }
+
   if (searchInput) searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') onSubmitFrom(e.target); });
   if (heroInput)   heroInput.addEventListener('keydown', e => { if (e.key === 'Enter') onSubmitFrom(e.target); });
   if (heroBtn)     heroBtn.addEventListener('click', () => onSubmitFrom(heroInput || searchInput));
