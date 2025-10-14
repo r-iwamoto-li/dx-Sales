@@ -247,15 +247,6 @@ body{
   line-height:1;
   transform:translateY(0.5px); /* 微調整でベースライン合わせ */
 }
-.rule-box .rule-label .ico::before{
-  content:""; position:absolute; left:0; top:0; width:0; height:0;
-  border-left:.53rem solid transparent; border-right:.53rem solid transparent;
-  border-bottom:.95rem solid #fff; /* 白三角 */
-}
-.rule-box .rule-label .ico::after{
-  content:"!"; position:absolute; left:.05rem; top:.08rem;
-  font-weight:900; font-size:.7rem; color:var(--bg);
-}
 .rule-box .rule-body{ line-height:1.9 }
 
 /* Lightbox（拡大表示） */
