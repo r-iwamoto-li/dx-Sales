@@ -24,12 +24,20 @@
         <a href="../../index.html">TOP</a> ＞ <span>SFA：Salesforce</span> ＞ <span>商談の作成〜フェーズ管理</span>
       </nav>
 
-      <p class="kicker">SFA：Salesforce</p>
+      <!-- ★ 重複していた kicker を削除 -->
+
       <h1 class="page-title">商談の作成〜フェーズ管理</h1>
 
-      <div class="page-lead">
-        <strong>概要：</strong> 新規商談の作成から、フェーズ更新、次アクションの登録、クローズまでの運用を解説します。
-      </div>
+      <!-- ★ 概要のデザインを強化（lead-card） -->
+      <section class="lead-card" aria-labelledby="lead-title">
+        <div class="lead-icon" aria-hidden="true">ℹ️</div>
+        <div class="lead-body">
+          <h2 id="lead-title" class="lead-title">このページの概要</h2>
+          <p class="lead-text">
+            新規商談の作成から、フェーズ更新、次アクションの登録、クローズまでの運用を解説します。
+          </p>
+        </div>
+      </section>
 
       <section class="manual-steps">
         <!-- STEP 1 -->
@@ -43,7 +51,14 @@
           <div class="manual-right">
             <h3>商談タブから新規作成</h3>
             <p class="manual-desc">［商談］タブで［新規］をクリック。取引先が未作成の場合は先に作成してください。</p>
-            <div class="note">入力規則：商談名は「YYYYMMDD_案件名_顧客名」で統一。</div>
+
+            <!-- ★ ルール／注意点のコールアウト -->
+            <div class="callout callout--rule">
+              <div class="callout-head">命名規則</div>
+              <div class="callout-body">
+                商談名は <code>YYYYMMDD_案件名_顧客名</code> で統一してください。
+              </div>
+            </div>
           </div>
         </article>
 
@@ -154,37 +169,29 @@
     openSubmenu('salesforce');
     const here = [...document.querySelectorAll('.submenu-link')].find(a => a.getAttribute('href')?.endsWith('/opportunity.html'));
     if (here) here.classList.add('is-current');
-    
-/* ====== manual内の画像クリック拡大（Lightbox） ====== */
-document.addEventListener("DOMContentLoaded", () => {
-  // 1) Lightbox要素を動的に生成
-  const lightbox = document.createElement("div");
-  lightbox.className = "lightbox";
-  lightbox.innerHTML = `<img src="" alt="拡大画像">`;
-  document.body.appendChild(lightbox);
 
-  const lightboxImg = lightbox.querySelector("img");
+    /* ====== manual内の画像クリック拡大（Lightbox） ====== */
+    document.addEventListener("DOMContentLoaded", () => {
+      const lightbox = document.createElement("div");
+      lightbox.className = "lightbox";
+      lightbox.innerHTML = `<img src="" alt="拡大画像">`;
+      document.body.appendChild(lightbox);
+      const lightboxImg = lightbox.querySelector("img");
 
-  // 2) manual内の全画像にクリックイベント付与
-  document.querySelectorAll(".manual-figure img").forEach(img => {
-    img.addEventListener("click", () => {
-      lightboxImg.src = img.src;
-      lightbox.classList.add("show");
+      document.querySelectorAll(".manual-figure img").forEach(img => {
+        img.addEventListener("click", () => {
+          lightboxImg.src = img.src;
+          lightbox.classList.add("show");
+        });
+      });
+      lightbox.addEventListener("click", () => {
+        lightbox.classList.remove("show");
+        lightboxImg.src = "";
+      });
+      document.addEventListener("keydown", e => {
+        if (e.key === "Escape") lightbox.classList.remove("show");
+      });
     });
-  });
-
-  // 3) Lightboxをクリックで閉じる
-  lightbox.addEventListener("click", () => {
-    lightbox.classList.remove("show");
-    lightboxImg.src = "";
-  });
-
-  // 4) Escキーで閉じる
-  document.addEventListener("keydown", e => {
-    if (e.key === "Escape") lightbox.classList.remove("show");
-  });
-});
-</script>
-
+  </script>
 </body>
 </html>
