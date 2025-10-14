@@ -13,12 +13,12 @@
 </header>
 
 <main class="layout">
-  <!-- 左：大項目 + 直下に中項目（アコーディオン展開） -->
+  <!-- 左：大項目 + 直下に中項目 -->
   <nav class="sidebar" aria-label="メインメニュー">
     <ul id="primary-menu" class="menu"></ul>
   </nav>
 
-  <!-- 右：ランディング（検索ヒーロー + 新着 + 人気） -->
+  <!-- 右：コンテンツ -->
   <section class="content">
     <div class="hero">
       <div class="hero-search">
@@ -27,7 +27,7 @@
       </div>
     </div>
 
-    <!-- 検索結果（JSでprepend、初期は非表示） -->
+    <!-- 検索結果 -->
     <section id="search-results" class="home-section" style="display:none;">
       <h2 class="home-h2">検索結果</h2>
       <div class="result-head">
@@ -37,13 +37,13 @@
       <div class="result-grid" id="result-grid"></div>
     </section>
 
-    <!-- 新着記事（例） -->
+    <!-- 新着記事 -->
     <section class="home-section">
       <h2 class="home-h2">新着記事</h2>
       <ul class="article-list" id="latest-list"></ul>
     </section>
 
-    <!-- 人気記事（例） -->
+    <!-- 人気記事 -->
     <section class="home-section">
       <h2 class="home-h2">人気記事</h2>
       <div class="popular-grid" id="popular-grid"></div>
@@ -53,62 +53,13 @@
 
 <footer class="site-footer">© <span id="y"></span> Link innovation</footer>
 
+<!-- ===== 共通NAV読込 ===== -->
+<script src="assets/nav.js"></script>
 <script>
-  // ====== ナビ（左メニュー）データ：添付テーブルを反映 ======
-  const NAV = [
-    {
-      id: "customers", label: "顧客管理",
-      items: [
-        { label: "基本ルール・定義",         href: "pages/customers/basics.html" },
-        { label: "名刺登録方法",             href: "pages/customers/business-card.html" },
-        { label: "リード登録方法",           href: "pages/customers/lead-create.html" },
-        { label: "取引先責任者登録方法",     href: "pages/customers/contact-create.html" },
-        { label: "取引先登録方法",           href: "pages/customers/account-create.html" },
-      ]
-    },
-    {
-      id: "deals", label: "案件管理",
-      items: [
-        { label: "基本ルール・定義",           href: "pages/deals/basics.html" },
-        { label: "新規案件（リード）",         href: "pages/deals/opportunity-new-lead.html" },
-        { label: "新規案件（取引先責任者）",   href: "pages/deals/opportunity-new-contact.html" },
-        { label: "既存案件（リード）",         href: "pages/deals/opportunity-existing-lead.html" },
-        { label: "既存案件（取引先責任者）",   href: "pages/deals/opportunity-existing-contact.html" },
-      ]
-    },
-    {
-      id: "activities", label: "活動管理",
-      items: [
-        { label: "基本ルール・定義",   href: "pages/activities/basics.html" },
-        { label: "ToDoの登録",         href: "pages/activities/todo.html" },
-        { label: "行動の登録",         href: "pages/activities/activity-log.html" },
-        { label: "メール",             href: "pages/activities/email.html" },
-        { label: "Gmail連携",          href: "pages/activities/gmail-integration.html" },
-      ]
-    },
-    {
-      id: "programs", label: "施策管理",
-      items: [
-        { label: "基本ルール・定義",           href: "pages/programs/basics.html" },
-        { label: "施策一覧",                   href: "pages/programs/programs-list.html" },
-        { label: "施策作成",                   href: "pages/programs/program-create.html" },
-        { label: "施策ステータス更新",         href: "pages/programs/program-status.html" },
-        { label: "ダッシュボード・レポート一覧", href: "pages/programs/dashboards-reports.html" },
-      ]
-    },
-    {
-      id: "governance", label: "管理体制",
-      items: [
-        { label: "管理部門・ステークホルダー", href: "pages/admin/stakeholders.html" },
-        { label: "アカウント発行",             href: "pages/admin/accounts-issue.html" },
-        { label: "項目権限の追加・変更",       href: "pages/admin/permissions.html" },
-        { label: "データガバナンス",           href: "pages/admin/governance.html" },
-        { label: "問合せ先",                   href: "pages/admin/contact.html" },
-      ]
-    },
-  ];
+  // NAV初期化
+  initPortalNav();
 
-  // ====== 新着 / 人気（ダミーを新階層へ差し替え） ======
+  // ===== 新着 / 人気（ダミー） =====
   const LATEST = [
     { title: "名刺登録方法の更新", date: "2025.03.27", tag:"顧客管理", href:"pages/customers/business-card.html" },
     { title: "新規案件（リード）の手順", date: "2025.03.23", tag:"案件管理", href:"pages/deals/opportunity-new-lead.html" },
@@ -127,46 +78,7 @@
     ]}
   ];
 
-  // ====== 左メニュー描画 ======
-  const primaryMenu = document.getElementById('primary-menu');
-  NAV.forEach((s) => {
-    const li = document.createElement('li');
-    li.className = 'menu-item';
-    li.innerHTML = `
-      <button class="menu-btn" data-id="${s.id}">${s.label}</button>
-      <ul class="submenu" data-parent="${s.id}" hidden></ul>
-    `;
-    primaryMenu.appendChild(li);
-  });
-
-  function openSubmenu(id) {
-    // 全て畳む → 対象のみ開く
-    document.querySelectorAll('.submenu').forEach(ul => { ul.hidden = true; ul.innerHTML = ''; });
-    document.querySelectorAll('.menu-btn').forEach(b => b.classList.toggle('active', b.dataset.id === id));
-    const sec = NAV.find(s => s.id === id);
-    if (!sec) return;
-    const holder = document.querySelector(`.submenu[data-parent="${id}"]`);
-    sec.items.forEach(item => {
-      const li = document.createElement('li');
-      li.innerHTML = `<a class="submenu-link" href="${item.href}">${item.label}</a>`;
-      holder.appendChild(li);
-    });
-    holder.hidden = false;
-  }
-
-  primaryMenu.addEventListener('click', (e) => {
-    if (!e.target.matches('.menu-btn')) return;
-    const id = e.target.dataset.id;
-    const isActive = e.target.classList.contains('active');
-    if (isActive) {
-      document.querySelector(`.submenu[data-parent="${id}"]`).hidden = true;
-      e.target.classList.remove('active');
-    } else {
-      openSubmenu(id);
-    }
-  });
-
-  // ====== ランディング生成（新着・人気） ======
+  // ===== ランディング生成 =====
   const latestList = document.getElementById('latest-list');
   LATEST.forEach(a => {
     const li = document.createElement('li');
@@ -195,10 +107,10 @@
     popularGrid.appendChild(card);
   });
 
-  // ====== 検索（TOP内でカード表示） ======
+  // ===== 検索（カード表示） =====
   const searchInput = document.getElementById('global-search');
-  const heroInput = document.getElementById('hero-search-input');
-  const heroBtn   = document.getElementById('hero-filter-btn');
+  const heroInput   = document.getElementById('hero-search-input');
+  const heroBtn     = document.getElementById('hero-filter-btn');
   const resultWrap  = document.getElementById('search-results');
   const resultGrid  = document.getElementById('result-grid');
   const resultCount = document.getElementById('result-count');
@@ -222,87 +134,53 @@
         const ok = tokens.every(t => hay.includes(t));
         let score = 0;
         if (ok){
-          tokens.forEach(t => {
-            if (doc.title.toLowerCase().includes(t)) score += 3;
-            if ((doc.tags||[]).join(' ').toLowerCase().includes(t)) score += 1;
+          tokens.forEach(t=>{
+            if(doc.title.toLowerCase().includes(t)) score+=3;
+            if((doc.tags||[]).join(' ').toLowerCase().includes(t)) score+=1;
           });
         }
-        return ok ? {...doc, score} : null;
+        return ok?{...doc,score}:null;
       })
       .filter(Boolean)
-      .sort((a,b)=> b.score - a.score)
+      .sort((a,b)=>b.score-a.score)
       .slice(0,60);
   }
 
   function renderResults(items, query){
-    resultWrap.style.display = '';
-    resultCount.textContent = `「${query}」の結果：${items.length}件`;
+    resultWrap.style.display='';
+    resultCount.textContent=`「${query}」の結果：${items.length}件`;
     resultGrid.innerHTML = items.map(it => `
       <a class="result-card" href="${it.url}" title="${it.title}">
         <div class="result-title">${it.title}</div>
-      </a>
-    `).join('') || `<div class="result-empty">該当するページが見つかりませんでした。</div>`;
-    resultWrap.scrollIntoView({behavior:'smooth', block:'start'});
+      </a>`).join('') || `<div class="result-empty">該当するページが見つかりませんでした。</div>`;
+    resultWrap.scrollIntoView({behavior:'smooth',block:'start'});
   }
 
   function clearSearch(){
-    resultWrap.style.display = 'none';
-    resultGrid.innerHTML = '';
-    resultCount.textContent = '';
-    if (searchInput) searchInput.value = '';
-    if (heroInput) heroInput.value = '';
+    resultWrap.style.display='none';
+    resultGrid.innerHTML='';
+    resultCount.textContent='';
+    if(searchInput) searchInput.value='';
+    if(heroInput) heroInput.value='';
   }
   clearBtn.addEventListener('click', clearSearch);
 
   async function doSearch(q){
-    const index = await loadIndex();
-    const items = searchDocs(index, q);
-    renderResults(items, q);
+    const idx=await loadIndex();
+    const items=searchDocs(idx,q);
+    renderResults(items,q);
   }
   function onSubmitFrom(el){
-    const q = el.value.trim();
-    if (!q) return;
+    const q=el.value.trim();
+    if(!q) return;
     doSearch(q);
   }
-  if (searchInput) searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') onSubmitFrom(e.target); });
-  if (heroInput)   heroInput.addEventListener('keydown', e => { if (e.key === 'Enter') onSubmitFrom(e.target); });
-  if (heroBtn)     heroBtn.addEventListener('click', () => onSubmitFrom(heroInput || searchInput));
 
-  // 年表示
-  document.getElementById('y').textContent = new Date().getFullYear();
+  if(searchInput) searchInput.addEventListener('keydown', e=>{ if(e.key==='Enter') onSubmitFrom(e.target); });
+  if(heroInput)   heroInput.addEventListener('keydown', e=>{ if(e.key==='Enter') onSubmitFrom(e.target); });
+  if(heroBtn)     heroBtn.addEventListener('click', ()=>onSubmitFrom(heroInput || searchInput));
 
-  /* ===== サイドバーの出し入れ（ホットゾーン方式） ===== */
-  (function(){
-    const zone = document.createElement('div');
-    zone.className = 'edge-hotzone';
-    document.body.appendChild(zone);
-
-    const OPEN_CLASS = 'sidebar-open';
-    let closeTimer = null;
-
-    const openSidebar = () => {
-      if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
-      document.body.classList.add(OPEN_CLASS);
-    };
-    const maybeClose = () => {
-      if (closeTimer) clearTimeout(closeTimer);
-      closeTimer = setTimeout(() => {
-        document.body.classList.remove(OPEN_CLASS);
-      }, 200);
-    };
-    zone.addEventListener('mouseenter', openSidebar);
-    zone.addEventListener('mouseleave', maybeClose);
-
-    const sidebar = document.querySelector('.sidebar');
-    if (sidebar) {
-      sidebar.addEventListener('mouseenter', openSidebar);
-      sidebar.addEventListener('mouseleave', maybeClose);
-    }
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') document.body.classList.remove(OPEN_CLASS);
-    });
-    document.body.classList.remove(OPEN_CLASS);
-  })();
+  document.getElementById('y').textContent=new Date().getFullYear();
 </script>
 </body>
 </html>
