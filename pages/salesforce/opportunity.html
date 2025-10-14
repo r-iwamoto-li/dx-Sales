@@ -13,12 +13,10 @@
   </header>
 
   <main class="layout">
-    <!-- 左：メニュー（ホバーで出現） -->
     <nav class="sidebar" aria-label="メインメニュー">
       <ul id="primary-menu" class="menu"></ul>
     </nav>
 
-    <!-- 右：本文 -->
     <section class="content manual">
       <nav class="breadcrumb">
         <a href="../../index.html">TOP</a> ＞ <span>SFA：Salesforce</span> ＞ <span>商談の作成〜フェーズ管理</span>
@@ -26,7 +24,7 @@
 
       <h1 class="page-title">商談の作成〜フェーズ管理</h1>
 
-      <!-- ★ 追加：検索結果表示エリア（TOPと同じ構造） -->
+      <!-- ★ TOP と同じ検索結果エリアを配置 -->
       <section id="search-results" class="home-section" style="display:none;">
         <h2 class="home-h2">検索結果</h2>
         <div class="result-head">
@@ -59,11 +57,7 @@
 
             <div class="rule-box rule--caution">
               <div class="rule-label">
-                <img
-                  src="https://twemoji.maxcdn.com/v/latest/72x72/26a0.png"
-                  alt="注意アイコン"
-                  class="ico-img"
-                >
+                <img src="https://twemoji.maxcdn.com/v/latest/72x72/26a0.png" alt="注意アイコン" class="ico-img">
                 <span>注意事項</span>
               </div>
               <div class="rule-body"><strong>入力規則：</strong> 商談名は「YYYYMMDD_案件名_顧客名」で統一。</div>
@@ -106,6 +100,8 @@
 
   <script>
   document.addEventListener("DOMContentLoaded", () => {
+    const ROOT = '../../'; // ← ルート相対の基点
+
     /* ===== 左メニュー ===== */
     const NAV = [
       { id: "salesforce", label: "SFA：Salesforce", items: [
@@ -136,13 +132,6 @@
         { label: "連携マップ（全体像）", href: "../common/integration-map.html" },
         { label: "トラブルシュートの基本", href: "../common/troubleshoot.html" },
       ]},
-      { id: "governance", label: "共通：データガバナンス", items: [
-        { label: "重複チェックの運用", href: "../common/dedupe.html" },
-        { label: "項目設計ガイド", href: "../common/field-design.html" },
-        { label: "データ品質監視", href: "../common/data-quality.html" },
-        { label: "匿名化・削除ポリシー", href: "../common/privacy.html" },
-        { label: "変更申請フロー", href: "../common/change-request.html" },
-      ]},
     ];
 
     const primaryMenu = document.getElementById('primary-menu');
@@ -150,8 +139,8 @@
       const li = document.createElement('li');
       li.className = 'menu-item';
       li.innerHTML = `
-        <button class="menu-btn" data-id="\${s.id}">\${s.label}</button>
-        <ul class="submenu" data-parent="\${s.id}" hidden></ul>
+        <button class="menu-btn" data-id="${s.id}">${s.label}</button>
+        <ul class="submenu" data-parent="${s.id}" hidden></ul>
       `;
       primaryMenu.appendChild(li);
     });
@@ -159,10 +148,10 @@
       document.querySelectorAll('.submenu').forEach(ul => { ul.hidden = true; ul.innerHTML=''; });
       document.querySelectorAll('.menu-btn').forEach(b => b.classList.toggle('active', b.dataset.id === id));
       const sec = NAV.find(s => s.id === id); if (!sec) return;
-      const holder = document.querySelector(\`.submenu[data-parent="\${id}"]\`);
+      const holder = document.querySelector(`.submenu[data-parent="${id}"]`);
       sec.items.forEach(item => {
         const li = document.createElement('li');
-        li.innerHTML = \`<a class="submenu-link" href="\${item.href}">\${item.label}</a>\`;
+        li.innerHTML = `<a class="submenu-link" href="${item.href}">${item.label}</a>`;
         holder.appendChild(li);
       });
       holder.hidden = false;
@@ -182,7 +171,7 @@
     });
     lightbox.addEventListener("click", () => { lightbox.classList.remove("show"); lightboxImg.src = ""; });
 
-    /* ===== 検索（TOPと同じ表示ロジック） ===== */
+    /* ===== 検索（TOPと同じカード一覧をこのページで表示） ===== */
     const searchInput = document.getElementById('global-search');
     const resultWrap  = document.getElementById('search-results');
     const resultGrid  = document.getElementById('result-grid');
@@ -192,10 +181,18 @@
     let SEARCH_INDEX = null;
     async function loadIndex(){
       if (SEARCH_INDEX) return SEARCH_INDEX;
-      // ルートの search-index.json を相対で取得（このページは /pages/salesforce 配下）
-      const res = await fetch('../../search-index.json', {cache: 'no-store'});
-      SEARCH_INDEX = await res.json();
-      return SEARCH_INDEX;
+      try{
+        const res = await fetch(`${ROOT}search-index.json`, {cache: 'no-store'});
+        if(!res.ok) throw new Error(res.status + ' ' + res.statusText);
+        SEARCH_INDEX = await res.json();
+        return SEARCH_INDEX;
+      }catch(err){
+        // 失敗してもUIを出して原因を見える化
+        resultWrap.style.display = '';
+        resultCount.textContent = '検索インデックスの読み込みに失敗しました。';
+        resultGrid.innerHTML = `<div class="result-empty">search-index.json を読み込めませんでした（相対パスや配置をご確認ください）。</div>`;
+        throw err;
+      }
     }
     const tokenize = q => q.trim().toLowerCase().split(/\s+/).filter(Boolean);
 
@@ -223,23 +220,13 @@
     function renderResults(items, query){
       resultWrap.style.display = '';
       resultCount.textContent = `「${query}」の結果：${items.length}件`;
-      // このページからの相対パスでリンクを生成
       resultGrid.innerHTML = items.map(it => `
-        <a class="result-card" href="../../${it.url.replace(/^\\/?/,'')}" title="${it.title}">
+        <a class="result-card" href="${ROOT}${it.url.replace(/^\\/?/,'')}" title="${it.title}">
           <div class="result-title">${it.title}</div>
         </a>
       `).join('') || `<div class="result-empty">該当するページが見つかりませんでした。</div>`;
       resultWrap.scrollIntoView({behavior:'smooth', block:'start'});
     }
-
-    function clearSearch(){
-      if (!resultWrap) return;
-      resultWrap.style.display = 'none';
-      resultGrid.innerHTML = '';
-      resultCount.textContent = '';
-      if (searchInput) searchInput.value = '';
-    }
-    if (clearBtn) clearBtn.addEventListener('click', clearSearch);
 
     async function doSearch(q){
       const index = await loadIndex();
@@ -247,16 +234,32 @@
       renderResults(items, q);
     }
 
+    function handleEnterKey(e){
+      // 日本語変換中は実行しない
+      if (e.isComposing) return;
+      if (e.key === 'Enter'){
+        const q = searchInput.value.trim();
+        if (q) doSearch(q);
+      }
+    }
     if (searchInput){
-      searchInput.addEventListener('keydown', e => {
-        if (e.key === 'Enter'){
-          const q = searchInput.value.trim();
-          if (q) doSearch(q);
-        }
+      searchInput.addEventListener('keydown', handleEnterKey);
+      // type="search" の「×」や候補決定でも発火
+      searchInput.addEventListener('search', () => {
+        const q = searchInput.value.trim();
+        if (q) doSearch(q);
       });
     }
 
-    /* ===== サイドバーの出し入れ（ホットゾーン） ===== */
+    function clearSearch(){
+      resultWrap.style.display = 'none';
+      resultGrid.innerHTML = '';
+      resultCount.textContent = '';
+      if (searchInput) searchInput.value = '';
+    }
+    if (clearBtn) clearBtn.addEventListener('click', clearSearch);
+
+    /* ===== サイドバー出し入れ（ホットゾーン） ===== */
     const zone = document.createElement('div');
     zone.className = 'edge-hotzone';
     document.body.appendChild(zone);
@@ -268,7 +271,7 @@
     const sidebar=document.querySelector('.sidebar');
     if(sidebar){ sidebar.addEventListener('mouseenter',open); sidebar.addEventListener('mouseleave',close); }
 
-    /* 予備：注意アイコンURLが無効な場合のフォールバック */
+    /* アイコンのフォールバック（任意） */
     const ico = document.querySelector('.ico-img');
     if (ico){
       ico.addEventListener('error', () => {
