@@ -13,11 +13,12 @@
 </header>
 
 <main class="layout">
-  <!-- 左メニュー（nav.js が自動生成） -->
+  <!-- 左：メニュー（nav.js が生成） -->
   <nav class="sidebar" aria-label="メインメニュー">
     <ul id="primary-menu" class="menu"></ul>
   </nav>
 
+  <!-- 右：ランディング -->
   <section class="content">
     <div class="hero">
       <div class="hero-search">
@@ -26,6 +27,7 @@
       </div>
     </div>
 
+    <!-- 検索結果（カードUI） -->
     <section id="search-results" class="home-section" style="display:none;">
       <h2 class="home-h2">検索結果</h2>
       <div class="result-head">
@@ -35,83 +37,47 @@
       <div class="result-grid" id="result-grid"></div>
     </section>
 
+    <!-- 👇 新着は廃止。NAVベースの“目次”を表示 -->
     <section class="home-section">
-      <h2 class="home-h2">新着記事</h2>
-      <ul class="article-list" id="latest-list"></ul>
-    </section>
-
-    <section class="home-section">
-      <h2 class="home-h2">人気記事</h2>
-      <div class="popular-grid" id="popular-grid"></div>
+      <h2 class="home-h2">目次</h2>
+      <div class="popular-grid" id="toc-grid"></div>
     </section>
   </section>
 </main>
 
 <footer class="site-footer">© <span id="y"></span> Link innovation</footer>
 
-<!-- ✅ 共通ナビ生成スクリプト -->
+<!-- 共通ナビ（重複防止つき） -->
 <script src="assets/nav.js"></script>
 
 <script>
-  // nav.js が初期化する
+  // サイドバー初期化（重複防止つき）
   window.initPortalNav?.();
 
-  /* ====== 新着・人気 記事のダミーデータ ====== */
-  const LATEST = [
-    { title: "名刺登録方法の更新", date: "2025.03.27", tag:"顧客管理", href:"pages/customers/business-card.html" },
-    { title: "新規案件（リード）の手順", date: "2025.03.23", tag:"案件管理", href:"pages/deals/opportunity-new-lead.html" },
-    { title: "施策ダッシュボード集", date: "2025.03.19", tag:"施策管理", href:"pages/programs/dashboards-reports.html" },
-  ];
-  const POPULAR = [
-    { cat:"顧客管理", items:[
-      { title:"取引先登録方法", href:"pages/customers/account-create.html" },
-      { title:"取引先責任者登録方法", href:"pages/customers/contact-create.html" },
-      { title:"リード登録方法", href:"pages/customers/lead-create.html" },
-    ]},
-    { cat:"案件管理", items:[
-      { title:"新規案件（取引先責任者）", href:"pages/deals/opportunity-new-contact.html" },
-      { title:"既存案件（リード）", href:"pages/deals/opportunity-existing-lead.html" },
-      { title:"既存案件（取引先責任者）", href:"pages/deals/opportunity-existing-contact.html" },
-    ]}
-  ];
+  // ====== 目次（NAVから自動生成） ======
+  const TOC = window.PORTAL_NAV || [];
+  const tocGrid = document.getElementById('toc-grid');
+  if (tocGrid) {
+    tocGrid.innerHTML = TOC.map(block => `
+      <div class="pop-card">
+        <div class="pop-head"><span class="pop-tag">${block.label}</span></div>
+        <ol class="pop-ol">
+          ${block.items.map((it,i)=>`
+            <li><a href="${it.href}"><span class="rank">${i+1}.</span> ${it.label}</a></li>
+          `).join('')}
+        </ol>
+      </div>
+    `).join('');
+  }
 
-  // ====== 新着・人気生成処理 ======
-  const latestList = document.getElementById('latest-list');
-  LATEST.forEach(a => {
-    const li = document.createElement('li');
-    li.className = 'article-item';
-    li.innerHTML = `
-      <a href="${a.href}">
-        <div class="thumb" aria-hidden="true"></div>
-        <div class="meta">
-          <div class="title">${a.title}</div>
-          <div class="sub"><span class="date">${a.date}</span>・<span class="tag">${a.tag}</span></div>
-        </div>
-      </a>`;
-    latestList.appendChild(li);
-  });
-
-  const popularGrid = document.getElementById('popular-grid');
-  POPULAR.forEach(block => {
-    const card = document.createElement('div');
-    card.className = 'pop-card';
-    card.innerHTML = `
-      <div class="pop-head"><span class="pop-tag">${block.cat}</span></div>
-      <ol class="pop-ol">
-        ${block.items.map((it,i)=>`<li><a href="${it.href}"><span class="rank">${i+1}.</span> ${it.title}</a></li>`).join('')}
-      </ol>
-    `;
-    popularGrid.appendChild(card);
-  });
-
-  /* ====== 検索機能（TOPページ限定） ====== */
+  // ====== 検索（TOPでカード表示する版） ======
   const searchInput = document.getElementById('global-search');
-  const heroInput = document.getElementById('hero-search-input');
-  const heroBtn = document.getElementById('hero-filter-btn');
-  const resultWrap = document.getElementById('search-results');
-  const resultGrid = document.getElementById('result-grid');
+  const heroInput   = document.getElementById('hero-search-input');
+  const heroBtn     = document.getElementById('hero-filter-btn');
+  const resultWrap  = document.getElementById('search-results');
+  const resultGrid  = document.getElementById('result-grid');
   const resultCount = document.getElementById('result-count');
-  const clearBtn = document.getElementById('clear-search');
+  const clearBtn    = document.getElementById('clear-search');
 
   let SEARCH_INDEX = null;
   async function loadIndex(){
@@ -120,7 +86,6 @@
     SEARCH_INDEX = await res.json();
     return SEARCH_INDEX;
   }
-
   const tokenize = q => q.trim().toLowerCase().split(/\s+/).filter(Boolean);
 
   function searchDocs(index, query){
@@ -169,17 +134,16 @@
     const items = searchDocs(index, q);
     renderResults(items, q);
   }
-
   function onSubmitFrom(el){
     const q = el.value.trim();
     if (!q) return;
     doSearch(q);
   }
-
   if (searchInput) searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') onSubmitFrom(e.target); });
   if (heroInput)   heroInput.addEventListener('keydown', e => { if (e.key === 'Enter') onSubmitFrom(e.target); });
   if (heroBtn)     heroBtn.addEventListener('click', () => onSubmitFrom(heroInput || searchInput));
 
+  // 年
   document.getElementById('y').textContent = new Date().getFullYear();
 </script>
 </body>
