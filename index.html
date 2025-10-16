@@ -3,222 +3,200 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>営業支援マニュアルポータル</title>
-  <link rel="stylesheet" href="assets/styles.css" />
+  <title>案件管理｜基本ルール・定義</title>
 
-  <!-- NAV を先に読み込み -->
-  <script src="assets/nav.js" defer></script>
+  <!-- ルート相対で統一（/pages/.../ でも壊れない） -->
+  <link rel="stylesheet" href="/assets/styles.css" />
+  <script src="/assets/nav.js" defer></script>
 
-  <!-- TOP 専用スクリプト -->
-  <script defer>
-    const $ = (s,sc=document)=>sc.querySelector(s);
-
-    /* ===== 日付正規化（ISO, 2025-03-27 など） ===== */
-    function normalizeDate(d){
-      if (!d) return null;
-      const s = String(d).trim().replace(/[./]/g,'-');
-      const dt = new Date(s);
-      return isNaN(dt) ? null : dt;
+  <style>
+    /* やさしい注意ボックス（上下余白 + 目に優しい赤） */
+    .rule-box{
+      background:#fff7f7;
+      border:2px solid #ef4444;
+      border-radius:12px;
+      padding:22px 14px;
+      margin:16px 0;
+      position:relative;
     }
-
-    /* ===== 新着（search-index.json から最新2件） ===== */
-    const FALLBACK_LATEST = [
-      { title:"Salesforce｜商談の作成〜フェーズ管理", date:"2025-03-27", tag:"salesforce", url:"pages/salesforce/opportunity.html" },
-      { title:"Sansan｜Salesforce連携",              date:"2025-03-23", tag:"sansan",     url:"pages/sansan/sf-sync.html" },
-    ];
-
-    async function buildLatest(){
-      const list = $('#latest-list');
-      try{
-        const res = await fetch('search-index.json', {cache:'no-store'});
-        const index = await res.json();
-
-        // date を必須基準としてソート → 最新2件
-        const items = index
-          .map(it => {
-            const dt = normalizeDate(it.date);
-            return {...it, __date: dt ? dt.getTime() : -1, tag: (it.tags && it.tags[0]) || ''};
-          })
-          .filter(it => it.__date > 0)          // 日付が取れないものは除外
-          .sort((a,b)=> b.__date - a.__date)
-          .slice(0, 2);
-
-        renderLatest(list, items.length ? items : FALLBACK_LATEST.slice(0,2));
-      }catch(e){
-        renderLatest(list, FALLBACK_LATEST.slice(0,2));
-      }
+    .rule-box .rule-label{
+      position:absolute; left:14px; top:-14px;
+      display:flex; align-items:center; gap:.4rem;
+      background:#ef4444; color:#fff;
+      font-weight:700; font-size:.88rem;
+      border-radius:6px; padding:.4rem .7rem;
+      line-height:1; box-shadow:0 2px 6px rgba(0,0,0,.12);
     }
-
-    function renderLatest(list, items){
-      list.innerHTML = '';
-      items.forEach(a=>{
-        const li = document.createElement('li');
-        li.className = 'article-item';
-        const dateStr = a.date ? String(a.date).replace(/\./g,'-') : '';
-        li.innerHTML = `
-          <a href="${a.url}">
-            <div class="thumb" aria-hidden="true"></div>
-            <div class="meta">
-              <div class="title">${a.title}</div>
-              <div class="sub"><span class="date">${dateStr}</span>${a.tag ? '・<span class="tag">'+a.tag+'</span>' : ''}</div>
-            </div>
-          </a>`;
-        list.appendChild(li);
-      });
+    .rule-box .ico-img{
+      width:18px; height:18px; object-fit:contain;
+      display:inline-block; vertical-align:middle; margin-right:2px;
+      filter: drop-shadow(0 1px 1px rgba(0,0,0,.15));
     }
-
-    /* ===== 目次（= PORTAL_NAV をカード化） ===== */
-    function buildTocFromNav(){
-  const grid = $('#popular-grid');
-  const NAV = window.PORTAL_NAV || [];
-  grid.innerHTML = '';
-
-  NAV.forEach(block=>{
-    const card = document.createElement('div');
-    card.className = 'pop-card';
-    card.innerHTML = `
-      <div class="pop-head"><span class="pop-tag">${block.label}</span></div>
-      <ul class="pop-ul">
-        ${(block.items||[])
-          .map((it,i)=>`<li><a href="${it.href}"><span class="rank">${i+1}.</span> ${it.label}</a></li>`)
-          .join('')}
-      </ul>
-    `;
-    grid.appendChild(card);
-  });
-}
-
-
-    /* ===== 検索（TOPだけカード表示） ===== */
-    function initSearch(){
-      const searchInput = $('#global-search');
-      const heroInput   = $('#hero-search-input');
-      const heroBtn     = $('#hero-filter-btn');
-      const resultWrap  = $('#search-results');
-      const resultGrid  = $('#result-grid');
-      const resultCount = $('#result-count');
-      const clearBtn    = $('#clear-search');
-
-      let SEARCH_INDEX = null;
-      async function loadIndex(){
-        if (SEARCH_INDEX) return SEARCH_INDEX;
-        const res = await fetch('search-index.json', {cache: 'no-store'});
-        SEARCH_INDEX = await res.json();
-        return SEARCH_INDEX;
-      }
-      const tokenize = q => q.trim().toLowerCase().split(/\s+/).filter(Boolean);
-
-      function searchDocs(index, query){
-        const tokens = tokenize(query);
-        if (!tokens.length) return [];
-        return index.map(doc=>{
-          const hay = (doc.title + ' ' + (doc.tags||[]).join(' ')).toLowerCase();
-          const ok = tokens.every(t => hay.includes(t));
-          let score=0;
-          if (ok){
-            tokens.forEach(t=>{
-              if (doc.title.toLowerCase().includes(t)) score+=3;
-              if ((doc.tags||[]).join(' ').toLowerCase().includes(t)) score+=1;
-            });
-          }
-          return ok?{...doc,score}:null;
-        }).filter(Boolean).sort((a,b)=>b.score-a.score).slice(0,60);
-      }
-      function renderResults(items, query){
-        resultWrap.style.display = '';
-        resultCount.textContent = `「${query}」の結果：${items.length}件`;
-        resultGrid.innerHTML = items.map(it => `
-          <a class="result-card" href="${it.url}" title="${it.title}">
-            <div class="result-title">${it.title}</div>
-          </a>
-        `).join('') || `<div class="result-empty">該当するページが見つかりませんでした。</div>`;
-        resultWrap.scrollIntoView({behavior:'smooth', block:'start'});
-      }
-      function clearSearch(){
-        resultWrap.style.display = 'none';
-        resultGrid.innerHTML = '';
-        resultCount.textContent = '';
-        if (searchInput) searchInput.value = '';
-        if (heroInput) heroInput.value = '';
-      }
-      clearBtn.addEventListener('click', clearSearch);
-
-      async function doSearch(q){
-        const index = await loadIndex();
-        const items = searchDocs(index, q);
-        renderResults(items, q);
-      }
-      function onSubmitFrom(el){
-        const q = el.value.trim();
-        if (!q) return;
-        doSearch(q);
-      }
-      if (searchInput) searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') onSubmitFrom(e.target); });
-      if (heroInput)   heroInput.addEventListener('keydown', e => { if (e.key === 'Enter') onSubmitFrom(e.target); });
-      if (heroBtn)     heroBtn.addEventListener('click', () => onSubmitFrom(heroInput || searchInput));
-    }
-
-    /* ===== 起動 ===== */
-    document.addEventListener('DOMContentLoaded', () => {
-      $('#y').textContent = new Date().getFullYear();
-
-      buildLatest();
-      initSearch();
-
-      // サイドバー（nav.js で初期表示ON。ここでは余計な開閉はしない）
-      if (typeof window.initPortalNav === 'function' && !window.__nav_initialized){
-        window.__nav_initialized = true;
-        window.initPortalNav();
-      }
-
-      if (Array.isArray(window.PORTAL_NAV)) {
-        buildTocFromNav();
-      } else {
-        setTimeout(()=>{ if (Array.isArray(window.PORTAL_NAV)) buildTocFromNav(); }, 800);
-      }
-    });
-  </script>
+    .rule-box .rule-body{ line-height:1.9 }
+  </style>
 </head>
 <body>
   <header class="site-header">
-    <div class="logo">Sales Manual</div>
-    <input id="global-search" class="search" type="search" placeholder="キーワードを入力してください" />
+    <div class="logo"><a href="/" style="color:#fff; text-decoration:none;">Sales Manual</a></div>
+    <!-- 詳細ページは検索バーなし -->
   </header>
 
   <main class="layout">
+    <!-- 左：共通メニュー（nav.js が生成） -->
     <nav class="sidebar" aria-label="メインメニュー">
       <ul id="primary-menu" class="menu"></ul>
     </nav>
 
-    <section class="content">
-      <div class="hero">
-        <div class="hero-search">
-          <input id="hero-search-input" type="search" placeholder="キーワードを入力して下さい" aria-label="サイト内検索" />
-          <button id="hero-filter-btn" class="btn-filter" type="button">絞り込み</button>
+    <!-- 右：本文 -->
+    <section class="content manual">
+      <nav class="breadcrumb">
+        <a href="/">TOP</a> ＞ <span>案件管理</span> ＞ <span>基本ルール・定義</span>
+      </nav>
+
+      <h1 class="page-title">基本ルール・定義</h1>
+
+      <!-- 概要 -->
+      <section class="summary-box" aria-labelledby="summary-label">
+        <div class="summary-head" id="summary-label">概要</div>
+        <div class="summary-body">
+          <p>案件（商談）管理におけるオブジェクト定義、ステージ運用、命名規則、入力必須項目、クローズ理由の取り扱いをまとめます。具体的な新規作成手順は各「新規案件」ページを参照してください。</p>
         </div>
-      </div>
-
-      <section id="search-results" class="home-section" style="display:none;">
-        <h2 class="home-h2">検索結果</h2>
-        <div class="result-head">
-          <span id="result-count"></span>
-          <button id="clear-search" class="btn-clear" type="button">クリア</button>
-        </div>
-        <div class="result-grid" id="result-grid"></div>
       </section>
 
-      <section class="home-section">
-        <h2 class="home-h2">最新アップロード</h2>
-        <ul class="article-list" id="latest-list"></ul>
+      <section class="manual-steps">
+        <!-- STEP 1 -->
+        <article class="manual-step">
+          <div class="manual-left">
+            <div class="manual-num">1</div>
+            <figure class="manual-figure">
+              <img src="https://b2b.allis-co.com/wp-content/uploads/2024/06/e359b7a1d7514dfd7ed5f8122bf04226.jpg" alt="案件の構造図（例）">
+            </figure>
+          </div>
+          <div class="manual-right">
+            <h3>案件の定義と関連</h3>
+            <p class="manual-desc">
+              <strong>案件（Opportunity）</strong> は受注見込みのある取引の単位です。<br>
+              取引先（企業）＋取引先責任者（担当者）に紐づき、<strong>金額 / 受注予定日 / ステージ</strong>で進捗を管理します。
+            </p>
+            <div class="rule-box">
+              <div class="rule-label">
+                <img src="https://twemoji.maxcdn.com/v/latest/72x72/26a0.png" alt="注意" class="ico-img">
+                <span>注意事項</span>
+              </div>
+              <div class="rule-body">
+                1件の案件は<strong>1つの受注可能性</strong>を表します。複数製品や複数見積が独立して成否判定される場合は案件を分けて作成してください。
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- STEP 2 -->
+        <article class="manual-step">
+          <div class="manual-left">
+            <div class="manual-num">2</div>
+            <figure class="manual-figure">
+              <img src="https://b2b.allis-co.com/wp-content/uploads/2024/06/e359b7a1d7514dfd7ed5f8122bf04226.jpg" alt="ステージ運用">
+            </figure>
+          </div>
+          <div class="manual-right">
+            <h3>ステージ運用と確度</h3>
+            <p class="manual-desc">
+              ステージは業務定義に沿って順送りに更新します（例：<em>見込み → 訪問/ヒアリング → 提案 → 見積 → 交渉 → 受注/失注</em>）。<br>
+              各ステージに確度（%）を紐づけ、パイプラインと予実管理に反映します。
+            </p>
+            <div class="rule-box">
+              <div class="rule-label">
+                <img src="https://twemoji.maxcdn.com/v/latest/72x72/26a0.png" alt="注意" class="ico-img">
+                <span>更新ルール</span>
+              </div>
+              <div class="rule-body">
+                ステージ更新時は<strong>次アクション（期限・担当）</strong>を必ず登録。返答待ちは期限付きToDoに変換して放置を防止します。
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- STEP 3 -->
+        <article class="manual-step">
+          <div class="manual-left">
+            <div class="manual-num">3</div>
+            <figure class="manual-figure">
+              <img src="https://b2b.allis-co.com/wp-content/uploads/2024/06/e359b7a1d7514dfd7ed5f8122bf04226.jpg" alt="命名・必須項目">
+            </figure>
+          </div>
+          <div class="manual-right">
+            <h3>命名規則・必須項目</h3>
+            <p class="manual-desc">
+              案件名は <strong>YYYYMMDD_案件名_顧客名</strong> で統一。<br>
+              初回登録時の必須：<strong>取引先・担当者・金額・受注予定日・ステージ・担当営業</strong>。
+            </p>
+            <div class="rule-box">
+              <div class="rule-label">
+                <img src="https://twemoji.maxcdn.com/v/latest/72x72/26a0.png" alt="注意" class="ico-img">
+                <span>入力チェック</span>
+              </div>
+              <div class="rule-body">
+                受注予定日は四半期の最終営業日に寄せるなど、<strong>現実的な日付</strong>を設定してください。金額は税抜・月額/年額の区別を明記します。
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- STEP 4 -->
+        <article class="manual-step">
+          <div class="manual-left">
+            <div class="manual-num">4</div>
+            <figure class="manual-figure">
+              <img src="https://b2b.allis-co.com/wp-content/uploads/2024/06/e359b7a1d7514dfd7ed5f8122bf04226.jpg" alt="クローズ運用">
+            </figure>
+          </div>
+          <div class="manual-right">
+            <h3>クローズ理由と再活性化</h3>
+            <p class="manual-desc">
+              受注は「受注日・受注金額」を確定。失注は<strong>失注理由（競合/予算/時期/要件不一致 etc.）</strong>を選択し、フリーテキストで補足します。<br>
+              時期未到来など再開見込みがある場合は「保留」「フォロー案件」へ移管して管理します。
+            </p>
+            <div class="rule-box">
+              <div class="rule-label">
+                <img src="https://twemoji.maxcdn.com/v/latest/72x72/26a0.png" alt="注意" class="ico-img">
+                <span>データ品質</span>
+              </div>
+              <div class="rule-body">
+                受注/失注の切り替えは<strong>その日のうちに</strong>更新。パイプラインの鮮度がレポート精度を左右します。
+              </div>
+            </div>
+          </div>
+        </article>
       </section>
 
-      <section class="home-section">
-        <h2 class="home-h2">目次（カテゴリ別）</h2>
-        <div class="popular-grid" id="popular-grid"></div>
-      </section>
+      <footer class="site-footer">© <script>document.write(new Date().getFullYear())</script> Link innovation</footer>
     </section>
   </main>
 
-  <footer class="site-footer">© <span id="y"></span> Link innovation</footer>
+  <script>
+    // 共通ナビ初期化 + ディレクトリURL版の現在位置ハイライト + ライトボックス
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof window.initPortalNav === 'function' && !window.__nav_initialized) {
+        window.__nav_initialized = true;
+        window.initPortalNav();
+      }
+
+      // 「/pages/deals/basics/」で終わるリンクを現在表示中に
+      const here = [...document.querySelectorAll('.submenu-link')]
+        .find(a => a.getAttribute('href')?.endsWith('/pages/deals/basics/'));
+      if (here) here.classList.add('is-current');
+
+      // 画像ライトボックス
+      const lb = document.createElement('div');
+      lb.className = 'lightbox';
+      lb.innerHTML = '<img src="" alt="拡大画像">';
+      document.body.appendChild(lb);
+      const lbImg = lb.querySelector('img');
+      document.querySelectorAll('.manual-figure img').forEach(img=>{
+        img.addEventListener('click', ()=>{ lbImg.src = img.src; lb.classList.add('show'); });
+      });
+      lb.addEventListener('click', ()=>{ lb.classList.remove('show'); lbImg.src=''; });
+    });
+  </script>
 </body>
 </html>
