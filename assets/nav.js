@@ -1,82 +1,103 @@
-/* assets/nav.js */
+/* assets/nav.js －－－－－－－－－－－－－－－－－－－－－ */
 (function () {
-  // 1) どの階層からでも動くように前置パスを算出
-  // 例) /index.html → ''、/pages/customers/... → '../../'
-  function basePrefix() {
-    const p = location.pathname.replace(/\/+/g,'/'); // 正規化
-    const depth = (p.match(/\//g) || []).length - 1; // 先頭/含む
-    // ルート直下(index.htmlなど)なら '', /pages/... なら '../../' 相当
-    // わかりやすく、/pages/ より深い時は '../../' に固定
-    return p.includes('/pages/') ? '../../' : '';
-  }
-  const BASE = basePrefix();
+  // ===== ルート相対URLで統一（/pages/.../） =====
+  // もしサブディレクトリ配下にサイトを置く場合は、
+  // window.NAV_ROOT = '/your/subpath'; を index.html 等で定義してください（末尾スラッシュなし）
+  const ROOT = (typeof window.NAV_ROOT === 'string' ? window.NAV_ROOT.replace(/\/$/, '') : '');
 
-  // 2) ナビデータ（未定義ならデフォルト）
+  // クリーンURLに正規化： .html を外し、末尾スラッシュを付ける（クエリ・ハッシュは温存）
+  function toDirUrl(href) {
+    if (!href) return href;
+    // 絶対URL(http/https)はそのまま
+    if (/^[a-z]+:\/\//i.test(href)) return href;
+
+    // 先頭に ROOT が付いていなければ付与（/pages/... を想定）
+    let url = href.startsWith('/') ? href : ('/'+href).replace(/\/{2,}/g,'/');
+
+    // 末尾 .html → / に置換（例: /pages/foo.html → /pages/foo/）
+    url = url.replace(/\/index\.html$/i, '/');     // index.html 明示のとき
+    url = url.replace(/\.html$/i, '/');            // 通常の .html
+
+    // 末尾に / を必ずつける（ただし ? や # がある場合はその手前で調整）
+    if (/[?#]/.test(url)) {
+      // /path/file?x → /path/file/?x
+      url = url.replace(/([^/])(?=[?#])/, '$1/');
+      url = url.replace(/\/+(?=[?#])/, '/'); // スラッシュの重複抑止
+    } else if (!url.endsWith('/')) {
+      url += '/';
+    }
+
+    // ROOT を前置（ROOT は '' か '/subpath'）
+    if (ROOT && !url.startsWith(ROOT + '/')) {
+      url = (ROOT + url).replace(/\/{2,}/g,'/');
+    }
+    return url;
+  }
+
+  // ===== 1) ナビデータ（未定義ならデフォルトを用意） =====
   if (!Array.isArray(window.PORTAL_NAV)) {
     window.PORTAL_NAV = [
       {
         id: "customers", label: "顧客管理",
         items: [
-          { label: "基本ルール・定義",         href: BASE + "pages/customers/basics.html" },
-          { label: "名刺登録方法",             href: BASE + "pages/customers/business-card.html" },
-          { label: "リード登録方法",           href: BASE + "pages/customers/lead-create.html" },
-          { label: "取引先責任者登録方法",     href: BASE + "pages/customers/contact-create.html" },
-          { label: "取引先登録方法",           href: BASE + "pages/customers/account-create.html" },
+          { label: "基本ルール・定義",         href: toDirUrl('/pages/customers/basics') },
+          { label: "名刺登録方法",             href: toDirUrl('/pages/customers/business-card') },
+          { label: "リード登録方法",           href: toDirUrl('/pages/customers/lead-create') },
+          { label: "取引先責任者登録方法",     href: toDirUrl('/pages/customers/contact-create') },
+          { label: "取引先登録方法",           href: toDirUrl('/pages/customers/account-create') },
         ]
       },
       {
         id: "deals", label: "案件管理",
         items: [
-          { label: "基本ルール・定義",           href: BASE + "pages/deals/basics.html" },
-          { label: "新規案件（リード）",         href: BASE + "pages/deals/opportunity-new-lead.html" },
-          { label: "新規案件（取引先責任者）",   href: BASE + "pages/deals/opportunity-new-contact.html" },
-          { label: "既存案件（リード）",         href: BASE + "pages/deals/opportunity-existing-lead.html" },
-          { label: "既存案件（取引先責任者）",   href: BASE + "pages/deals/opportunity-existing-contact.html" },
+          { label: "基本ルール・定義",           href: toDirUrl('/pages/deals/basics') },
+          { label: "新規案件（リード）",         href: toDirUrl('/pages/deals/opportunity-new-lead') },
+          { label: "新規案件（取引先責任者）",   href: toDirUrl('/pages/deals/opportunity-new-contact') },
+          { label: "既存案件（リード）",         href: toDirUrl('/pages/deals/opportunity-existing-lead') },
+          { label: "既存案件（取引先責任者）",   href: toDirUrl('/pages/deals/opportunity-existing-contact') },
         ]
       },
       {
         id: "activities", label: "活動管理",
         items: [
-          { label: "基本ルール・定義",   href: BASE + "pages/activities/basics.html" },
-          { label: "ToDoの登録",         href: BASE + "pages/activities/todo.html" },
-          { label: "行動の登録",         href: BASE + "pages/activities/activity-log.html" },
-          { label: "メール",             href: BASE + "pages/activities/email.html" },
-          { label: "Gmail連携",          href: BASE + "pages/activities/gmail-integration.html" },
+          { label: "基本ルール・定義",   href: toDirUrl('/pages/activities/basics') },
+          { label: "ToDoの登録",         href: toDirUrl('/pages/activities/todo') },
+          { label: "行動の登録",         href: toDirUrl('/pages/activities/activity-log') },
+          { label: "メール",             href: toDirUrl('/pages/activities/email') },
+          { label: "Gmail連携",          href: toDirUrl('/pages/activities/gmail-integration') },
         ]
       },
       {
         id: "programs", label: "施策管理",
         items: [
-          { label: "基本ルール・定義",           href: BASE + "pages/programs/basics.html" },
-          { label: "施策一覧",                   href: BASE + "pages/programs/programs-list.html" },
-          { label: "施策作成",                   href: BASE + "pages/programs/program-create.html" },
-          { label: "施策ステータス更新",         href: BASE + "pages/programs/program-status.html" },
-          { label: "ダッシュボード・レポート一覧", href: BASE + "pages/programs/dashboards-reports.html" },
+          { label: "基本ルール・定義",           href: toDirUrl('/pages/programs/basics') },
+          { label: "施策一覧",                   href: toDirUrl('/pages/programs/programs-list') },
+          { label: "施策作成",                   href: toDirUrl('/pages/programs/program-create') },
+          { label: "施策ステータス更新",         href: toDirUrl('/pages/programs/program-status') },
+          { label: "ダッシュボード・レポート一覧", href: toDirUrl('/pages/programs/dashboards-reports') },
         ]
       },
       {
         id: "governance", label: "管理体制",
         items: [
-          { label: "管理部門・ステークホルダー", href: BASE + "pages/admin/stakeholders.html" },
-          { label: "アカウント発行",             href: BASE + "pages/admin/accounts-issue.html" },
-          { label: "項目権限の追加・変更",       href: BASE + "pages/admin/permissions.html" },
-          { label: "データガバナンス",           href: BASE + "pages/admin/governance.html" },
-          { label: "問合せ先",                   href: BASE + "pages/admin/contact.html" },
+          { label: "管理部門・ステークホルダー", href: toDirUrl('/pages/admin/stakeholders') },
+          { label: "アカウント発行",             href: toDirUrl('/pages/admin/accounts-issue') },
+          { label: "項目権限の追加・変更",       href: toDirUrl('/pages/admin/permissions') },
+          { label: "データガバナンス",           href: toDirUrl('/pages/admin/governance') },
+          { label: "問合せ先",                   href: toDirUrl('/pages/admin/contact') },
         ]
       },
     ];
   } else {
-    // 既存 PORTAL_NAV にも BASE を付与（相対リンクだった場合の保険）
+    // 既存 PORTAL_NAV があれば、各 href をクリーンURLへ正規化
     window.PORTAL_NAV.forEach(sec=>{
       (sec.items||[]).forEach(it=>{
-        if (!/^([a-z]+:)?\/\//i.test(it.href) && !it.href.startsWith('/') && !it.href.startsWith(BASE)) {
-          it.href = BASE + it.href.replace(/^(\.\/)+/, '');
-        }
+        it.href = toDirUrl(it.href);
       });
     });
   }
 
-  // 3) 初期化本体
+  // ===== 2) 初期化本体（サイドバー生成） =====
   window.initPortalNav = function initPortalNav() {
     const NAV = window.PORTAL_NAV || [];
     const container = document.getElementById('primary-menu');
@@ -126,6 +147,7 @@
 
     if (NAV[0]) openSubmenu(NAV[0].id);
 
+    // ===== ホットゾーン＆トグル（初期は開いた状態でスタート） =====
     if (!document.querySelector('.edge-hotzone')) {
       const zone = document.createElement('div');
       zone.className = 'edge-hotzone';
@@ -166,7 +188,7 @@
     }
   };
 
-  // 4) 自動初期化
+  // ===== 3) 自動初期化 =====
   function safeInit(){
     if (document.getElementById('primary-menu')) {
       window.initPortalNav();
