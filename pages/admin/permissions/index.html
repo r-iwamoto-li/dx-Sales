@@ -1,0 +1,315 @@
+<!-- File: /pages/admin/permissions/index.html -->
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>管理者ガイド｜項目権限の追加・変更</title>
+
+  <!-- ルート相対で統一（どの階層からでも壊れない） -->
+  <link rel="stylesheet" href="/assets/styles.css" />
+  <script src="/assets/nav.js" defer></script>
+
+  <style>
+    /* ＝共通：やさしい注意ボックス（既存）＝ */
+    .rule-box{ background:#fff7f7; border:2px solid #ef4444; border-radius:12px; padding:22px 14px; margin:16px 0; position:relative; }
+    .rule-box .rule-label{ position:absolute; left:14px; top:-14px; display:flex; align-items:center; gap:.4rem; background:#ef4444; color:#fff; font-weight:700; font-size:.88rem; border-radius:6px; padding:.4rem .7rem; line-height:1; box-shadow:0 2px 6px rgba(0,0,0,.12); }
+    .rule-box .ico-img{ width:18px; height:18px; object-fit:contain; display:inline-block; vertical-align:middle; margin-right:2px; filter:drop-shadow(0 1px 1px rgba(0,0,0,.15)); }
+    .rule-box .rule-body{ line-height:1.9 }
+
+    /* ＝タブUI（4つ横並び）＝ */
+    .tabs {
+      margin-top: 18px;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      background: #0b1222;
+      overflow: hidden;
+    }
+    .tab-list {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      border-bottom: 1px solid #334155;
+      background: linear-gradient(180deg,#0f172a,#0b1222);
+    }
+    .tab-btn {
+      appearance: none;
+      border: 0;
+      margin: 0;
+      padding: 12px 10px;
+      background: transparent;
+      color: #cbd5e1;
+      font-weight: 600;
+      cursor: pointer;
+      border-right: 1px solid #334155;
+      transition: background .15s ease, color .15s ease;
+    }
+    .tab-btn:last-child { border-right: 0; }
+    .tab-btn[aria-selected="true"] {
+      background: #111827;
+      color: #fff;
+    }
+    .tab-btn:focus-visible { outline: 2px solid #60a5fa; outline-offset: -2px; }
+
+    /* ＝テーブル（項目一覧）＝ */
+    .fields-pane { display: none; padding: 14px; }
+    .fields-pane[aria-hidden="false"] { display: block; }
+
+    .field-table {
+      width: 100%;
+      border-collapse: collapse;
+      background:#0f172a;
+      border:1px solid #334155;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .field-table thead th {
+      text-align: left;
+      font-weight: 700;
+      padding: 10px 12px;
+      background:#111827;
+      border-bottom:1px solid #334155;
+      white-space: nowrap;
+    }
+    .field-table tbody td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #22314e;
+      vertical-align: top;
+    }
+    .field-table tbody tr:last-child td { border-bottom: 0; }
+    .badge-req {
+      display:inline-block; padding:2px 8px; border-radius:999px; font-size:.8rem;
+      border:1px solid #334155; background:#13203a; color:#e2e8f0;
+    }
+    .badge-req[data-val="必須"]{ background:#203f2e; border-color:#3b7a57; color:#ccf2d4; }
+    .table-tools {
+      display:flex; gap:8px; align-items:center; margin:10px 0 14px;
+    }
+    .table-tools input[type="search"] {
+      flex:1; min-width: 160px;
+      border:1px solid #334155; background:#0f172a; color:#e2e8f0;
+      border-radius: 8px; padding:8px 10px;
+    }
+    .table-tools button {
+      border:1px solid #334155; background:#0b1222; color:#e2e8f0; padding:8px 10px; border-radius:8px; cursor:pointer;
+    }
+    .table-tools button:hover { background:#111827; }
+    @media (max-width: 920px){
+      .tab-list { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+    @media (max-width: 560px){
+      .tab-list { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="logo"><a href="/" style="color:#fff; text-decoration:none;">Sales Manual</a></div>
+  </header>
+
+  <main class="layout">
+    <!-- 左：共通メニュー -->
+    <nav class="sidebar" aria-label="メインメニュー">
+      <ul id="primary-menu" class="menu"></ul>
+    </nav>
+
+    <!-- 右：本文 -->
+    <section class="content manual">
+      <nav class="breadcrumb">
+        <a href="/">TOP</a> ＞ <span>管理者ガイド</span> ＞ <span>項目権限の追加・変更</span>
+      </nav>
+
+      <h1 class="page-title">項目権限の追加・変更</h1>
+
+      <!-- ① 概要（そのまま） -->
+      <section class="summary-box" aria-labelledby="summary-label">
+        <div class="summary-head" id="summary-label">概要</div>
+        <div class="summary-body">
+          <p>
+            Salesforce の<strong>プロファイル / 権限セット / フィールドレベルセキュリティ（FLS）</strong>を用いて、
+            ユーザーが参照・編集できる項目を安全に制御する手順をまとめます。<br>
+            本番変更は必ず<strong>Sandbox 検証 → 差分レビュー → デプロイ</strong>の順に実施します。
+          </p>
+        </div>
+      </section>
+
+      <!-- ② タブ：オブジェクト別 項目一覧 -->
+      <section class="tabs" aria-label="オブジェクト別項目一覧">
+        <div class="tab-list" role="tablist">
+          <button class="tab-btn" role="tab" aria-selected="true" aria-controls="pane-lead"   id="tab-lead">リード</button>
+          <button class="tab-btn" role="tab" aria-selected="false" aria-controls="pane-contact" id="tab-contact">取引先責任者</button>
+          <button class="tab-btn" role="tab" aria-selected="false" aria-controls="pane-account" id="tab-account">取引先</button>
+          <button class="tab-btn" role="tab" aria-selected="false" aria-controls="pane-oppty"   id="tab-oppty">案件</button>
+        </div>
+
+        <!-- 検索・CSVなどの共通ツールは各ペインの先頭に置く -->
+        <div class="fields-pane" id="pane-lead" role="tabpanel" aria-labelledby="tab-lead" aria-hidden="false"></div>
+        <div class="fields-pane" id="pane-contact" role="tabpanel" aria-labelledby="tab-contact" aria-hidden="true"></div>
+        <div class="fields-pane" id="pane-account" role="tabpanel" aria-labelledby="tab-account" aria-hidden="true"></div>
+        <div class="fields-pane" id="pane-oppty" role="tabpanel" aria-labelledby="tab-oppty" aria-hidden="true"></div>
+      </section>
+
+      <footer class="site-footer">© <script>document.write(new Date().getFullYear())</script> Link innovation</footer>
+    </section>
+  </main>
+
+  <script>
+    // ====== ページ初期化：共通ナビ + 現在位置ハイライト ======
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof window.initPortalNav === 'function' && !window.__nav_initialized) {
+        window.__nav_initialized = true;
+        window.initPortalNav();
+      }
+      const normalize = (p) => p.replace(/\/index\.html?$/,'/').replace(/\.html?$/,'/');
+      const current = normalize('/pages/admin/permissions/');
+      const here = [...document.querySelectorAll('.submenu-link')].find(a => normalize(a.pathname) === current);
+      if (here) here.classList.add('is-current');
+
+      initFieldTabs();   // ← タブ＆テーブル生成
+    });
+
+    // ====== ③ データ：各オブジェクトの項目一覧（必要に応じて編集してください） ======
+    const FIELDS = {
+      lead: [
+        { name:'氏名',           type:'テキスト',    required:true,  note:'姓/名。全角スペース区切り。' },
+        { name:'会社名',         type:'テキスト',    required:true,  note:'正式表記（㈱→株式会社）。' },
+        { name:'メール',         type:'メール',      required:false, note:'小文字で登録。' },
+        { name:'電話',           type:'電話',        required:false, note:'半角数字・ハイフン。' },
+        { name:'ソース',         type:'選択リスト',  required:true,  note:'流入元（展示会/広告/紹介 等）。' },
+        { name:'関心カテゴリ',   type:'選択リスト(複数)', required:false, note:'タグ用途。' },
+        { name:'ステータス',     type:'選択リスト',  required:true,  note:'新規→対応中→有効/無効。' },
+        { name:'所有者',         type:'ユーザー参照',required:false, note:'担当者。' },
+      ],
+      contact: [
+        { name:'氏名',           type:'テキスト',    required:true,  note:'全角氏名。' },
+        { name:'会社（取引先）', type:'参照',        required:true,  note:'既存取引先へ紐付け。' },
+        { name:'役職',           type:'テキスト',    required:false, note:'略さない。' },
+        { name:'部署',           type:'テキスト',    required:false, note:'正式表記。' },
+        { name:'メール',         type:'メール',      required:false, note:'原則ユニーク。' },
+        { name:'電話',           type:'電話',        required:false, note:'' },
+        { name:'配信可否',       type:'チェック',    required:false, note:'個人情報配慮。' },
+        { name:'所有者',         type:'ユーザー参照',required:false, note:'' },
+      ],
+      account: [
+        { name:'取引先名',       type:'テキスト',    required:true,  note:'正式社名。' },
+        { name:'取引先種別',     type:'選択リスト',  required:false, note:'顧客/見込み/パートナー 等。' },
+        { name:'業種',           type:'選択リスト',  required:false, note:'' },
+        { name:'本社所在地',     type:'住所',        required:false, note:'' },
+        { name:'ウェブサイト',   type:'URL',         required:false, note:'' },
+        { name:'親取引先',       type:'参照',        required:false, note:'グループ企業の親子付け。' },
+        { name:'所有者',         type:'ユーザー参照',required:false, note:'' },
+      ],
+      opportunity: [
+        { name:'案件名',         type:'テキスト',    required:true,  note:'YYYYMMDD_案件名_顧客名' },
+        { name:'取引先',         type:'参照',        required:true,  note:'' },
+        { name:'取引先責任者',   type:'参照',        required:false, note:'' },
+        { name:'金額',           type:'通貨',        required:true,  note:'税抜。月/年額の別を明記。' },
+        { name:'受注予定日',     type:'日付',        required:true,  note:'現実的な見込み日。' },
+        { name:'ステージ',       type:'選択リスト',  required:true,  note:'見込み→提案→見積→交渉→受注/失注' },
+        { name:'確度(%)',        type:'数値',        required:false, note:'ステージ連動。' },
+        { name:'担当営業',       type:'ユーザー参照',required:true,  note:'' },
+      ],
+    };
+
+    // ====== ビュー生成 ======
+    function initFieldTabs(){
+      const tabs = document.querySelectorAll('.tab-btn');
+      const panes = {
+        lead:    document.getElementById('pane-lead'),
+        contact: document.getElementById('pane-contact'),
+        account: document.getElementById('pane-account'),
+        oppty:   document.getElementById('pane-oppty'),
+      };
+
+      // 各ペインへテーブル描画
+      renderPane(panes.lead,    'lead');
+      renderPane(panes.contact, 'contact');
+      renderPane(panes.account, 'account');
+      renderPane(panes.oppty,   'opportunity');
+
+      // タブ切替（アクセシブル）
+      tabs.forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          tabs.forEach(b=>b.setAttribute('aria-selected', 'false'));
+          btn.setAttribute('aria-selected', 'true');
+          Object.values(panes).forEach(p=>p.setAttribute('aria-hidden','true'));
+          const target = document.getElementById(btn.getAttribute('aria-controls'));
+          target.setAttribute('aria-hidden','false');
+          // ペイン切替時に検索をクリア
+          const input = target.querySelector('input[type="search"]');
+          if (input){ input.value=''; filterRows(target,''); }
+        });
+      });
+    }
+
+    function renderPane(container, key){
+      container.innerHTML = '';
+      const tools = document.createElement('div');
+      tools.className = 'table-tools';
+      tools.innerHTML = `
+        <input type="search" placeholder="項目名／説明で絞り込み" aria-label="項目検索">
+        <button type="button" data-act="csv">CSVエクスポート</button>
+      `;
+      const table = document.createElement('table');
+      table.className = 'field-table';
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th style="width:28%">項目名</th>
+            <th style="width:16%">データ型</th>
+            <th style="width:10%">必須</th>
+            <th>説明</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
+      container.appendChild(tools);
+      container.appendChild(table);
+
+      const tbody = table.querySelector('tbody');
+      (FIELDS[key] || []).forEach(f=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHTML(f.name)}</td>
+          <td>${escapeHTML(f.type)}</td>
+          <td><span class="badge-req" data-val="${f.required?'必須':'任意'}">${f.required?'必須':'任意'}</span></td>
+          <td>${escapeHTML(f.note || '')}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // 検索
+      const search = tools.querySelector('input[type="search"]');
+      search.addEventListener('input', (e)=> filterRows(container, e.target.value));
+
+      // CSV出力
+      tools.querySelector('[data-act="csv"]').addEventListener('click', ()=>{
+        const rows = [['項目名','データ型','必須','説明']];
+        (FIELDS[key] || []).forEach(f=>{
+          rows.push([f.name, f.type, f.required?'必須':'任意', f.note||'']);
+        });
+        const csv = rows.map(r=> r.map(cell => `"${String(cell).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+        const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `${key}-fields.csv`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
+    }
+
+    function filterRows(container, q){
+      const tbody = container.querySelector('tbody');
+      const term = String(q||'').trim().toLowerCase();
+      [...tbody.rows].forEach(tr=>{
+        const text = tr.innerText.toLowerCase();
+        tr.style.display = term ? (text.includes(term) ? '' : 'none') : '';
+      });
+    }
+
+    function escapeHTML(s){
+      return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+  </script>
+</body>
+</html>
